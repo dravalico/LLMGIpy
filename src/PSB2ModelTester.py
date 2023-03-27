@@ -39,14 +39,11 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                 print()
                 print(model_response)
                 print()
-                print("Answer obtained\nExtracting function...")
                 function_body = self.__extract_function_body(model_response)
                 try:
-                    exec(function_body)
-                    print("Function extracted and ready")
+                    exec(function_body, globals())
                     function_name = self.__extract_function_name(function_body)
-                    function_extracted: object = any
-                    exec("function_extracted = " + function_name)
+                    exec("function_extracted = " + function_name, globals())
                     problem_name = self.__PROBLEMS_CSV.get("Problem Name")[i].lower()
                     problem_name = problem_name.replace(" ", "-")
                     print("Starting tests...")
@@ -61,7 +58,7 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                         mean_test_results[2] + results["test_with_exception"]
                     )
                 except:
-                    print("Error during definition or testing of the function")
+                    print("Error during definition")
             print()
             print(
                 "Avg passed: " + str(int(mean_test_results[0] / self.__test_iteration))
@@ -98,7 +95,7 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
         self, function_to_test: Callable, problem_name: str
     ) -> dict[str, int]:
         (train_data, test_data) = psb2.fetch_examples(
-            "", problem_name, 0, self.test_data_dimension
+            "", problem_name, 0, self.__test_data_dimension
         )
         test_passed: int = 0
         test_not_passed: int = 0
@@ -109,12 +106,12 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                 v for k, v in test_data[i].items() if "output" in k
             ]
             try:
-                result = [function_to_test(*args)]
+                result: any = [function_to_test(*args)]
                 if str(result) == str(expected_output):
                     test_passed = test_passed + 1
                 else:
                     test_not_passed = test_not_passed + 1
-            except Exception as e:
+            except:
                 test_with_exception = test_with_exception + 1
         return {
             "test_passed": test_passed,
