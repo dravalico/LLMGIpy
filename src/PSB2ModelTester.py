@@ -7,7 +7,7 @@ import AbstractModelTester
 
 class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
     __PROBLEMS_CSV = pandas.DataFrame = pandas.read_csv(
-        "/mnt/data/dravalico/ImprovementLLM/resources/pbs2_problems_description.csv",
+        "/mnt/data/dravalico/LLMGIy/resources/pbs2_problems_description.csv",
         sep=";",
     )
     __test_iteration: int = 0
