@@ -5,6 +5,7 @@ import AbstractLanguageModel
 
 
 class AlpacaModel(AbstractLanguageModel.AbstractLanguageModel):
+    __MODEL_NAME: str = "Alpaca"
     __ALPACA_QUESTION_FIRST_PART: str = """Below is an instruction that describes a task. Write a response that appropriately completes 
                                         the request.\n\n### Instruction:\nWrite a single Python function to solve the following problem
                                         inserting the necessary modules: """
@@ -14,18 +15,6 @@ class AlpacaModel(AbstractLanguageModel.AbstractLanguageModel):
 
     def __init__(self):
         super().__init__()
-
-    def _load_model(self) -> None:
-        super()._load_model()
-        self.__tokenizer = LLaMATokenizer.from_pretrained(
-            "decapoda-research/llama-7b-hf"
-        )
-        model = LLaMAForCausalLM.from_pretrained(
-            "decapoda-research/llama-7b-hf",
-            load_in_8bit=True,
-            device_map="auto",
-        )
-        self.__model = PeftModel.from_pretrained(model, "samwit/alpaca7B-lora")
 
     def ask(self, question: str) -> str:
         super().ask(question)
@@ -55,6 +44,22 @@ class AlpacaModel(AbstractLanguageModel.AbstractLanguageModel):
         for s in generation_output.sequences:
             result = result + self.__tokenizer.decode(s)
         return self.__extract_response(result)
+
+    def get_model_name(self) -> str:
+        super().get_model_name
+        return self.__MODEL_NAME
+
+    def _load_model(self) -> None:
+        super()._load_model()
+        self.__tokenizer = LLaMATokenizer.from_pretrained(
+            "decapoda-research/llama-7b-hf"
+        )
+        model = LLaMAForCausalLM.from_pretrained(
+            "decapoda-research/llama-7b-hf",
+            load_in_8bit=True,
+            device_map="auto",
+        )
+        self.__model = PeftModel.from_pretrained(model, "samwit/alpaca7B-lora")
 
     def __extract_response(self, alpaca_response: str) -> str:
         return alpaca_response[

@@ -7,10 +7,14 @@ class AbstractLanguageModel(ABC):
         self._load_model()
 
     @abstractmethod
-    def _load_model(self) -> any:
-        print("Loading model...")
+    def ask(self, question: str) -> any:
         pass
 
     @abstractmethod
-    def ask(self, question: str) -> any:
+    def get_model_name(self) -> str:
+        pass
+
+    @abstractmethod
+    def _load_model(self) -> any:
+        print("Loading model...")
         pass

@@ -29,10 +29,15 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
         super().run()
         for i in range(0, len(self.__PROBLEMS_CSV)):
             mean_test_results = [0, 0, 0]
-            print("===============================")
-            print("Problem n." + str(i + 1))
+            print("==============={0}===============".format("Problem " + str(i + 1)))
             for j in range(0, self.__test_iteration):
-                print("\nIteration n." + str(j + 1) + "\nAsking model...")
+                print(
+                    "\nIteration n."
+                    + str(j + 1)
+                    + "\nAsking model '"
+                    + self.__model_to_test.get_model_name()
+                    + "'..."
+                )
                 model_response = self.__model_to_test.ask(
                     str(self.__PROBLEMS_CSV.get("Description")[i])
                 )
@@ -79,8 +84,7 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                 )
                 + "%"
             )
-        print("===============================")
-        print()
+        print("=======================================")
 
     def __test_function(
         self, function_to_test: Callable, problem_name: str
