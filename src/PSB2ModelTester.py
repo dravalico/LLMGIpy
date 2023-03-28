@@ -32,7 +32,7 @@ class PSB2ModelTester(AbstractModelTester):
             print(f"===============Problem {(i + 1):02d}===============")
             for j in range(0, self.__test_iteration):
                 print(
-                    f"Iteration {(j + 1):02d}\nAsking model '{self.__model_to_test.model_name}'..."
+                    f"Iteration {(j + 1):02d}\nAsking model '{self.__model_to_test.name}'..."
                 )
                 model_response: any = self.__model_to_test.ask(
                     str(self.__PROBLEMS_CSV.get("Description")[i])
