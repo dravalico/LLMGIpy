@@ -1,24 +1,25 @@
 from typing import Callable
 import pandas
+from pandas import DataFrame
 import psb2
-import AbstractLanguageModel
-import AbstractModelTester
+from AbstractLanguageModel import AbstractLanguageModel
+from AbstractModelTester import AbstractModelTester
 
 
-class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
-    __PROBLEMS_CSV: pandas.DataFrame = pandas.read_csv(
+class PSB2ModelTester(AbstractModelTester):
+    __PROBLEMS_CSV: DataFrame = pandas.read_csv(
         "/mnt/data/dravalico/LLMGIpy/resources/pbs2_problems_description.csv",
         sep=";",
     )
     __test_iteration: int = 0
     __test_data_dimension: int = 0
-    __model_to_test: AbstractLanguageModel.AbstractLanguageModel = None
+    __model_to_test: AbstractLanguageModel = None
 
     def __init__(
         self,
         test_iteration: int,
         test_data_dimension: int,
-        model: AbstractLanguageModel.AbstractLanguageModel,
+        model: AbstractLanguageModel,
     ):
         super().__init__()
         self.__test_iteration = test_iteration
@@ -29,7 +30,7 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
         super().run()
         for i in range(0, len(self.__PROBLEMS_CSV)):
             mean_test_results: list[int, int, int] = [0, 0, 0]
-            print("==============={0}===============".format("Problem " + str(i + 1)))
+            print(f"===============Problem {(i + 1):02d}===============")
             for j in range(0, self.__test_iteration):
                 print(
                     "Iteration {0}\nAsking model '{1}'...".format(
@@ -62,8 +63,8 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                     mean_test_results[2] = (
                         mean_test_results[2] + results["test_with_exception"]
                     )
-                except:
-                    print("Error during definition")
+                except Exception as e:
+                    print("Error during definition: " + e)
             print()
             print(
                 "Avg test passed: "
@@ -85,7 +86,7 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                 )
                 + "%"
             )
-            print("=======================================")
+            print("========================================")
             print()
 
     def __test_function(

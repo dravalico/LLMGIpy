@@ -1,10 +1,10 @@
 from typing import Callable
 from peft import PeftModel
 from transformers import LLaMATokenizer, LLaMAForCausalLM, GenerationConfig
-import AbstractLanguageModel
+from AbstractLanguageModel import AbstractLanguageModel
 
 
-class AlpacaModel(AbstractLanguageModel.AbstractLanguageModel):
+class AlpacaModel(AbstractLanguageModel):
     __MODEL_NAME: str = "Alpaca"
     __ALPACA_QUESTION_FIRST_PART: str = """Below is an instruction that describes a task. Write a response that appropriately completes 
                                         the request.\n\n### Instruction:\nWrite a single Python function to solve the following problem

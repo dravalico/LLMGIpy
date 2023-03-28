@@ -1,14 +1,12 @@
-import AbstractLanguageModel
-import AlpacaModel
-import AbstractModelTester
-import PSB2ModelTester
+from AbstractLanguageModel import AbstractLanguageModel
+from AlpacaModel import AlpacaModel
+from AbstractModelTester import AbstractModelTester
+from PSB2ModelTester import PSB2ModelTester
 
 
 def main():
-    alpaca_model: AbstractLanguageModel.AbstractLanguageModel = AlpacaModel.AlpacaModel()
-    model_tester: AbstractModelTester.AbstractModelTester = PSB2ModelTester.PSB2ModelTester(
-        1, 2000, alpaca_model
-    )
+    alpaca_model: AbstractLanguageModel = AlpacaModel()
+    model_tester: AbstractModelTester = PSB2ModelTester(1, 2000, alpaca_model)
     model_tester.run()
 
 
