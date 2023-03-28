@@ -6,8 +6,8 @@ import AbstractModelTester
 
 
 class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
-    __PROBLEMS_CSV = pandas.DataFrame = pandas.read_csv(
-        "/mnt/data/dravalico/LLMGIy/resources/pbs2_problems_description.csv",
+    __PROBLEMS_CSV: pandas.DataFrame = pandas.read_csv(
+        "/mnt/data/dravalico/LLMGIpy/resources/pbs2_problems_description.csv",
         sep=";",
     )
     __test_iteration: int = 0
@@ -28,28 +28,28 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
     def run(self) -> None:
         super().run()
         for i in range(0, len(self.__PROBLEMS_CSV)):
-            mean_test_results = [0, 0, 0]
+            mean_test_results: list[int, int, int] = [0, 0, 0]
             print("==============={0}===============".format("Problem " + str(i + 1)))
             for j in range(0, self.__test_iteration):
                 print(
-                    "\nIteration n."
-                    + str(j + 1)
-                    + "\nAsking model '"
-                    + self.__model_to_test.get_model_name()
-                    + "'..."
+                    "Iteration {0}\nAsking model '{1}'...".format(
+                        str(j + 1), self.__model_to_test.get_model_name()
+                    )
                 )
-                model_response = self.__model_to_test.ask(
+                model_response: any = self.__model_to_test.ask(
                     str(self.__PROBLEMS_CSV.get("Description")[i])
                 )
                 print()
                 print(model_response)
                 print()
-                function_body = super()._extract_function_body(model_response)
+                function_body: str = super()._extract_function_body(model_response)
                 try:
                     exec(function_body, globals())
-                    function_name = super()._extract_function_name(function_body)
+                    function_name: str = super()._extract_function_name(function_body)
                     exec("function_extracted = " + function_name, globals())
-                    problem_name = self.__PROBLEMS_CSV.get("Problem Name")[i].lower()
+                    problem_name: str = self.__PROBLEMS_CSV.get("Problem Name")[
+                        i
+                    ].lower()
                     problem_name = problem_name.replace(" ", "-")
                     print("Starting tests...")
                     results: dict[str, int] = self.__test_function(
@@ -66,14 +66,15 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                     print("Error during definition")
             print()
             print(
-                "Avg passed: " + str(int(mean_test_results[0] / self.__test_iteration))
+                "Avg test passed: "
+                + str(int(mean_test_results[0] / self.__test_iteration))
             )
             print(
-                "Avg not passed: "
+                "Avg test not passed: "
                 + str(int(mean_test_results[1] / self.__test_iteration))
             )
             print(
-                "Avg exception: "
+                "Avg test with exception: "
                 + str(int(mean_test_results[2] / self.__test_iteration))
             )
             print(
@@ -84,7 +85,8 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                 )
                 + "%"
             )
-        print("=======================================")
+            print("=======================================")
+            print()
 
     def __test_function(
         self, function_to_test: Callable, problem_name: str

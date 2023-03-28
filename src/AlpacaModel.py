@@ -18,7 +18,7 @@ class AlpacaModel(AbstractLanguageModel.AbstractLanguageModel):
 
     def ask(self, question: str) -> str:
         super().ask(question)
-        question = (
+        question: str = (
             self.__ALPACA_QUESTION_FIRST_PART
             + question
             + self.__ALPACA_QUESTION_SECOND_PART
