@@ -39,10 +39,10 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
                 print()
                 print(model_response)
                 print()
-                function_body = self.__extract_function_body(model_response)
+                function_body = super()._extract_function_body(model_response)
                 try:
                     exec(function_body, globals())
-                    function_name = self.__extract_function_name(function_body)
+                    function_name = super()._extract_function_name(function_body)
                     exec("function_extracted = " + function_name, globals())
                     problem_name = self.__PROBLEMS_CSV.get("Problem Name")[i].lower()
                     problem_name = problem_name.replace(" ", "-")
@@ -81,15 +81,6 @@ class PSB2ModelTester(AbstractModelTester.AbstractModelTester):
             )
         print("===============================")
         print()
-
-    def __extract_function_body(self, model_response: str) -> str:
-        return model_response[model_response.index("def") : len(model_response) :]
-
-    def __extract_function_name(self, function_body: str) -> str:
-        # function_name = regex.findall("\s*(def)\s(.*?)\([a-zA-z]*\)", extracted_function)
-        return function_body[
-            function_body.index("def ") + len("def ") : function_body.index("(")
-        ]
 
     def __test_function(
         self, function_to_test: Callable, problem_name: str
