@@ -48,6 +48,7 @@ class AlpacaModel(AbstractLanguageModel):
         self.__tokenizer = LLaMATokenizer.from_pretrained(
             "decapoda-research/llama-7b-hf"
         )
+        super()._load_model()
         model = LLaMAForCausalLM.from_pretrained(
             "decapoda-research/llama-7b-hf",
             load_in_8bit=True,
