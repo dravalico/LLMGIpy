@@ -5,7 +5,6 @@ from AbstractLanguageModel import AbstractLanguageModel
 
 
 class AlpacaModel(AbstractLanguageModel):
-    __MODEL_NAME: str = "Alpaca"
     __ALPACA_QUESTION_FIRST_PART: str = """Below is an instruction that describes a task. Write a response that appropriately completes 
                                         the request.\n\n### Instruction:\n"""
     __INTRODUCTION_TO_QUESTION: str = "Write a single Python function to solve the following problem inserting the necessary modules: "
@@ -14,10 +13,9 @@ class AlpacaModel(AbstractLanguageModel):
     __model = None
 
     def __init__(self):
-        super().__init__()
+        super().__init__("Alpaca")
 
     def ask(self, question: str) -> str:
-        super().ask(question)
         question: str = (
             self.__ALPACA_QUESTION_FIRST_PART
             + self.__INTRODUCTION_TO_QUESTION
@@ -46,12 +44,7 @@ class AlpacaModel(AbstractLanguageModel):
             result = result + self.__tokenizer.decode(s)
         return self.__extract_response(result)
 
-    def get_model_name(self) -> str:
-        super().get_model_name
-        return self.__MODEL_NAME
-
     def _load_model(self) -> None:
-        super()._load_model()
         self.__tokenizer = LLaMATokenizer.from_pretrained(
             "decapoda-research/llama-7b-hf"
         )

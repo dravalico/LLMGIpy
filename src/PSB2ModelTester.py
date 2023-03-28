@@ -17,9 +17,9 @@ class PSB2ModelTester(AbstractModelTester):
 
     def __init__(
         self,
-        test_iteration: int,
-        test_data_dimension: int,
         model: AbstractLanguageModel,
+        test_iteration: int=1,
+        test_data_dimension: int=2000,
     ):
         super().__init__()
         self.__test_iteration = test_iteration
@@ -27,22 +27,17 @@ class PSB2ModelTester(AbstractModelTester):
         self.__model_to_test = model
 
     def run(self) -> None:
-        super().run()
         for i in range(0, len(self.__PROBLEMS_CSV)):
             mean_test_results: list[int, int, int] = [0, 0, 0]
             print(f"===============Problem {(i + 1):02d}===============")
             for j in range(0, self.__test_iteration):
                 print(
-                    "Iteration {0}\nAsking model '{1}'...".format(
-                        str(j + 1), self.__model_to_test.get_model_name()
-                    )
+                    f"Iteration {(j + 1):02d}\nAsking model '{self.__model_to_test.model_name}'..."
                 )
                 model_response: any = self.__model_to_test.ask(
                     str(self.__PROBLEMS_CSV.get("Description")[i])
                 )
-                print()
-                print(model_response)
-                print()
+                print("\n{0}\n".format(model_response))
                 function_body: str = super()._extract_function_body(model_response)
                 try:
                     exec(function_body, globals())
