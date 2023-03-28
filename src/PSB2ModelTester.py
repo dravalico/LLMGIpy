@@ -64,7 +64,7 @@ class PSB2ModelTester(AbstractModelTester):
                         mean_test_results[2] + results["test_with_exception"]
                     )
                 except Exception as e:
-                    print("Error during definition: " + e)
+                    print("Error during definition: " + str(e))
             print()
             print(
                 "Avg test passed: "
