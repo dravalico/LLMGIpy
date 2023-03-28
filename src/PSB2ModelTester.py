@@ -86,8 +86,7 @@ class PSB2ModelTester(AbstractModelTester):
                 )
                 + "%"
             )
-            print("========================================")
-            print()
+            print("========================================\n")
 
     def __test_function(
         self, function_to_test: Callable, problem_name: str
