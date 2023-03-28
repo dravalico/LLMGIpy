@@ -98,6 +98,7 @@ class PSB2ModelTester(AbstractModelTester):
         test_passed: int = 0
         test_not_passed: int = 0
         test_with_exception: int = 0
+        exceptions: set = set()
         for i in range(0, len(test_data)):
             args: list[str] = [v for k, v in test_data[i].items() if "input" in k]
             expected_output: list[str] = [
@@ -109,8 +110,11 @@ class PSB2ModelTester(AbstractModelTester):
                     test_passed = test_passed + 1
                 else:
                     test_not_passed = test_not_passed + 1
-            except:
+            except Exception as e:
                 test_with_exception = test_with_exception + 1
+                exceptions.add(str(e))
+        for e in exceptions:
+            print(e)
         return {
             "test_passed": test_passed,
             "test_not_passed": test_not_passed,
