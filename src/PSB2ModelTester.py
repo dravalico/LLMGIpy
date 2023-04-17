@@ -18,8 +18,8 @@ class PSB2ModelTester(AbstractModelTester):
     def __init__(
         self,
         model: AbstractLanguageModel,
-        test_iteration: int=1,
-        test_data_dimension: int=2000,
+        test_iteration: int = 1,
+        test_data_dimension: int = 2000,
     ):
         super().__init__()
         self.__test_iteration = test_iteration
@@ -100,15 +100,15 @@ class PSB2ModelTester(AbstractModelTester):
             ]
             try:
                 result: any = [function_to_test(*args)]
-                if str(result) == str(expected_output):
+                if result == expected_output:
                     test_passed = test_passed + 1
                 else:
                     test_not_passed = test_not_passed + 1
             except Exception as e:
                 test_with_exception = test_with_exception + 1
                 exceptions.add(str(e))
-        for e in exceptions:
-            print(e)
+        # for e in exceptions:
+        # print(e)
         return {
             "test_passed": test_passed,
             "test_not_passed": test_not_passed,
