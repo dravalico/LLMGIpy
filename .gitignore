@@ -1,4 +1,5 @@
 /src/AlpacaTest.py
 .DS_Store
-src/__pycache__
-/datasets
+/src/datasets
+/results
+__pycache__

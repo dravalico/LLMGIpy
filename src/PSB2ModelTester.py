@@ -4,13 +4,12 @@ from pandas import DataFrame
 import psb2
 from AbstractLanguageModel import AbstractLanguageModel
 from AbstractModelTester import AbstractModelTester
+from scripts.JSON_data_saver import create_json_file
 
 
 class PSB2ModelTester(AbstractModelTester):
     __PROBLEMS_CSV: DataFrame = pandas.read_csv(
-        "/mnt/data/dravalico/LLMGIpy/resources/pbs2_problems_description.csv",
-        sep=";",
-    )
+        "../resources/pbs2_problems_description.csv", sep=";")
     __test_iteration: int = 0
     __test_data_dimension: int = 0
     __model_to_test: AbstractLanguageModel = None
@@ -32,11 +31,9 @@ class PSB2ModelTester(AbstractModelTester):
             print(f"===============Problem {(i + 1):02d}===============")
             for j in range(0, self.__test_iteration):
                 print(
-                    f"Iteration {(j + 1):02d}\nAsking model '{self.__model_to_test.name}'..."
-                )
+                    f"Iteration {(j + 1):02d}\nAsking model '{self.__model_to_test.name}'...")
                 model_response: any = self.__model_to_test.ask(
-                    str(self.__PROBLEMS_CSV.get("Description")[i])
-                )
+                    str(self.__PROBLEMS_CSV.get("Description")[i]))
                 print("\n{0}\n".format(model_response))
                 function_body: str = super()._extract_function_body(model_response)
                 try:
@@ -49,9 +46,16 @@ class PSB2ModelTester(AbstractModelTester):
                     problem_name = problem_name.replace(" ", "-")
                     print("Starting tests...")
                     results: dict[str, int] = self.__test_function(
-                        function_extracted, problem_name
+                        function_extracted, problem_name)
+                    create_json_file(
+                        self.__model_to_test.name,
+                        i,
+                        j,
+                        model_response,
+                        results
                     )
-                    mean_test_results[0] = mean_test_results[0] + results["test_passed"]
+                    mean_test_results[0] = mean_test_results[0] + \
+                        results["test_passed"]
                     mean_test_results[1] = (
                         mean_test_results[1] + results["test_not_passed"]
                     )
@@ -83,21 +87,18 @@ class PSB2ModelTester(AbstractModelTester):
             )
             print("========================================\n")
 
-    def __test_function(
-        self, function_to_test: Callable, problem_name: str
-    ) -> dict[str, int]:
+    def __test_function(self, function_to_test: Callable, problem_name: str) -> dict[str, int]:
         (train_data, test_data) = psb2.fetch_examples(
-            "", problem_name, 0, self.__test_data_dimension
-        )
+            "", problem_name, 0, self.__test_data_dimension)
         test_passed: int = 0
         test_not_passed: int = 0
         test_with_exception: int = 0
         exceptions: set = set()
         for i in range(0, len(test_data)):
-            args: list[str] = [v for k, v in test_data[i].items() if "input" in k]
+            args: list[str] = [v for k, v in test_data[i].items()
+                               if "input" in k]
             expected_output: list[str] = [
-                v for k, v in test_data[i].items() if "output" in k
-            ]
+                v for k, v in test_data[i].items() if "output" in k]
             try:
                 result: any = [function_to_test(*args)]
                 if result == expected_output:
@@ -107,8 +108,6 @@ class PSB2ModelTester(AbstractModelTester):
             except Exception as e:
                 test_with_exception = test_with_exception + 1
                 exceptions.add(str(e))
-        # for e in exceptions:
-        # print(e)
         return {
             "test_passed": test_passed,
             "test_not_passed": test_not_passed,
