@@ -49,8 +49,8 @@ class PSB2ModelTester(AbstractModelTester):
                         function_extracted, problem_name)
                     create_json_file(
                         self.__model_to_test.name,
-                        i,
-                        j,
+                        i + 1,
+                        j + 1,
                         model_response,
                         results
                     )
