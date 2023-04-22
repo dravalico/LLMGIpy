@@ -14,6 +14,7 @@ def create_json_file(model_name: str, problems_number: int, iteration: int, mode
     if not os.path.isdir(results_folder_path):
         os.mkdir(results_folder_path)
 
+    model_response = model_response.replace("    ", "\t")
     to_save: dict[str, any] = {
         "model_name": model_name,
         "problems_number": problems_number,
