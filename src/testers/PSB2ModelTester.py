@@ -8,7 +8,7 @@ from scripts.JSON_data_saver import create_json_file
 
 
 class PSB2ModelTester(AbstractModelTester):
-    __PROBLEMS_CSV: DataFrame = pandas.read_csv("../../resources/pbs2_problems_description.csv", sep=";")
+    __PROBLEMS_CSV: DataFrame = pandas.read_csv("../resources/pbs2_problems_description.csv", sep=";")
     __test_iteration: int = 0
     __test_data_dimension: int = 0
     __model_to_test: AbstractLanguageModel = None
