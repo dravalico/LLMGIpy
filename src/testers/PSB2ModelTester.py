@@ -51,12 +51,13 @@ class PSB2ModelTester(AbstractModelTester):
                     mean_test_results[0] = mean_test_results[0] + results["test_passed"]
                     mean_test_results[1] = mean_test_results[1] + results["test_not_passed"]
                     mean_test_results[2] = mean_test_results[2] + results["test_with_exception"]
+                    print("Results saved\n")
                 except Exception as e:
                     print("Error during definition: " + str(e))
+            print(str((mean_test_results[0] / self.__test_iteration) / self.__test_data_dimension * 100) + "%" + " has passed")
             print("Avg test passed: " + str(int(mean_test_results[0] / self.__test_iteration)))
             print("Avg test not passed: " + str(int(mean_test_results[1] / self.__test_iteration)))
             print("Avg test with exception: " + str(int(mean_test_results[2] / self.__test_iteration)))
-            print(str((mean_test_results[0] / self.__test_iteration) / self.__test_data_dimension * 100) + "%")
             print("========================================\n")
 
     def __test_function(self, function_to_test: Callable, problem_name: str) -> dict[str, int]:
