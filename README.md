@@ -6,6 +6,14 @@ Large Language Model Genetic Improvement Python (LLMGIpy) is a software that all
 
 ## Install dependencies
 
+Currently LLMGIpy only supports Alpaca with the psb2 dataset; the ```main.py``` file currently uses the above model and runs tests only on the psb2 dataset.
+
+It is recommended to use a conda environment in which python version 3.9 is installed
+```
+pip install python=3.9
+```
+
+To run LLMGIpy using the "Alpaca" large language model, you need to install the following packages
 ```
 pip install datasets
 pip install loralib
@@ -13,5 +21,17 @@ pip install sentencepiece
 pip install git+https://github.com/zphang/transformers@c3dc391
 pip install git+https://github.com/huggingface/peft.git
 pip install bitsandbytes
+```
+
+Also, to have the psb2 dataset available, run the following command
+```
 pip install psb2
+```
+
+## Example
+
+After cloning the repository, run
+```
+cd src
+python main.py
 ```
