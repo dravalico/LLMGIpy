@@ -6,7 +6,8 @@ BASE_PATH: str = "../results/"
 FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
 
 
-def create_json_file(model_name: str, problems_number: int, iteration: int, model_response: str, tests_results: dict[any, any]) -> None:
+def create_json_file(model_name: str, problems_number: int, iteration: int, model_response: str,
+                     tests_results: dict[any, any]) -> None:
     if not os.path.isdir(BASE_PATH):
         os.mkdir(BASE_PATH)
 
@@ -24,14 +25,12 @@ def create_json_file(model_name: str, problems_number: int, iteration: int, mode
     }
     json_results = json.dumps(to_save, indent=4)
 
-    filename: str = str(model_name + "_problem" +
-                        str(problems_number) + ".json")
+    filename: str = str(model_name + "_problem" + str(problems_number) + ".json")
     output_file_path: str = os.path.join(results_folder_path, filename)
-    modify_type: str = None
     if os.path.exists(output_file_path):
-        modify_type = "a"
+        modify_type: str = "a"
     else:
-        modify_type = "w"
-    output_file: object = open(output_file_path, modify_type)
+        modify_type: str = "w"
+    output_file = open(output_file_path, modify_type)
     output_file.write(json_results + "\n")
     output_file.close()

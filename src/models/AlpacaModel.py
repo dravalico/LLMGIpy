@@ -1,13 +1,13 @@
-from typing import Callable
 from peft import PeftModel
 from transformers import LLaMATokenizer, LLaMAForCausalLM, GenerationConfig
-from AbstractLanguageModel import AbstractLanguageModel
+from models.AbstractLanguageModel import AbstractLanguageModel
 
 
 class AlpacaModel(AbstractLanguageModel):
-    __ALPACA_QUESTION_FIRST_PART: str = """Below is an instruction that describes a task. Write a response that appropriately completes 
-                                        the request.\n\n### Instruction:\n"""
-    __INTRODUCTION_TO_QUESTION: str = "Write a single Python function to solve the following problem inserting the necessary modules: "
+    __ALPACA_QUESTION_FIRST_PART: str = """Below is an instruction that describes a task. Write a response that 
+                                        appropriately completes the request.\n\n### Instruction:\n"""
+    __INTRODUCTION_TO_QUESTION: str = "Write a single Python function to solve the following problem inserting the " \
+                                      "necessary modules:"
     __ALPACA_QUESTION_SECOND_PART: str = "\n\n### Response:\n"
     __tokenizer = None
     __model = None
@@ -17,10 +17,10 @@ class AlpacaModel(AbstractLanguageModel):
 
     def ask(self, question: str) -> str:
         question: str = (
-            self.__ALPACA_QUESTION_FIRST_PART
-            + self.__INTRODUCTION_TO_QUESTION
-            + question
-            + self.__ALPACA_QUESTION_SECOND_PART
+                self.__ALPACA_QUESTION_FIRST_PART
+                + self.__INTRODUCTION_TO_QUESTION
+                + question
+                + self.__ALPACA_QUESTION_SECOND_PART
         )
         inputs = self.__tokenizer(
             question,
@@ -56,8 +56,6 @@ class AlpacaModel(AbstractLanguageModel):
         )
         self.__model = PeftModel.from_pretrained(model, "samwit/alpaca7B-lora")
 
-    def __extract_response(self, alpaca_response: str) -> str:
-        return alpaca_response[
-            alpaca_response.index("### Response")
-            + len("### Response:\n") : len(alpaca_response) :
-        ]
+    @staticmethod
+    def __extract_response(alpaca_response: str) -> str:
+        return alpaca_response[alpaca_response.index("### Response") + len("### Response:\n"): len(alpaca_response):]

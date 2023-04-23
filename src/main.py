@@ -1,7 +1,7 @@
-from AbstractLanguageModel import AbstractLanguageModel
-from AlpacaModel import AlpacaModel
-from AbstractModelTester import AbstractModelTester
-from PSB2ModelTester import PSB2ModelTester
+from src.models.AbstractLanguageModel import AbstractLanguageModel
+from src.models.AlpacaModel import AlpacaModel
+from src.testers.AbstractModelTester import AbstractModelTester
+from src.testers.PSB2ModelTester import PSB2ModelTester
 
 
 def main():
