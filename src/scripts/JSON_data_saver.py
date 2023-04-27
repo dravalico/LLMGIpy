@@ -7,6 +7,7 @@ FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
 
 
 def create_json_file(model_name: str,
+                     problem_name: str,
                      problems_number: int,
                      iteration: int,
                      model_response: str,
@@ -22,10 +23,11 @@ def create_json_file(model_name: str,
     model_response = model_response.replace("    ", "\t")
     to_save: dict[str, any] = {
         "model_name": model_name,
+        "problem_name": problem_name,
         "problems_number": problems_number,
         "iteration": iteration,
         "model_response": model_response,
-        "results": tests_results if error != "" else error
+        "results": tests_results if error == "" else {"error:": error}
     }
     json_results = json.dumps(to_save, indent=4)
 
