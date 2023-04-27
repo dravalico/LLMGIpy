@@ -27,11 +27,10 @@ class PSB2ModelTester(AbstractModelTester):
 
     def run(self) -> None:
         for n_prob in range(0, len(self.__PROBLEMS)):
-            avg_test_output: list[int, int, int] = [0, 0, 0]
             print(f"{'=' * 35}Problem {(n_prob + 1):02d}{'=' * 35}")
             for iteration in range(0, self.__test_iteration):
                 print(
-                    f"Iteration {(iteration + 1):02d}\nAsking model '{self.__model_to_test.name}'...")
+                    f"\nIteration {(iteration + 1):02d}\nAsking model '{self.__model_to_test.name}'...")
                 model_response: any = self.__model_to_test.ask(
                     str(self.__PROBLEMS.get("Description")[n_prob]))
                 print("\n{0}\n".format(model_response))
@@ -48,7 +47,7 @@ class PSB2ModelTester(AbstractModelTester):
                     error_str = str(e)
                 else:
                     exec("function_extracted = " + function_name, globals())
-                    print("Starting tests...")
+                    print("Testing...")
                     try:
                         test_results = self.__test_function(
                             function_extracted, problem_name)
@@ -56,21 +55,13 @@ class PSB2ModelTester(AbstractModelTester):
                         print("Error during tests:", e)
                         error_str = str(e)
                     else:
-                        avg_test_output[0] = avg_test_output[0] + \
-                            test_results["test_passed"]
-                        avg_test_output[1] = avg_test_output[1] + \
-                            test_results["test_not_passed"]
-                        avg_test_output[2] = avg_test_output[2] + \
-                            test_results["test_with_exception"]
                         print("{:.2f}% passed".format(
-                            (avg_test_output[0] / self.__test_iteration) / self.__test_data_dimension * 100))
-                        print(
-                            f"{'Avg test passed:'}{int(avg_test_output[0] / self.__test_iteration)}")
-                        print(
-                            f"{'Avg test not passed:'}{int(avg_test_output[1] / self.__test_iteration)}")
-                        print(
-                            f"{'Avg test with exception(s):'}{int(avg_test_output[2] / self.__test_iteration)}")
-                        print(f"{'=' * 80}\n")
+                            test_results["test_passed"] / self.__test_data_dimension * 100))
+                        print("Test(s) passed:", test_results["test_passed"])
+                        print("Test(s) not passed:",
+                              test_results["test_not_passed"])
+                        print("Test(s) with exception(s): " +
+                              str(test_results["test_with_exception"]) + '\n')
                 create_json_file(
                     self.__model_to_test.name,
                     problem_name,
@@ -80,7 +71,7 @@ class PSB2ModelTester(AbstractModelTester):
                     test_results,
                     error_str
                 )
-                print("Results saved\n")
+        print(f"{'=' * 80}\n")
 
     def __test_function(self, function_to_test: Callable, problem_name: str) -> dict[str, int]:
         try:
