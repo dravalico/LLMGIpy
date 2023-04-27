@@ -28,48 +28,50 @@ class PSB2ModelTester(AbstractModelTester):
     def run(self) -> None:
         for n_prob in range(0, len(self.__PROBLEMS)):
             print(f"{'=' * 35}Problem {(n_prob + 1):02d}{'=' * 35}")
+            data: list[dict[str, any]] = list()
             for iteration in range(0, self.__test_iteration):
                 print(
                     f"\nIteration {(iteration + 1):02d}\nAsking model '{self.__model_to_test.name}'...")
                 model_response: any = self.__model_to_test.ask(
                     str(self.__PROBLEMS.get("Description")[n_prob]))
+                output: dict[str, any] = {
+                    "iteration": (iteration + 1),
+                    "model_response": model_response.replace("    ", "\t")
+                }
                 print("\n{0}\n".format(model_response))
                 function_body: str = super()._extract_function_body(model_response)
                 function_name: str = super()._extract_function_name(function_body)
                 problem_name: str = self.__PROBLEMS.get("Problem Name")[n_prob]
                 problem_name = problem_name.replace(" ", "-").lower()
-                error_str: str = ""
-                test_results: dict[str, int] = None
+                tests_results: dict[str, int] = None
                 try:
                     exec(function_body, globals())
                 except Exception as e:
                     print("Error during definition:", e)
-                    error_str = str(e)
                 else:
                     exec("function_extracted = " + function_name, globals())
                     print("Testing...")
                     try:
-                        test_results = self.__test_function(
+                        tests_results = self.__test_function(
                             function_extracted, problem_name)
                     except Exception as e:
                         print("Error during tests:", e)
-                        error_str = str(e)
+                        output["error"] = str(e)
                     else:
+                        output["results"] = tests_results
                         print("{:.2f}% passed".format(
-                            test_results["test_passed"] / self.__test_data_dimension * 100))
-                        print("Test(s) passed:", test_results["test_passed"])
+                            tests_results["test_passed"] / self.__test_data_dimension * 100))
+                        print("Test(s) passed:", tests_results["test_passed"])
                         print("Test(s) not passed:",
-                              test_results["test_not_passed"])
+                              tests_results["test_not_passed"])
                         print("Test(s) with exception(s): " +
-                              str(test_results["test_with_exception"]) + '\n')
-                create_json_file(
+                              str(tests_results["test_with_exception"]) + '\n')
+                data.append(output)
+            create_json_file(
                     self.__model_to_test.name,
                     problem_name,
                     n_prob + 1,
-                    iteration + 1,
-                    model_response,
-                    test_results,
-                    error_str
+                    data
                 )
         print(f"{'=' * 80}\n")
 
