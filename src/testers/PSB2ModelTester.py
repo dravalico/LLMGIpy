@@ -16,56 +16,59 @@ class PSB2ModelTester(AbstractModelTester):
     def __init__(
             self,
             model: AbstractLanguageModel,
-            test_iteration: int = 1,
+            test_iterations: int = 1,
             test_data_dimension: int = 2000,
     ):
         super().__init__()
-        self.__test_iteration = test_iteration
+        self.__test_iteration = test_iterations
         self.__test_data_dimension = test_data_dimension
         self.__model_to_test = model
 
     def run(self) -> None:
         for i in range(0, len(self.__PROBLEMS_CSV)):
-            mean_test_results: list[int, int, int] = [0, 0, 0]
-            print(f"===============Problem {(i + 1):02d}===============")
+            avg_test_output: list[int, int, int] = [0, 0, 0]
+            print(f"===================Problem {(i + 1):02d}===================")
             for j in range(0, self.__test_iteration):
                 print(f"Iteration {(j + 1):02d}\nAsking model '{self.__model_to_test.name}'...")
                 model_response: any = self.__model_to_test.ask(str(self.__PROBLEMS_CSV.get("Description")[i]))
                 print("\n{0}\n".format(model_response))
                 function_body: str = super()._extract_function_body(model_response)
+                function_name: str = super()._extract_function_name(function_body)
+                problem_name: str = self.__PROBLEMS_CSV.get("Problem Name")[i].lower()
+                problem_name = problem_name.replace(" ", "-")
+                error: bool = False
                 try:
                     exec(function_body, globals())
-                    function_name: str = super()._extract_function_name(function_body)
+                except Exception as e:
+                    print("Error during definition:", e)
+                    error = True
+                else:
                     exec("function_extracted = " + function_name, globals())
-                    problem_name: str = self.__PROBLEMS_CSV.get("Problem Name")[i].lower()
-                    problem_name = problem_name.replace(" ", "-")
                     print("Starting tests...")
-                    results: dict[str, int] = self.__test_function(function_extracted, problem_name)
-                    create_json_file(
+                    test_output: dict[str, int] = self.__test_function(function_extracted, problem_name)
+                    avg_test_output[0] = avg_test_output[0] + test_output["test_passed"]
+                    avg_test_output[1] = avg_test_output[1] + test_output["test_not_passed"]
+                    avg_test_output[2] = avg_test_output[2] + test_output["test_with_exception"]
+                    print("Results saved\n")
+                create_json_file(
                         self.__model_to_test.name,
                         i + 1,
                         j + 1,
                         model_response,
-                        results
+                        test_output if not error else "Error during definition"
                     )
-                    mean_test_results[0] = mean_test_results[0] + results["test_passed"]
-                    mean_test_results[1] = mean_test_results[1] + results["test_not_passed"]
-                    mean_test_results[2] = mean_test_results[2] + results["test_with_exception"]
-                    print("Results saved\n")
-                except Exception as e:
-                    print("Error during definition: " + str(e))
-            print(str((mean_test_results[0] / self.__test_iteration) / self.__test_data_dimension * 100) + "%" + " has passed")
-            print("Avg test passed: " + str(int(mean_test_results[0] / self.__test_iteration)))
-            print("Avg test not passed: " + str(int(mean_test_results[1] / self.__test_iteration)))
-            print("Avg test with exception: " + str(int(mean_test_results[2] / self.__test_iteration)))
-            print("========================================\n")
+            passed_percentage: float = (avg_test_output[0] / self.__test_iteration) / self.__test_data_dimension * 100
+            print("{:.2f}% passed".format(passed_percentage))
+            print("Avg test passed:", int(avg_test_output[0] / self.__test_iteration))
+            print("Avg test not passed:", int(avg_test_output[1] / self.__test_iteration))
+            print("Avg test with exception:", int(avg_test_output[2] / self.__test_iteration))
+            print("================================================\n")
 
     def __test_function(self, function_to_test: Callable, problem_name: str) -> dict[str, int]:
         (train_data, test_data) = psb2.fetch_examples("", problem_name, 0, self.__test_data_dimension)
         test_passed: int = 0
         test_not_passed: int = 0
         test_with_exception: int = 0
-        exceptions: set = set()
         for i in range(0, len(test_data)):
             args: list[str] = [v for k, v in test_data[i].items() if "input" in k]
             expected_output: list[str] = [v for k, v in test_data[i].items() if "output" in k]
@@ -75,9 +78,8 @@ class PSB2ModelTester(AbstractModelTester):
                     test_passed = test_passed + 1
                 else:
                     test_not_passed = test_not_passed + 1
-            except Exception as e:
+            except:
                 test_with_exception = test_with_exception + 1
-                exceptions.add(str(e))
         return {
             "test_passed": test_passed,
             "test_not_passed": test_not_passed,
