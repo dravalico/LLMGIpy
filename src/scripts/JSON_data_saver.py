@@ -25,7 +25,7 @@ def create_json_file(model_name: str, problems_number: int, iteration: int, mode
     }
     json_results = json.dumps(to_save, indent=4)
 
-    filename: str = str(model_name + "_problem" + str(problems_number) + ".json")
+    filename: str = str(model_name + "_problem" + problems_number + ".json")
     output_file_path: str = os.path.join(results_folder_path, filename)
     if os.path.exists(output_file_path):
         modify_type: str = "a"
