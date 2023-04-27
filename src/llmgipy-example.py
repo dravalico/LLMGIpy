@@ -5,8 +5,8 @@ from testers.PSB2ModelTester import PSB2ModelTester
 
 
 def main():
-    alpaca_model: AbstractLanguageModel = AlpacaModel()
-    model_tester: AbstractModelTester = PSB2ModelTester(alpaca_model)
+    model: AbstractLanguageModel = AlpacaModel()
+    model_tester: AbstractModelTester = PSB2ModelTester(model, test_iterations=5)
     model_tester.run()
 
 
