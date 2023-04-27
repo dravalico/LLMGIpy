@@ -27,7 +27,7 @@ class PSB2ModelTester(AbstractModelTester):
     def run(self) -> None:
         for i in range(0, len(self.__PROBLEMS_CSV)):
             avg_test_output: list[int, int, int] = [0, 0, 0]
-            print(f"===================Problem {(i + 1):02d}===================")
+            print(f"{'=' * 20}Problem {(i + 1):02d}{'=' * 20}")
             for j in range(0, self.__test_iteration):
                 print(f"Iteration {(j + 1):02d}\nAsking model '{self.__model_to_test.name}'...")
                 model_response: any = self.__model_to_test.ask(str(self.__PROBLEMS_CSV.get("Description")[i]))
@@ -62,7 +62,7 @@ class PSB2ModelTester(AbstractModelTester):
             print("Avg test passed:", int(avg_test_output[0] / self.__test_iteration))
             print("Avg test not passed:", int(avg_test_output[1] / self.__test_iteration))
             print("Avg test with exception:", int(avg_test_output[2] / self.__test_iteration))
-            print("================================================\n")
+            print(f"{'=' * 50}\n")
 
     def __test_function(self, function_to_test: Callable, problem_name: str) -> dict[str, int]:
         (train_data, test_data) = psb2.fetch_examples("", problem_name, 0, self.__test_data_dimension)

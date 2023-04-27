@@ -17,10 +17,10 @@ class AlpacaModel(AbstractLanguageModel):
 
     def ask(self, question: str) -> str:
         question: str = (
-                self.__ALPACA_QUESTION_FIRST_PART
-                + self.__INTRODUCTION_TO_QUESTION
-                + question
-                + self.__ALPACA_QUESTION_SECOND_PART
+            self.__ALPACA_QUESTION_FIRST_PART
+            + self.__INTRODUCTION_TO_QUESTION
+            + question
+            + self.__ALPACA_QUESTION_SECOND_PART
         )
         inputs = self.__tokenizer(
             question,
