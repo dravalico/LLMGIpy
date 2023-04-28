@@ -1,5 +1,4 @@
 import regex
-import collections
 
 _START_TAB: str = "{:"
 _END_TAB: str = ":}"
