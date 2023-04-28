@@ -2,18 +2,18 @@ import os
 from datetime import datetime
 import json
 
-BASE_PATH: str = "../results/"
-FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
+_BASE_PATH: str = "../results/"
+_FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
 
 
 def create_json_file(model_name: str,
                      problem_name: str,
                      problem_number: int,
                      data: list[dict[str, any]]) -> None:
-    if not os.path.isdir(BASE_PATH):
-        os.mkdir(BASE_PATH)
+    if not os.path.isdir(_BASE_PATH):
+        os.mkdir(_BASE_PATH)
 
-    results_folder_path: str = os.path.join(BASE_PATH, FOLDER_NAME)
+    results_folder_path: str = os.path.join(_BASE_PATH, _FOLDER_NAME)
     if not os.path.isdir(results_folder_path):
         os.mkdir(results_folder_path)
 

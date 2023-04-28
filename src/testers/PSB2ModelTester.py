@@ -5,6 +5,7 @@ import psb2
 from testers.AbstractModelTester import AbstractModelTester
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.JSON_data_saver import create_json_file
+from scripts.individual_formatter import to_pony_individual
 
 
 class PSB2ModelTester(AbstractModelTester):
@@ -34,26 +35,28 @@ class PSB2ModelTester(AbstractModelTester):
                     f"\nIteration {(iteration + 1):02d}\nAsking model '{self.__model_to_test.name}'...")
                 model_response: any = self.__model_to_test.ask(
                     str(self.__PROBLEMS.get("Description")[n_prob]))
+                print("\n{0}\n".format(model_response))
+                function_name: str = super()._extract_function_name(function_extracted)
+                function_extracted: str = super()._extract_function_body(model_response)
                 output: dict[str, any] = {
                     "iteration": (iteration + 1),
-                    "model_response": model_response.replace("    ", "\t")
+                    "model_response": model_response.replace("    ", "\t"),
+                    "function_name": function_name,
+                    "individual": to_pony_individual(function_extracted)
                 }
-                print("\n{0}\n".format(model_response))
-                function_body: str = super()._extract_function_body(model_response)
-                function_name: str = super()._extract_function_name(function_body)
                 problem_name: str = self.__PROBLEMS.get("Problem Name")[n_prob]
                 problem_name = problem_name.replace(" ", "-").lower()
                 tests_results: dict[str, int] = None
                 try:
-                    exec(function_body, globals())
+                    exec(function_extracted, globals())
                 except Exception as e:
                     print("Error during definition:", e)
                 else:
-                    exec("function_extracted = " + function_name, globals())
+                    exec("function_to_test = " + function_name, globals())
                     print("Testing...")
                     try:
                         tests_results = self.__test_function(
-                            function_extracted, problem_name)
+                            function_to_test, problem_name)
                     except Exception as e:
                         print("Error during tests:", e)
                         output["error"] = str(e)
