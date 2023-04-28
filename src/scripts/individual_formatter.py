@@ -41,7 +41,7 @@ def _substitute_tabs_with_pony_encode(python_function: str) -> str:
         temp_counter = line.count('\t')
         line = line.replace('\t', '')
         if temp_counter > tab_counter:
-            result[index - 1] = result[index - 1].replace('\n', "{:\n")
+            result[index - 1] = result[index - 1].replace('\n', _START_TAB + '\n')
             result.append(line)
         if temp_counter < tab_counter:
             result[index - 1] += _END_TAB + '\n'
