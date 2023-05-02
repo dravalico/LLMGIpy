@@ -7,7 +7,6 @@ _END_TAB: str = ":}"
 def to_pony_individual(python_function: str) -> str:
     python_function = _remove_comments_from(python_function)
     python_function = _remove_empty_lines_from(python_function)
-    print(python_function)
     return _substitute_tabs_with_pony_encode(python_function)
 
 
