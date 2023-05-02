@@ -12,7 +12,7 @@ def to_pony_individual(python_function: str) -> str:
 
 def _remove_comments_from(python_function: str) -> str:
     result: str = ""
-    for line in python_function:
+    for line in python_function.split('\n'):
         try:
             comment: str = line.split('#', 1)[1].split('\n', 1)[0]
             result += line.replace('#' + comment, '')

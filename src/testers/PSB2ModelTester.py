@@ -36,13 +36,13 @@ class PSB2ModelTester(AbstractModelTester):
                 model_response: any = self.__model_to_test.ask(
                     str(self.__PROBLEMS.get("Description")[n_prob]))
                 print("\n{0}\n".format(model_response))
-                function_name: str = super()._extract_function_name(function_extracted)
                 function_extracted: str = super()._extract_function_body(model_response)
+                function_name: str = super()._extract_function_name(function_extracted)
                 output: dict[str, any] = {
                     "iteration": (iteration + 1),
                     "model_response": model_response.replace("    ", "\t"),
                     "function_name": function_name,
-                    "individual": to_pony_individual(function_extracted)
+                    "individual": to_pony_individual(function_extracted.replace("    ", "\t"))
                 }
                 problem_name: str = self.__PROBLEMS.get("Problem Name")[n_prob]
                 problem_name = problem_name.replace(" ", "-").lower()
