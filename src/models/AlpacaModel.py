@@ -9,8 +9,6 @@ class AlpacaModel(AbstractLanguageModel):
     __INTRODUCTION_TO_QUESTION: str = "Write a single Python function to solve the following problem inserting the \
                                       necessary modules:"
     __ALPACA_QUESTION_SECOND_PART: str = "\n\n### Response:\n"
-    __tokenizer = None
-    __model = None
 
     def __init__(self):
         super().__init__("Alpaca")
