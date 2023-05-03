@@ -40,9 +40,10 @@ class PSB2ModelTester(AbstractModelTester):
                 function_name: str = super()._extract_function_name(function_extracted)
                 output: dict[str, any] = {
                     "iteration": (iteration + 1),
-                    "model_response": model_response.replace("    ", "\t"),
+                    "model_response": super()._indentation_as_tab(model_response),
                     "function_name": function_name,
-                    "individual": to_pony_individual(function_extracted.replace("    ", "\t"))
+                    "function_extracted": super()._indentation_as_tab(function_extracted),
+                    "individual": to_pony_individual(super()._indentation_as_tab(function_extracted))
                 }
                 problem_name: str = self.__PROBLEMS.get("Problem Name")[n_prob]
                 problem_name = problem_name.replace(" ", "-").lower()
@@ -71,11 +72,11 @@ class PSB2ModelTester(AbstractModelTester):
                               str(tests_results["test_with_exception"]) + '\n')
                 data.append(output)
             create_json_file(
-                    self.__model_to_test.name,
-                    problem_name,
-                    n_prob + 1,
-                    data
-                )
+                self.__model_to_test.name,
+                problem_name,
+                n_prob + 1,
+                data
+            )
         print(f"{'=' * 80}\n")
 
     def __test_function(self, function_to_test: Callable, problem_name: str) -> dict[str, int]:

@@ -17,3 +17,8 @@ class AbstractModelTester(ABC):
     def _extract_function_name(function_body: str) -> str:
         # function_name = regex.findall("\s*(def)\s(.*?)\([a-zA-z]*\)", extracted_function)
         return function_body[function_body.index("def ") + len("def "): function_body.index("(")]
+    
+    @staticmethod
+    def _indentation_as_tab(function: str) -> str:
+        function = function.replace("    ", '\t')
+        return function.replace("  ", '\t')
