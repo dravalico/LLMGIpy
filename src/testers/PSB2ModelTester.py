@@ -16,7 +16,7 @@ class PSB2ModelTester(AbstractModelTester):
             self,
             model: AbstractLanguageModel,
             iterations: int = 2,
-            data_dimension: int = 2000,
+            data_dimension: int = 1000,
     ):
         super().__init__(model)
         self.__iterations = iterations
@@ -58,13 +58,13 @@ class PSB2ModelTester(AbstractModelTester):
                         print("Error during tests:", e)
                         output["error"] = str(e)
                     else:
-                        output["results"] = res
+                        output["test results"] = res
                         print("{:.2f}% passed".format(
                             res["passed"] / self.__data_dimension * 100))
                         print("Test(s) passed:", res["passed"])
                         print("Test(s) not passed:", res["not_passed"])
                         print("Test(s) with exception(s): " +
-                              str(res["with_exception"]) + '\n')
+                              str(res["with_exception(s)"]) + '\n')
                 data.append(output)
             create_json_file(
                 self.__model.name,
@@ -100,5 +100,5 @@ class PSB2ModelTester(AbstractModelTester):
             return {
                 "passed": passed,
                 "not_passed": not_passed,
-                "with_exception": with_exception,
+                "with_exception(s)": with_exception,
             }
