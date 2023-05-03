@@ -26,7 +26,7 @@ class ModelTester():
         self.__model = model
         if dataset_name == "psb2":
             self.__problems: DataFrame = pandas.read_csv(
-                "../resources/pbs2.csv", sep=";")
+                "../resources/pbs2_problems_description.csv", sep=";")
         self.__dataset_name = dataset_name
         self.__data_size = data_size
         self.__iterations = iterations
