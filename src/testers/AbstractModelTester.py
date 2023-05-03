@@ -3,6 +3,7 @@ from models.AbstractLanguageModel import AbstractLanguageModel
 
 
 class AbstractModelTester(ABC):
+
     def __init__(self, model: AbstractLanguageModel):
         super().__init__()
         if not isinstance(model, AbstractLanguageModel):

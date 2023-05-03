@@ -4,7 +4,7 @@ from pandas import DataFrame
 import psb2
 from testers.AbstractModelTester import AbstractModelTester
 from models.AbstractLanguageModel import AbstractLanguageModel
-from scripts.JSON_data_saver import create_json_file
+from scripts.json_data_saver import create_json_file
 from scripts.individual_formatter import to_pony_individual
 
 
@@ -33,14 +33,16 @@ class PSB2ModelTester(AbstractModelTester):
                 model_response: any = self.__model.ask(
                     str(self.__PROBLEMS.get("Description")[n_prob]))
                 print("\n{0}\n".format(model_response))
-                f_extracted: str = super()._extract_function_body(model_response)
-                f_name: str = super()._extract_function_name(f_extracted)
+                f_extracted: str = AbstractModelTester._extract_function_body(
+                    model_response)
+                f_name: str = AbstractModelTester._extract_function_name(
+                    f_extracted)
                 output: dict[str, any] = {
                     "iteration": (iteration + 1),
-                    "model_response": super()._indentation_as_tab(model_response),
+                    "model_response": AbstractModelTester._indentation_as_tab(model_response),
                     "function_name": f_name,
-                    "function_extracted": super()._indentation_as_tab(f_extracted),
-                    "individual": to_pony_individual(super()._indentation_as_tab(f_extracted))
+                    "function_extracted": AbstractModelTester._indentation_as_tab(f_extracted),
+                    "individual": to_pony_individual(AbstractModelTester._indentation_as_tab(f_extracted))
                 }
                 prob_name: str = self.__PROBLEMS.get("Problem Name")[n_prob]
                 prob_name = prob_name.replace(" ", "-").lower()
@@ -58,7 +60,7 @@ class PSB2ModelTester(AbstractModelTester):
                         print("Error during tests:", e)
                         output["error"] = str(e)
                     else:
-                        output["test results"] = res
+                        output["test_results"] = res
                         print("{:.2f}% passed".format(
                             res["passed"] / self.__data_dimension * 100))
                         print("Test(s) passed:", res["passed"])
