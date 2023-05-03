@@ -25,12 +25,14 @@ def _remove_multiline_comments(python_code: str) -> str:
     triple_1q: str = "'''"
     res: str = ""
     line_init: str = python_code.split('\n')[0].lstrip()
-    is_take: bool = False if line_init == triple_2q else True
-    is_stmn: bool = True if triple_2q in line_init and is_take else False
+    is_take: bool = False if (line_init == triple_2q) or (
+        line_init == triple_1q) else True
+    is_stmn: bool = True if ((triple_2q in line_init) or (
+        triple_1q in line_init)) and is_take else False
     is_take_prev: bool = is_take
     for line in python_code.split('\n'):
-        if triple_2q in line:
-            if line.lstrip() == triple_2q and not is_stmn:
+        if (triple_2q in line) or (triple_1q in line):
+            if ((line.lstrip() == triple_2q) or (line.lstrip() == triple_1q)) and not is_stmn:
                 is_take = not is_take
             else:
                 is_stmn = not is_stmn
