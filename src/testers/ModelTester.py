@@ -1,4 +1,3 @@
-from typing import Callable
 import pandas
 from pandas import DataFrame
 from models.AbstractLanguageModel import AbstractLanguageModel
@@ -84,7 +83,7 @@ class ModelTester():
             )
         print(f"{'=' * 80}\n")
 
-    def __test_function(self, f: Callable, prob_name: str) -> dict[str, int]:
+    def __test_function(self, f: callable, prob_name: str) -> dict[str, int]:
         if self.__dataset_name == "psb2":
             test_data = self.__load_psb2_test_data(prob_name)
         passed: int = 0
