@@ -11,9 +11,6 @@ from scripts.individual_formatter import to_pony_individual
 class PSB2ModelTester(AbstractModelTester):
     __PROBLEMS: DataFrame = pandas.read_csv(
         "../resources/pbs2_problems_description.csv", sep=";")
-    __test_iteration: int = 0
-    __test_data_dimension: int = 0
-    __model_to_test: AbstractLanguageModel = None
 
     def __init__(
             self,
@@ -21,7 +18,7 @@ class PSB2ModelTester(AbstractModelTester):
             test_iterations: int = 1,
             test_data_dimension: int = 2000,
     ):
-        super().__init__()
+        super().__init__(model)
         self.__test_iteration = test_iterations
         self.__test_data_dimension = test_data_dimension
         self.__model_to_test = model

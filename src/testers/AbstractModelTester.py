@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
+from models.AbstractLanguageModel import AbstractLanguageModel
 
 
 class AbstractModelTester(ABC):
-    def __init__(self):
+    def __init__(self, model: AbstractLanguageModel):
         super().__init__()
+        if not isinstance(model, AbstractLanguageModel):
+            s = "You must provide an AbstractLanguageModel instance."
+            raise Exception(s)
 
     @abstractmethod
     def run(self) -> any:
