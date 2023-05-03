@@ -33,5 +33,5 @@ pip install psb2
 After cloning the repository, run
 ```
 cd src
-python main.py
+python llmgipy-example.py
 ```
