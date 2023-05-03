@@ -15,9 +15,10 @@ def _remove_comments_from(python_function: str) -> str:
     for line in python_function.split('\n'):
         try:
             comment: str = line.split('#', 1)[1].split('\n', 1)[0]
-            result += line.replace('#' + comment, '')
+            result += line.replace('#' + comment, '').rstrip()
         except:
             result += line
+        result += '\n'
     return result
 
 
@@ -39,8 +40,11 @@ def _substitute_tabs_with_pony_encode(python_function: str) -> str:
         temp_counter = line.count('\t')
         line = line.replace('\t', '')
         if temp_counter > tab_counter:
-            result[index - 1] = result[index - 1].replace('\n', _START_TAB + '\n')
-            result.append(line)
+            if index != 0:
+                result[index - 1] = result[index - 1].replace('\n', _START_TAB + '\n')
+                result.append(line)
+            else:
+                result.append(line + _START_TAB + '\n')
         if temp_counter < tab_counter:
             result[index - 1] += _END_TAB + '\n'
             result.append(line)
