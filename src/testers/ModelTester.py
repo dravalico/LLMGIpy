@@ -56,17 +56,10 @@ class ModelTester():
                 res: dict[str, int] = None
                 try:
                     exec(f_extracted, globals())
-                except Exception as e:
-                    print("Error during definition:", e)
-                else:
                     exec("f_to_test = " + f_name, globals())
                     print("Testing...")
                     try:
                         res = self.__test_function(f_to_test, prob_name)
-                    except Exception as e:
-                        print("Error during tests:", e)
-                        output["error"] = str(e)
-                    else:
                         output["test_results"] = res
                         print("{:.2f}% passed".format(
                             res["passed"] / self.__data_size * 100))
@@ -74,6 +67,12 @@ class ModelTester():
                         print("Test(s) not passed:", res["not_passed"])
                         print("Test(s) with exception(s): " +
                               str(res["with_exception(s)"]) + '\n')
+                    except Exception as e:
+                        print("Error during tests:", e)
+                        output["error"] = str(e)
+                except Exception as e:
+                    print("Error during definition:", e)
+                    output["error"] = str(e)
                 data.append(output)
             create_json_file(
                 self.__model.name,
