@@ -6,8 +6,8 @@ from models.AbstractLanguageModel import AbstractLanguageModel
 class AlpacaModel(AbstractLanguageModel):
     __ALPACA_QUESTION_FIRST_PART: str = "Below is an instruction that describes a task. Write a response that \
                                         appropriately completes the request.\n\n### Instruction:\n"
-    __INTRODUCTION_TO_QUESTION: str = "Write a single Python function to solve the following problem inserting the " \
-                                      "necessary modules:"
+    __INTRODUCTION_TO_QUESTION: str = "Write a single Python function to solve the following problem inserting the \
+                                      necessary modules:"
     __ALPACA_QUESTION_SECOND_PART: str = "\n\n### Response:\n"
     __tokenizer = None
     __model = None
