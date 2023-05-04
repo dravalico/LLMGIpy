@@ -120,11 +120,10 @@ class ModelTester():
         return model_response[model_response.index("def"): len(model_response):]
 
     @staticmethod
-    def __extract_function_name(function_body: str) -> str:
-        # function_name = regex.findall("\s*(def)\s(.*?)\([a-zA-z]*\)", extracted_function)
-        return function_body[function_body.index("def ") + len("def "): function_body.index("(")]
+    def __extract_function_name(f: str) -> str:
+        return f[f.index("def ") + len("def "): f.index("(")]
 
     @staticmethod
-    def __indentation_as_tab(function: str) -> str:
-        function = function.replace("    ", '\t')
-        return function.replace("  ", '\t')
+    def __indentation_as_tab(f: str) -> str:
+        f = f.replace("    ", '\t')
+        return f.replace("  ", '\t')
