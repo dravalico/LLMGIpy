@@ -4,7 +4,7 @@ from pandas import DataFrame
 from typing import List, Tuple
 
 
-class DatasetLoader():
+class DatasetLoader(): # TODO Is a good abstraction?
     def __init__(self, data_size: int = 1000) -> None:
         self.__data_size: int = data_size
         self.__problems: DataFrame = None

@@ -8,7 +8,7 @@ from pandas import DataFrame
 
 
 class ModelTester():
-    def __init__(
+    def __init__( # TODO Check if args are ok
             self,
             model: AbstractLanguageModel,
             problems: DataFrame,

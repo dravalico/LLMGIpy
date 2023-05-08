@@ -1,10 +1,10 @@
 import regex
 
-def extract_function_from_str(output: str) -> str:
+def extract_function_from_str(output: str) -> str: # TODO More general and handle exception
     return output[output.index("def"): len(output):]
 
 
-def extract_function_name(f: str) -> str:
+def extract_function_name(f: str) -> str: # TODO Handle the case of no name
     return f[f.index("def ") + len("def "): f.index("(")]
 
 
