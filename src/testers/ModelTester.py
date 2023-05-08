@@ -3,7 +3,7 @@ import pandas
 import psb2
 from pandas import DataFrame
 from models.AbstractLanguageModel import AbstractLanguageModel
-from scripts.json_data_saver import create_json_file
+from scripts.json_data_saver import create_and_save_json
 from scripts.individual_formatter import to_pony_individual
 from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError
 from multiprocessing import cpu_count
@@ -82,11 +82,14 @@ class ModelTester():
                     json_element["tests_results"] = result
                     json_data.append(json_element)
                 print("\nSaving results...")
-            create_json_file(
-                self.__model.name,
-                prob_name,
-                n_prob,
-                json_data
+            create_and_save_json(
+                f"{self.__model.name}{'_problem'}{n_prob}",
+                {
+                    "model_name": self.__model.name,
+                    "problem_name": prob_name,
+                    "problem_number": n_prob,
+                    "data": json_data
+                }
             )
             print(f"Problem '{prob_name}' completed.")
         print(f"{'=' * 80}\n")
