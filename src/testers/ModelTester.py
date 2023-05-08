@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Callable
+from typing import List, Any, Dict
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json
 from scripts.function_util import to_pony_individual, extract_function_from_str, extract_function_name, tabs_as_symbol
@@ -13,7 +13,7 @@ class ModelTester():
             model: AbstractLanguageModel,
             problems: DataFrame,
             data_size: int,
-            dataset_loader: Callable,
+            dataset_loader: function,
             iterations: int = 2,
             iteration_timeout: int = 60
     ) -> None:
@@ -23,7 +23,7 @@ class ModelTester():
         self.__model: AbstractLanguageModel = model
         self.__problems: DataFrame = problems
         self.__data_size: int = data_size
-        self.__dataset_loader: Callable = dataset_loader
+        self.__dataset_loader: function = dataset_loader
         self.__iterations: int = iterations
         self.__iteration_timeout: int = iteration_timeout
 
@@ -110,7 +110,7 @@ class ModelTester():
         except Exception as e:
             raise Exception("Cannot define function") from e
         else:
-            f: Callable = eval(f_name)
+            f: function = eval(f_name)
             data: Any = self.__dataset_loader(prob_name)
             passed: int = 0
             not_passed: int = 0
