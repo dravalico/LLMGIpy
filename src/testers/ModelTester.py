@@ -1,37 +1,29 @@
-from typing import List, Tuple, Any, Dict
-import pandas
-import psb2
-from pandas import DataFrame
+from typing import List, Any, Dict, Callable
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json
 from scripts.individual_formatter import to_pony_individual
 from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError
 from multiprocessing import cpu_count
+from pandas import DataFrame
 
 
 class ModelTester():
-    __VALID_DATASETS: List[str] = ["psb2"]
-
     def __init__(
             self,
             model: AbstractLanguageModel,
-            dataset_name: str,
-            data_size: int = 1000,
+            problems: DataFrame,
+            data_size: int,
+            dataset_loader: Callable,
             iterations: int = 2,
             iteration_timeout: int = 30
     ) -> None:
         if not isinstance(model, AbstractLanguageModel):
             e: str = "You must provide an AbstractLanguageModel instance."
             raise Exception(e)
-        if not dataset_name in self.__VALID_DATASETS:
-            e: str = "You must provide a valid dataset name."
-            raise Exception(e)
         self.__model: AbstractLanguageModel = model
-        if dataset_name == "psb2":
-            self.__problems: DataFrame = pandas.read_csv(
-                "../resources/pbs2_problems_description.csv", sep=";")
-        self.__dataset_name: str = dataset_name
+        self.__problems: DataFrame = problems
         self.__data_size: int = data_size
+        self.__dataset_loader: Callable = dataset_loader
         self.__iterations: int = iterations
         self.__iteration_timeout: int = iteration_timeout
 
@@ -118,9 +110,8 @@ class ModelTester():
         except Exception as e:
             raise Exception("Cannot define function") from e
         else:
-            f: callable = eval(f_name)
-            if self.__dataset_name == "psb2":
-                data = self.__load_psb2_data(prob_name)
+            f: Callable = eval(f_name)
+            data: Any = self.__dataset_loader(prob_name)
             passed: int = 0
             not_passed: int = 0
             with_exception: int = 0
@@ -138,14 +129,6 @@ class ModelTester():
                 except Exception as e:
                     with_exception += 1
             return {"passed": passed, "not_passed": not_passed, "with_exception(s)": with_exception}
-
-    def __load_psb2_data(self, prob_name: str) -> List[Tuple[List, List]]:
-        try:
-            (_, test_data) = psb2.fetch_examples(
-                "", prob_name, 0, self.__data_size)
-            return test_data
-        except:
-            raise Exception("Cannot load data for test")
 
     @staticmethod
     def __extract_function(output: str) -> str:
