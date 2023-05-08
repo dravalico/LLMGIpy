@@ -10,7 +10,7 @@ class DatasetLoader():
         self.__problems: DataFrame = None
 
     def set_problems_to_psb2(self) -> None:
-        self.__problems: DataFrame = pandas.read_csv(
+        self.__problems = pandas.read_csv(
             "../resources/pbs2_problems_description.csv", sep=";")
 
     def load_psb2_data(self, prob_name: str) -> List[Tuple[List, List]]:
@@ -20,11 +20,11 @@ class DatasetLoader():
             return test_data
         except:
             raise Exception("Cannot load data for test")
-    
+
     @property
     def problems(self) -> DataFrame:
         return self.__problems
-    
+
     @property
     def data_size(self) -> int:
-        return  self.__data_size
+        return self.__data_size
