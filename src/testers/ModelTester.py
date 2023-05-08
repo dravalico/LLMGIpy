@@ -1,7 +1,7 @@
 from typing import List, Any, Dict, Callable
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json
-from scripts.individual_formatter import to_pony_individual
+from scripts.function_util import to_pony_individual, extract_function_from_str, extract_function_name, tabs_as_symbol
 from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError
 from multiprocessing import cpu_count
 from pandas import DataFrame
@@ -15,7 +15,7 @@ class ModelTester():
             data_size: int,
             dataset_loader: Callable,
             iterations: int = 2,
-            iteration_timeout: int = 30
+            iteration_timeout: int = 60
     ) -> None:
         if not isinstance(model, AbstractLanguageModel):
             e: str = "You must provide an AbstractLanguageModel instance."
@@ -56,8 +56,8 @@ class ModelTester():
                         "iteration": futures_dict[future][1],
                         "model_response": futures_dict[future][4],
                         "function_name": futures_dict[future][3],
-                        "function_extracted": self.__format_tab(futures_dict[future][2]),
-                        "individual": to_pony_individual(self.__format_tab(futures_dict[future][2]))
+                        "function_extracted": tabs_as_symbol(futures_dict[future][2]),
+                        "individual": to_pony_individual(tabs_as_symbol(futures_dict[future][2]))
                     }
                     try:
                         result: Any = future.result(
@@ -94,8 +94,8 @@ class ModelTester():
             print(f"Iteration {iteration}")
             description: str = self.__problems["Description"][n_prob]
             responses.append(self.__model.ask(description))
-            f_bodies.append(self.__extract_function(responses[-1]))
-            f_names.append(self.__extract_function_name(f_bodies[-1]))
+            f_bodies.append(extract_function_from_str(responses[-1]))
+            f_names.append(extract_function_name(f_bodies[-1]))
         return {"responses": responses, "f_bodies": f_bodies, "f_names": f_names}
 
     def __create_futures(self, executor: ThreadPoolExecutor, prob_name: str, f_bodies: List[str], f_names: List[str]) -> Dict[Future, List[Any]]:
@@ -129,15 +129,3 @@ class ModelTester():
                 except Exception as e:
                     with_exception += 1
             return {"passed": passed, "not_passed": not_passed, "with_exception(s)": with_exception}
-
-    @staticmethod
-    def __extract_function(output: str) -> str:
-        return output[output.index("def"): len(output):]
-
-    @staticmethod
-    def __extract_function_name(f: str) -> str:
-        return f[f.index("def ") + len("def "): f.index("(")]
-
-    @staticmethod
-    def __format_tab(f: str) -> str:
-        return f.replace("    ", '\t').replace("  ", '\t')

@@ -1,5 +1,16 @@
 import regex
 
+def extract_function_from_str(output: str) -> str:
+    return output[output.index("def"): len(output):]
+
+
+def extract_function_name(f: str) -> str:
+    return f[f.index("def ") + len("def "): f.index("(")]
+
+
+def tabs_as_symbol(f: str) -> str:
+    return f.replace("    ", '\t').replace("  ", '\t')
+
 
 def to_pony_individual(python_code: str) -> str:
     python_code = _remove_inline_comments(python_code)
