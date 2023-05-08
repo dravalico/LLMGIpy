@@ -14,7 +14,7 @@ class ModelTester():
             problems: DataFrame,
             data_size: int,
             dataset_loader: Callable,
-            iterations: int = 2,
+            iterations: int = 5,
             iteration_timeout: int = 60
     ) -> None:
         if not isinstance(model, AbstractLanguageModel):
@@ -22,7 +22,6 @@ class ModelTester():
             raise Exception(e)
         self.__model: AbstractLanguageModel = model
         self.__problems: DataFrame = problems
-        self.__data_size: int = data_size
         self.__dataset_loader: Callable = dataset_loader
         self.__iterations: int = iterations
         self.__iteration_timeout: int = iteration_timeout
@@ -115,7 +114,7 @@ class ModelTester():
             passed: int = 0
             not_passed: int = 0
             with_exception: int = 0
-            for i in range(self.__data_size):
+            for i in range(len(data)):
                 args: List[str] = [
                     v for k, v in data[i].items() if "input" in k]
                 expected: List[str] = [

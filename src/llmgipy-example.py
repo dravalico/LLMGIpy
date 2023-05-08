@@ -11,7 +11,6 @@ def main():
     tester: ModelTester = ModelTester(
         model,
         loader.problems,
-        loader.data_size,
         loader.load_psb2_data,
         iterations=2
     )
