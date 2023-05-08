@@ -36,7 +36,7 @@ class ModelTester():
             prob_name: str = self.__problems\
                 .get("Problem Name")[n_prob]\
                 .replace(" ", "-")\
-                .lower()
+                .lower() # TODO Maybe it's better if all the problem files have a directly correct name
             n_threads: int = cpu_count() if self.__iterations > cpu_count() else self.__iterations
             with ThreadPoolExecutor(max_workers=n_threads) as executor:
                 futures_dict: Dict[Future, List[Any]] = self.__create_futures(
