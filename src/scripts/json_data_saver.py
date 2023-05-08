@@ -1,12 +1,13 @@
 import os
 from datetime import datetime
 import json
+from typing import List, Dict
 
 _BASE_PATH: str = "../results/"
 _FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
 
 
-def create_and_save_json(filename: str, data: list[dict[str, any]]) -> None:
+def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> None:
     if not os.path.isdir(_BASE_PATH):
         os.mkdir(_BASE_PATH)
 
