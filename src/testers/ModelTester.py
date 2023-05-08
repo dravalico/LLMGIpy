@@ -12,7 +12,6 @@ class ModelTester():
             self,
             model: AbstractLanguageModel,
             problems: DataFrame,
-            data_size: int,
             dataset_loader: Callable,
             iterations: int = 5,
             iteration_timeout: int = 60
