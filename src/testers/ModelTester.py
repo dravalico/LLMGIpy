@@ -49,7 +49,7 @@ class ModelTester():
                     item.append(res["responses"][i])
                 futures: List[Future] = list(futures_dict.keys())
                 json_data: List[Dict[str, Any]] = []
-                json_element: dict[str, any] = {}
+                json_element: Dict[str, any] = {}
                 print("\nTesting...")
                 for future in futures:
                     json_element = {
