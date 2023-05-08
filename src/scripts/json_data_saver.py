@@ -6,10 +6,7 @@ _BASE_PATH: str = "../results/"
 _FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
 
 
-def create_json_file(model_name: str,
-                     problem_name: str,
-                     problem_number: int,
-                     data: list[dict[str, any]]) -> None:
+def create_json_file(model_name: str, problem_name: str, problem_number: int, data: list[dict[str, any]]) -> None:
     if not os.path.isdir(_BASE_PATH):
         os.mkdir(_BASE_PATH)
 

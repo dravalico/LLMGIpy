@@ -9,7 +9,7 @@ class AbstractLanguageModel(ABC):
         self.__NAME = model_name
 
     @abstractmethod
-    def ask(self, question: str) -> any:
+    def ask(self, question: str) -> str:
         pass
 
     @property
