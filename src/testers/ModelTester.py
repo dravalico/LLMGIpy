@@ -19,7 +19,7 @@ class ModelTester():
             data_size: int = 1000,
             iterations: int = 2,
             iteration_timeout: int = 30
-    ):
+    ) -> None:
         if not isinstance(model, AbstractLanguageModel):
             e: str = "You must provide an AbstractLanguageModel instance."
             raise Exception(e)
