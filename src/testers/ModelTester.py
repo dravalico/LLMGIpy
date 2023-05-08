@@ -53,7 +53,7 @@ class ModelTester():
                 print("\nTesting...")
                 for future in futures:
                     json_element = {
-                        "iteration": futures_dict[future][1],
+                        "iteration": (futures_dict[future][1] + 1),
                         "model_response": futures_dict[future][4],
                         "function_name": futures_dict[future][3],
                         "function_extracted": tabs_as_symbol(futures_dict[future][2]),
@@ -79,7 +79,7 @@ class ModelTester():
                 {
                     "model_name": self.__model.name,
                     "problem_name": prob_name,
-                    "problem_number": n_prob,
+                    "problem_index": n_prob,
                     "data": json_data
                 }
             )
