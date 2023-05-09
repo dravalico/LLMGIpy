@@ -1,10 +1,11 @@
 import regex
 
-def extract_function_from_str(output: str) -> str: # TODO More general and handle exception
+
+def extract_function_from_str(output: str) -> str:  # TODO More general and handle exception
     return output[output.index("def"): len(output):]
 
 
-def extract_function_name(f: str) -> str: # TODO Handle the case of no name
+def extract_function_name(f: str) -> str:  # TODO Handle the case of no name
     return f[f.index("def ") + len("def "): f.index("(")]
 
 
@@ -36,10 +37,8 @@ def _remove_multiline_comments(python_code: str) -> str:
     triple_1q: str = "'''"
     res: str = ""
     line_init: str = python_code.split('\n')[0].lstrip()
-    is_take: bool = False if (line_init == triple_2q) or (
-        line_init == triple_1q) else True
-    is_stmn: bool = True if ((triple_2q in line_init) or (
-        triple_1q in line_init)) and is_take else False
+    is_take: bool = False if (line_init == triple_2q) or (line_init == triple_1q) else True
+    is_stmn: bool = True if ((triple_2q in line_init) or (triple_1q in line_init)) and is_take else False
     is_take_prev: bool = is_take
     for line in python_code.split('\n'):
         if (triple_2q in line) or (triple_1q in line):
@@ -75,8 +74,7 @@ def _substitute_tabs_with_pony_encode(python_code: str) -> str:
         line = line.replace('\t', '')
         if tmp_tab_counter > tab_counter:
             if index != 0:
-                res[index - 1] = res[index - 1] \
-                    .replace('\n', start_tab + '\n')
+                res[index - 1] = res[index - 1].replace('\n', start_tab + '\n')
                 res.append(line)
             else:
                 res.append(line + start_tab + '\n')

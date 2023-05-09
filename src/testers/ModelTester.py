@@ -8,7 +8,7 @@ from pandas import DataFrame
 
 
 class ModelTester():
-    def __init__( # TODO Check if args are ok
+    def __init__(  # TODO Check if args are ok
             self,
             model: AbstractLanguageModel,
             problems: DataFrame,
@@ -34,7 +34,7 @@ class ModelTester():
             prob_name: str = self.__problems\
                 .get("Problem Name")[n_prob]\
                 .replace(" ", "-")\
-                .lower() # TODO Maybe it's better if all the problem files have a directly correct name
+                .lower()  # TODO Maybe it's better if all the problem files have a directly correct name
             n_threads: int = cpu_count() if self.__iterations > cpu_count() else self.__iterations
             with ThreadPoolExecutor(max_workers=n_threads) as executor:
                 futures_dict: Dict[Future, List[Any]] = self.__create_futures(
@@ -58,13 +58,10 @@ class ModelTester():
                         "individual": to_pony_individual(tabs_as_symbol(futures_dict[future][2]))
                     }
                     try:
-                        result: Any = future.result(
-                            timeout=self.__iteration_timeout)
-                        print("Result obtained for iteration",
-                              futures_dict[future][1])
+                        result: Any = future.result(timeout=self.__iteration_timeout)
+                        print("Result obtained for iteration", futures_dict[future][1])
                     except Exception as e:
-                        print("Exception for iteration",
-                              futures_dict[future][1])
+                        print("Exception for iteration", futures_dict[future][1])
                         if isinstance(e, TimeoutError):
                             e = "Timeout for tests"
                             future.cancel()
@@ -97,9 +94,8 @@ class ModelTester():
         return {"responses": responses, "f_bodies": f_bodies, "f_names": f_names}
 
     def __create_futures(self, executor: ThreadPoolExecutor, prob_name: str, f_bodies: List[str], f_names: List[str]) -> Dict[Future, List[Any]]:
-        futures: List[Future] = [
-            executor.submit(self.__test_function, b, n, prob_name)
-            for b, n in zip(f_bodies, f_names)]
+        futures: List[Future] = [executor.submit(self.__test_function, b, n, prob_name)
+                                 for b, n in zip(f_bodies, f_names)]
         return {f: [prob_name, i, f_bodies[i], f_names[i]] for i, f in enumerate(futures)}
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Dict[str, int]:
@@ -114,10 +110,8 @@ class ModelTester():
             not_passed: int = 0
             with_exception: int = 0
             for i in range(len(data)):
-                args: List[str] = [
-                    v for k, v in data[i].items() if "input" in k]
-                expected: List[str] = [
-                    v for k, v in data[i].items() if "output" in k]
+                args: List[str] = [v for k, v in data[i].items() if "input" in k]
+                expected: List[str] = [v for k, v in data[i].items() if "output" in k]
                 try:
                     result: Any = [f(*args)]
                     if result == expected:
