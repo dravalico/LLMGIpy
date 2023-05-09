@@ -12,7 +12,7 @@ def main():
         model,
         loader.problems,
         loader.load_psb2_data,
-        iterations=2
+        iterations=5
     )
     tester.run()
 
