@@ -3,14 +3,15 @@ from datetime import datetime
 import json
 from typing import List, Dict
 
+_BASE_PATH: str = "../results/"
+_FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
+
 
 def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> str:
-    base_path: str = "../results/"
-    folder_name: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
-    if not os.path.isdir(base_path):
-        os.mkdir(base_path)
+    if not os.path.isdir(_BASE_PATH):
+        os.mkdir(_BASE_PATH)
 
-    results_folder_path: str = os.path.join(base_path, folder_name)
+    results_folder_path: str = os.path.join(_BASE_PATH, _FOLDER_NAME)
     if not os.path.isdir(results_folder_path):
         os.mkdir(results_folder_path)
 
