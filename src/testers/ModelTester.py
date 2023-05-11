@@ -1,6 +1,6 @@
 from typing import List, Any, Dict, Callable
 from models.AbstractLanguageModel import AbstractLanguageModel
-from scripts.json_data_saver import create_and_save_json
+from scripts.json_data_saver import create_and_save_json, get_results_dir_name
 from scripts.function_util import to_pony_individual, extract_function_from_str, extract_function_name, tabs_as_symbol
 from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError
 from multiprocessing import cpu_count
@@ -25,7 +25,7 @@ class ModelTester():
         self.__iterations: int = iterations
         self.__iteration_timeout: int = iteration_timeout
 
-    def run(self) -> None:
+    def run(self) -> str:
         print(f"{'=' * 80}")
         print(f"Asking model '{self.__model.name}'...")
         for n_prob in range(len(self.__problems)):
@@ -79,7 +79,11 @@ class ModelTester():
                 }
             )
             print(f"Problem '{prob_name}' completed.")
-        print(f"{'=' * 80}\n")
+        print(f"{'=' * 80}")
+        dir_name: str = get_results_dir_name()
+        print(f"Results saved in {dir_name}")
+        print(f"{'=' * 80}")
+        return dir_name
 
     def __ask_model_and_process(self, n_prob: int) -> Dict[str, List[str]]:
         responses: List[str] = []
