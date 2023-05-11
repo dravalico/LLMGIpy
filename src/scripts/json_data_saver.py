@@ -7,7 +7,7 @@ _BASE_PATH: str = "../results/"
 _FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
 
 
-def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> str:
+def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> None:
     if not os.path.isdir(_BASE_PATH):
         os.mkdir(_BASE_PATH)
 
@@ -21,4 +21,7 @@ def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> str:
     output_file = open(output_file_path, 'w')
     output_file.write(json_results)
     output_file.close()
-    return results_folder_path
+
+
+def get_folder_name() -> str:
+    return _FOLDER_NAME
