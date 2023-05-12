@@ -25,11 +25,11 @@ def main():
                            help="Number of times to repete question and test for the same problem")
     args: Namespace = argparser.parse_args()
     if (args.model not in models.models_list) or (args.model == None):
-        raise Exception("Model not valid.")
+        raise Exception(f"Model '{args.model}' not valid.")
     if (args.dataset not in testers.datasets_list) or (args.dataset == None):
-        raise Exception("Dataset not valid.")
+        raise Exception(f"Dataset '{args.dataset}' not valid.")
 
-    model: AbstractLanguageModel = create_object("models." + args.model + "Model", args.model + "Model")
+    model: AbstractLanguageModel = create_object("models." + args.model, args.model)
 
     loader: DatasetLoader = DatasetLoader(args.dataset, args.data_size) \
         if args.data_size != None else DatasetLoader(args.dataset)

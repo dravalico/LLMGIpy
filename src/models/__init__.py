@@ -12,4 +12,5 @@ py_files.remove("__init__")
 
 __all__ = py_files
 
-models_list = ["Alpaca"]
+models_list = py_files.copy()
+models_list.remove("AbstractLanguageModel")
