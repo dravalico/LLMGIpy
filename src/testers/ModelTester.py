@@ -5,14 +5,14 @@ from scripts.function_util import to_pony_individual, extract_function_from_str,
 from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError
 from multiprocessing import cpu_count
 from pandas import DataFrame
+from testers.DatasetLoader import DatasetLoader
 
 
 class ModelTester():
     def __init__(  # TODO Check if args are ok
             self,
             model: AbstractLanguageModel,
-            problems: DataFrame,
-            dataset_loader: Callable,
+            dataset_loader: DatasetLoader,
             iterations: int = 5,
             iteration_timeout: int = 60
     ) -> None:
@@ -20,8 +20,8 @@ class ModelTester():
             e: str = "You must provide an AbstractLanguageModel instance."
             raise Exception(e)
         self.__model: AbstractLanguageModel = model
-        self.__problems: DataFrame = problems
-        self.__dataset_loader: Callable = dataset_loader
+        self.__dataset_loader: DatasetLoader = dataset_loader
+        self.__problems: DataFrame = self.__dataset_loader.problems
         self.__iterations: int = iterations
         self.__iteration_timeout: int = iteration_timeout
 
@@ -109,7 +109,7 @@ class ModelTester():
             raise Exception("Cannot define function") from e
         else:
             f: Callable = eval(f_name)
-            data: Any = self.__dataset_loader(prob_name)
+            data: Any = self.__dataset_loader.load(prob_name)
             passed: int = 0
             not_passed: int = 0
             with_exception: int = 0

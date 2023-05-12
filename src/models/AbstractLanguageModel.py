@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 
 
 class AbstractLanguageModel(ABC):
-    
     def __init__(self, model_name: str) -> None:
         super().__init__()
         self._load_model()
