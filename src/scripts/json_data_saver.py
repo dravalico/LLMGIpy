@@ -23,5 +23,5 @@ def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> None:
     output_file.close()
 
 
-def get_results_dir_name() -> str:
+def get_results_dir_path() -> str:
     return os.path.abspath(os.path.join(_BASE_PATH, _FOLDER_NAME))

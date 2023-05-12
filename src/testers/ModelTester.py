@@ -1,6 +1,6 @@
 from typing import List, Any, Dict, Callable
 from models.AbstractLanguageModel import AbstractLanguageModel
-from scripts.json_data_saver import create_and_save_json, get_results_dir_name
+from scripts.json_data_saver import create_and_save_json, get_results_dir_path
 from scripts.function_util import to_pony_individual, extract_function_from_str, extract_function_name, tabs_as_symbol
 from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError
 from multiprocessing import cpu_count
@@ -29,7 +29,7 @@ class ModelTester():
         print(f"{'=' * 80}")
         print(f"Asking model '{self.__model.name}'...")
         for n_prob in range(len(self.__problems)):
-            print(f"{'=' * 35}Problem {(n_prob + 1):02d}{'=' * 35}")
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
             prob_name: str = self.__problems\
                 .get("Problem Name")[n_prob]\
@@ -51,7 +51,7 @@ class ModelTester():
                 print("\nTesting...")
                 for future in futures:
                     json_element = {
-                        "iteration": (futures_dict[future][1] + 1),
+                        "iteration": futures_dict[future][1] + 1,
                         "model_response": futures_dict[future][4],
                         "function_name": futures_dict[future][3],
                         "function_extracted": tabs_as_symbol(futures_dict[future][2]),
@@ -59,9 +59,9 @@ class ModelTester():
                     }
                     try:
                         result: Any = future.result(timeout=self.__iteration_timeout)
-                        print("Result obtained for iteration", futures_dict[future][1])
+                        print("Result obtained for iteration", futures_dict[future][1] + 1)
                     except Exception as e:
-                        print("Exception for iteration", futures_dict[future][1])
+                        print("Exception for iteration", futures_dict[future][1] + 1)
                         if isinstance(e, TimeoutError):
                             e = "Timeout for tests"
                             future.cancel()
@@ -80,7 +80,7 @@ class ModelTester():
             )
             print(f"Problem '{prob_name}' completed.")
         print(f"{'=' * 80}")
-        dir_name: str = get_results_dir_name()
+        dir_name: str = get_results_dir_path()
         print(f"Results saved in {dir_name}")
         print(f"{'=' * 80}")
         return dir_name
@@ -90,7 +90,7 @@ class ModelTester():
         f_bodies: List[str] = []
         f_names: List[str] = []
         for iteration in range(self.__iterations):
-            print(f"Iteration {iteration}")
+            print(f"Iteration {iteration + 1}")
             description: str = self.__problems["Description"][n_prob]
             responses.append(self.__model.ask(description))
             f_bodies.append(extract_function_from_str(responses[-1]))
