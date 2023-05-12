@@ -23,7 +23,7 @@ def main():
     argparser.add_argument("--data_size", type=int, help="Length of the test dataset")
     argparser.add_argument("--iterations", type=int,
                            help="Number of times to repete question and test for the same problem")
-    argparser.add_argument("-v", "--verbose", action="store_true", help="Print everything")
+    argparser.add_argument("-v", "--verbose", action="store_true", help="Print everything") # TODO complete it
     args: Namespace = argparser.parse_args()
     if (args.model not in models.models_list) or (args.model == None):
         raise Exception(f"Model '{args.model}' not valid.")
