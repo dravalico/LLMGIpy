@@ -26,7 +26,7 @@ def main():
     argparser.add_argument("--data_size", type=int, help="Length of the test dataset")
     argparser.add_argument("--iterations", type=int,
                            help="Number of times to repete question and test for the same problem")
-    argparser.add_argument("-v", "--verbose", action="store_true", help="Print everything")  # TODO complete it
+    argparser.add_argument("-v", "--verbose", action="store_true", help="Print everything") # TODO complete it
     args: Namespace = argparser.parse_args()
     if (args.model not in models.models_list) or (args.model == None):
         raise Exception(f"Model '{args.model}' not valid.")
@@ -53,8 +53,8 @@ def main():
     for json in jsons:
         res: List[str] = load_phenotypes_from_json(result_dir_path + "/" + json)
         res = obtain_genotypes(res, "progsys/Fizz Buzz.bnf") # TODO grammar from csv of problems
-        dir_name: str = result_dir_path.split("/")[-1] + "_" + json.replace(".json", "")
-        create_files_for_individuals(dir_name, res)
+        ind_dir_name: str = result_dir_path.split("/")[-1] + "_" + json.replace(".json", "")
+        create_files_for_individuals(ind_dir_name, res)
 
 
 if __name__ == "__main__":
