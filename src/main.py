@@ -48,12 +48,13 @@ def main():
     result_dir_path: str = "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-05-10_15:50:00"
     jsons = [f for f in listdir(result_dir_path) if isfile(join(result_dir_path, f))]
     sys.path.append('../PonyGE2/src/scripts')
-    from individuals_from_json import load_phenotypes_from_json, obtain_genotypes, create_files_for_individuals
+    from txt_individuals_from_json import load_phenotypes_from_json, obtain_genotypes, create_files_for_individuals
     os.chdir("../PonyGE2/src")
     for json in jsons:
         res: List[str] = load_phenotypes_from_json(result_dir_path + "/" + json)
         res = obtain_genotypes(res, "progsys/Fizz Buzz.bnf") # TODO grammar from csv of problems
-        dir: str = create_files_for_individuals(result_dir_path.split("/")[-1] + "_" + json.replace(".json", ""), res)
+        dir_name: str = result_dir_path.split("/")[-1] + "_" + json.replace(".json", "")
+        create_files_for_individuals(dir_name, res)
 
 
 if __name__ == "__main__":
