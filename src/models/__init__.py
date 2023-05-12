@@ -11,3 +11,5 @@ py_files = [file_name.replace(".py", "") for file_name in listdir(init_dir) \
 py_files.remove("__init__")
 
 __all__ = py_files
+
+models_list = ["Alpaca"]
