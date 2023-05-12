@@ -1,5 +1,5 @@
 from models.AbstractLanguageModel import AbstractLanguageModel
-from models.AlpacaModel import AlpacaModel
+from models import *
 from testers.ModelTester import ModelTester
 from testers.DatasetLoader import DatasetLoader
 from argparse import ArgumentParser, Namespace
@@ -10,10 +10,10 @@ _MODELS: List[str] = ["Alpaca"]
 _DATASETS: List[str] = ["psb2"]
 
 
-def create_object(modulename, classname):
-    mod = sys.modules[modulename]
-    cls = getattr(mod, classname)
-    inst = cls()
+def create_object(module_name: str, class_name: str) -> Any:
+    mod = sys.modules[module_name]
+    cls: Any = getattr(mod, class_name)
+    inst: Any = cls()
     return inst
 
 
@@ -30,8 +30,7 @@ def main():
     if (args.dataset not in _DATASETS) or (args.dataset == None):
         raise Exception("Dataset not valid.")
 
-    # model: AbstractLanguageModel = create_object(args.model + "Model", args.model + "Model")
-    model: AbstractLanguageModel = AlpacaModel()
+    model: AbstractLanguageModel = create_object("models." + args.model + "Model", args.model + "Model")
 
     loader: DatasetLoader = DatasetLoader(args.dataset, args.data_size) \
         if args.data_size != None else DatasetLoader(args.dataset)
