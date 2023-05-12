@@ -16,7 +16,7 @@ class ModelTester():
             iterations: int = 5,
             iteration_timeout: int = 60
     ) -> None:
-        if not isinstance(model, AbstractLanguageModel):
+        if (not isinstance(model, AbstractLanguageModel)) or (model == None):
             e: str = "You must provide an AbstractLanguageModel instance."
             raise Exception(e)
         self.__model: AbstractLanguageModel = model
