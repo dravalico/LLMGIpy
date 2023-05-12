@@ -14,13 +14,13 @@ def tabs_as_symbol(f: str) -> str:
 
 
 def to_pony_individual(python_code: str) -> str:
-    python_code = _remove_inline_comments(python_code)
-    python_code = _remove_multiline_comments(python_code)
-    python_code = _remove_empty_lines(python_code)
-    return _substitute_tabs_with_pony_encode(python_code)
+    python_code = remove_inline_comments(python_code)
+    python_code = remove_multiline_comments(python_code)
+    python_code = remove_empty_lines(python_code)
+    return substitute_tabs_with_pony_encode(python_code)
 
 
-def _remove_inline_comments(python_code: str) -> str:
+def remove_inline_comments(python_code: str) -> str:
     res: str = ""
     for line in python_code.split('\n'):
         try:
@@ -32,7 +32,7 @@ def _remove_inline_comments(python_code: str) -> str:
     return res
 
 
-def _remove_multiline_comments(python_code: str) -> str:
+def remove_multiline_comments(python_code: str) -> str:
     triple_2q: str = '"""'
     triple_1q: str = "'''"
     res: str = ""
@@ -53,7 +53,7 @@ def _remove_multiline_comments(python_code: str) -> str:
     return res
 
 
-def _remove_empty_lines(python_code: str) -> str:
+def remove_empty_lines(python_code: str) -> str:
     res: list = []
     for line in python_code.split('\n'):
         if not regex.match(r'^\s*$', line):
@@ -62,7 +62,7 @@ def _remove_empty_lines(python_code: str) -> str:
     return ''.join(res)
 
 
-def _substitute_tabs_with_pony_encode(python_code: str) -> str:
+def substitute_tabs_with_pony_encode(python_code: str) -> str:
     start_tab: str = "{:"
     end_tab: str = ":}"
     tab_counter: int = 0

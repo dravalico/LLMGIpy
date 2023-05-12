@@ -7,8 +7,7 @@ import testers
 from argparse import ArgumentParser, Namespace
 from typing import List, Any
 import sys
-import os
-from os import listdir
+from os import listdir, chdir
 from os.path import isfile, join
 
 
@@ -48,13 +47,11 @@ def main():
     result_dir_path: str = "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-05-10_15:50:00"
     jsons = [f for f in listdir(result_dir_path) if isfile(join(result_dir_path, f))]
     sys.path.append('../PonyGE2/src/scripts')
-    from txt_individuals_from_json import load_phenotypes_from_json, obtain_genotypes, create_files_for_individuals
-    os.chdir("../PonyGE2/src")
+    from txt_individuals_from_json import txt_population
+    chdir("../PonyGE2/src")
     for json in jsons:
-        res: List[str] = load_phenotypes_from_json(result_dir_path + "/" + json)
-        res = obtain_genotypes(res, "progsys/Fizz Buzz.bnf") # TODO grammar from csv of problems
         ind_dir_name: str = result_dir_path.split("/")[-1] + "_" + json.replace(".json", "")
-        create_files_for_individuals(ind_dir_name, res)
+        txt_population(result_dir_path + "/" + json, "progsys/Fizz Buzz.bnf", ind_dir_name) # TODO grammar from csv of problems
 
 
 if __name__ == "__main__":
