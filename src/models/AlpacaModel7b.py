@@ -3,7 +3,7 @@ from transformers import LLaMATokenizer, LLaMAForCausalLM, GenerationConfig
 from models.AbstractLanguageModel import AbstractLanguageModel
 
 
-class AlpacaModel(AbstractLanguageModel):
+class AlpacaModel7b(AbstractLanguageModel):
     __ALPACA_QUESTION_FIRST_PART: str = "Below is an instruction that describes a task. Write a response that "\
                                         "appropriately completes the request.\n\n### Instruction:\n"
     __ALPACA_QUESTION_SECOND_PART: str = "\n\n### Response:\n"
