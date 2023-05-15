@@ -40,7 +40,7 @@ def main():
     if (args.dataset not in testers.datasets_list) or (args.dataset == None):
         raise Exception(f"Dataset '{args.dataset}' not valid.")
     """ # TODO remove comment
-    model: AbstractLanguageModel = create_object("models." + args.model, args.model)
+    model: AbstractLanguageModel = create_instance_of_class("models." + args.model, args.model)
 
     loader: DatasetLoader = DatasetLoader(args.dataset, args.data_size) \
         if args.data_size != None else DatasetLoader(args.dataset)
@@ -89,7 +89,7 @@ def main():
         impr_file = impr_file.replace(
             "<test>",
             prob_name)
-        output_filepath: str = os.path.join(params_dir_path, impr_filename.replace(".json", ".txt"))
+        output_filepath: str = os.path.join(params_dir_path, impr_filename.replace(".json", "txt"))
         output_file = open(output_filepath, 'w')
         output_file.write(impr_file)
         output_file.close()
