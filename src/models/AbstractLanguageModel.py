@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any
 
 
 class AbstractLanguageModel(ABC):
@@ -19,6 +20,6 @@ class AbstractLanguageModel(ABC):
         return self.__NAME
 
     @abstractmethod
-    def _load_model(self) -> any:
+    def _load_model(self) -> Any:
         print("Loading model...")
         pass

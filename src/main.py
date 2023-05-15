@@ -12,6 +12,7 @@ import os
 from os import listdir, chdir
 from os.path import isfile, join
 import json
+from dotenv import load_dotenv
 
 
 def set_parser() -> ArgumentParser:
@@ -34,12 +35,13 @@ def create_instance_of_class(module_name: str, class_name: str) -> Any:
 
 
 def main():
+    load_dotenv()
     args: Namespace = set_parser().parse_args()
     if (args.model not in models.models_list) or (args.model == None):
         raise Exception(f"Model '{args.model}' not valid.")
     if (args.dataset not in testers.datasets_list) or (args.dataset == None):
         raise Exception(f"Dataset '{args.dataset}' not valid.")
-    """ # TODO remove comment
+    
     model: AbstractLanguageModel = create_instance_of_class("models." + args.model, args.model)
 
     loader: DatasetLoader = DatasetLoader(args.dataset, args.data_size) \
@@ -51,7 +53,7 @@ def main():
 
     tester: ModelTester = ModelTester(*tester_args)
     jsons_dir_path: str = tester.run()
-    """
+    """ # TODO remove comment
     tests_results: str = "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-05-10_15:50:00"
     json_filenames: List[str] = [f for f in listdir(tests_results) if isfile(join(tests_results, f))]
     to_impr_filenames: List[str] = []
@@ -93,7 +95,7 @@ def main():
         output_file = open(output_filepath, 'w')
         output_file.write(impr_file)
         output_file.close()
-
+    """
 
 if __name__ == "__main__":
     main()
