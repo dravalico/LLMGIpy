@@ -33,7 +33,7 @@ class ModelTester():
             res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
             prob_name: str = self.__problems\
                 .get("Problem Name")[n_prob]\
-                .replace(" ", "-")\
+                .replace(' ', '-')\
                 .lower()  # TODO Maybe it's better if all the problem files have a directly correct name
             n_threads: int = cpu_count() if self.__iterations > cpu_count() else self.__iterations
             with ThreadPoolExecutor(max_workers=n_threads) as executor:

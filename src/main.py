@@ -26,7 +26,7 @@ def set_parser() -> ArgumentParser:
     return argparser
 
 
-def create_object(module_name: str, class_name: str) -> Any:
+def create_instance_of_class(module_name: str, class_name: str) -> Any:
     mod = sys.modules[module_name]
     cls: Any = getattr(mod, class_name)
     inst: Any = cls()
@@ -52,35 +52,35 @@ def main():
     tester: ModelTester = ModelTester(*tester_args)
     jsons_dir_path: str = tester.run()
     """
-    jsons_dir_path: str = "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-05-10_15:50:00"
-    jsons = [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]
-    improvements: List[str] = []
-    for file in jsons:
-        seed_pop_dir_name: str = jsons_dir_path.split('/')[-1] + '_' + file.replace(".json", '')
+    tests_results: str = "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-05-10_15:50:00"
+    json_filenames: List[str] = [f for f in listdir(tests_results) if isfile(join(tests_results, f))]
+    to_impr_filenames: List[str] = []
+    jsons_dir_name: str = tests_results.split('/')[-1]
+    for filename in json_filenames:
         try:
-            txt_population(jsons_dir_path + '/' + file,
+            txt_population(tests_results + '/' + filename,
                            "progsys/Fizz Buzz.bnf",  # TODO grammar from csv of problems
-                           seed_pop_dir_name)
-            improvements.append(file)
+                           jsons_dir_name + '_' + filename.replace(".json", ''))
+            to_impr_filenames.append(filename)
         except Exception as e:
-            print(f"{file} raises an exception: {str(e)}")
-    if len(improvements) == 0:
+            print(f"{filename} raises an exception: {str(e)}")
+    if len(to_impr_filenames) == 0:
         e: str = "None of given jsons lead to a valid seed for improvement"
         raise Exception(e)
-    chdir("../PonyGE2/src")
-    with open("../parameters/progimpr_base.txt", 'r') as file:
+    chdir("../PonyGE2/parameters")
+    with open("./progimpr_base.txt", 'r') as file:
         impr_base_file: str = file.read()
-    base_path: str = "../parameters/improvement/"
+    base_path: str = "./improvement/"
     if not os.path.isdir(base_path):
         os.mkdir(base_path)
-    res_dir_path: str = os.path.join(base_path, jsons_dir_path.split('/')[-1])
-    if not os.path.isdir(res_dir_path):
-        os.mkdir(res_dir_path)
-    for impr in improvements:
+    params_dir_path: str = os.path.join(base_path, jsons_dir_name)
+    if not os.path.isdir(params_dir_path):
+        os.mkdir(params_dir_path)
+    for impr_filename in to_impr_filenames:
         impr_file: str = impr_base_file.replace(
             "<seed_folder>",
-            jsons_dir_path.split('/')[-1] + '_' + impr.replace(".json", ''))
-        with open(os.path.join(jsons_dir_path, impr), "r") as read_file:
+            jsons_dir_name + '_' + impr_filename.replace(".json", ''))
+        with open(os.path.join(tests_results, impr_filename), "r") as read_file:
             extracted_json: Any = json.load(read_file)
         prob_name: List[Dict[str, Any]] = extracted_json["problem_name"]
         impr_file = impr_file.replace(
@@ -89,7 +89,7 @@ def main():
         impr_file = impr_file.replace(
             "<test>",
             prob_name)
-        output_filepath: str = os.path.join(res_dir_path, impr.replace("json", "txt"))
+        output_filepath: str = os.path.join(params_dir_path, impr_filename.replace(".json", ".txt"))
         output_file = open(output_filepath, 'w')
         output_file.write(impr_file)
         output_file.close()
