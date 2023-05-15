@@ -3,12 +3,27 @@ from models import *
 import models
 from testers.ModelTester import ModelTester
 from testers.DatasetLoader import DatasetLoader
+from scripts.txt_individuals_from_json import txt_population
 import testers
 from argparse import ArgumentParser, Namespace
-from typing import List, Any
+from typing import List, Any, Dict
 import sys
+import os
 from os import listdir, chdir
 from os.path import isfile, join
+import json
+
+
+def set_parser() -> ArgumentParser:
+    argparser: ArgumentParser = ArgumentParser(description="GI improvement from LLM response")
+    argparser.add_argument("--model", type=str, help=f"The LLM's name: {models.models_list}")
+    argparser.add_argument("--dataset", type=str, help=f"The dataset to use for tests: {testers.datasets_list}")
+    argparser.add_argument("--data_size", type=int, help="Length of the test dataset")
+    argparser.add_argument("--iterations",
+                           type=int,
+                           help="Number of times to repete question and test for the same problem")
+    argparser.add_argument("-v", "--verbose", action="store_true", help="Print everything")  # TODO complete it
+    return argparser
 
 
 def create_object(module_name: str, class_name: str) -> Any:
@@ -19,14 +34,7 @@ def create_object(module_name: str, class_name: str) -> Any:
 
 
 def main():
-    argparser: ArgumentParser = ArgumentParser(description="GI improvement from LLM response")
-    argparser.add_argument("--model", type=str, help=f"The LLM's name: {models.models_list}")
-    argparser.add_argument("--dataset", type=str, help=f"The dataset to use for tests: {testers.datasets_list}")
-    argparser.add_argument("--data_size", type=int, help="Length of the test dataset")
-    argparser.add_argument("--iterations", type=int,
-                           help="Number of times to repete question and test for the same problem")
-    argparser.add_argument("-v", "--verbose", action="store_true", help="Print everything") # TODO complete it
-    args: Namespace = argparser.parse_args()
+    args: Namespace = set_parser().parse_args()
     if (args.model not in models.models_list) or (args.model == None):
         raise Exception(f"Model '{args.model}' not valid.")
     if (args.dataset not in testers.datasets_list) or (args.dataset == None):
@@ -42,16 +50,49 @@ def main():
         tester_args.append(args.iterations)
 
     tester: ModelTester = ModelTester(*tester_args)
-    result_dir_path: str = tester.run()
+    jsons_dir_path: str = tester.run()
     """
-    result_dir_path: str = "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-05-10_15:50:00"
-    jsons = [f for f in listdir(result_dir_path) if isfile(join(result_dir_path, f))]
-    sys.path.append('../PonyGE2/src/scripts')
-    from txt_individuals_from_json import txt_population
+    jsons_dir_path: str = "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-05-10_15:50:00"
+    jsons = [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]
+    improvements: List[str] = []
+    for file in jsons:
+        seed_pop_dir_name: str = jsons_dir_path.split('/')[-1] + '_' + file.replace(".json", '')
+        try:
+            txt_population(jsons_dir_path + '/' + file,
+                           "progsys/Fizz Buzz.bnf",  # TODO grammar from csv of problems
+                           seed_pop_dir_name)
+            improvements.append(file)
+        except Exception as e:
+            print(f"{file} raises an exception: {str(e)}")
+    if len(improvements) == 0:
+        e: str = "None of given jsons lead to a valid seed for improvement"
+        raise Exception(e)
     chdir("../PonyGE2/src")
-    for json in jsons:
-        ind_dir_name: str = result_dir_path.split("/")[-1] + "_" + json.replace(".json", "")
-        txt_population(result_dir_path + "/" + json, "progsys/Fizz Buzz.bnf", ind_dir_name) # TODO grammar from csv of problems
+    with open("../parameters/progimpr_base.txt", 'r') as file:
+        impr_base_file: str = file.read()
+    base_path: str = "../parameters/improvement/"
+    if not os.path.isdir(base_path):
+        os.mkdir(base_path)
+    res_dir_path: str = os.path.join(base_path, jsons_dir_path.split('/')[-1])
+    if not os.path.isdir(res_dir_path):
+        os.mkdir(res_dir_path)
+    for impr in improvements:
+        impr_file: str = impr_base_file.replace(
+            "<seed_folder>",
+            jsons_dir_path.split('/')[-1] + '_' + impr.replace(".json", ''))
+        with open(os.path.join(jsons_dir_path, impr), "r") as read_file:
+            extracted_json: Any = json.load(read_file)
+        prob_name: List[Dict[str, Any]] = extracted_json["problem_name"]
+        impr_file = impr_file.replace(
+            "<train>",
+            prob_name)
+        impr_file = impr_file.replace(
+            "<test>",
+            prob_name)
+        output_filepath: str = os.path.join(res_dir_path, impr.replace("json", "txt"))
+        output_file = open(output_filepath, 'w')
+        output_file.write(impr_file)
+        output_file.close()
 
 
 if __name__ == "__main__":
