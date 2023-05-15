@@ -9,7 +9,7 @@ class AlpacaModel(AbstractLanguageModel):
     __ALPACA_QUESTION_SECOND_PART: str = "\n\n### Response:\n"
 
     def __init__(self) -> None:
-        super().__init__("Alpaca")
+        super().__init__("Alpaca7b")
 
     def ask(self, question: str) -> str:
         question: str = (
