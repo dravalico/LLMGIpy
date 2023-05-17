@@ -7,19 +7,19 @@ from scripts.txt_individuals_from_json import txt_population
 
 
 def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
-    to_impr_filenames: List[str] = []
+    impr_filenames: List[str] = []
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
         try:
             txt_population(jsons_dir_path + '/' + filename,
                            "progsys/Fizz Buzz.bnf",  # TODO grammar from csv of problems
                            jsons_dir_path.split('/')[-1] + '_' + filename.replace(".json", ''))
-            to_impr_filenames.append(filename)
+            impr_filenames.append(filename)
         except Exception as e:
             print(f"{filename} raises an exception: {str(e)}")
-    if len(to_impr_filenames) == 0:
+    if len(impr_filenames) == 0:
         e: str = "None of given jsons lead to a valid seed for improvement"
         raise Exception(e)
-    return to_impr_filenames
+    return impr_filenames
 
 
 TRAIN_DATASET_TAG: str = "<train>"
