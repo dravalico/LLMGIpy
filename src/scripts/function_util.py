@@ -1,4 +1,7 @@
 import regex
+import ast
+from typing import List
+from types import ModuleType
 
 
 def extract_function_from_str(output: str) -> str:  # TODO More general and handle exception
@@ -11,13 +14,6 @@ def extract_function_name(f: str) -> str:  # TODO Handle the case of no name
 
 def tabs_as_symbol(f: str) -> str:
     return f.replace("    ", '\t').replace("  ", '\t')
-
-
-def to_pony_individual(python_code: str) -> str:
-    python_code = remove_inline_comments(python_code)
-    python_code = remove_multiline_comments(python_code)
-    python_code = remove_empty_lines(python_code)
-    return substitute_tabs_with_pony_encode(python_code)
 
 
 def remove_inline_comments(python_code: str) -> str:
@@ -92,3 +88,24 @@ def substitute_tabs_with_pony_encode(python_code: str) -> str:
         index = index + 2
     res.append(end_tab)
     return ''.join(res)
+
+
+def to_pony_individual(python_code: str) -> str:
+    python_code = remove_inline_comments(python_code)
+    python_code = remove_multiline_comments(python_code)
+    python_code = remove_empty_lines(python_code)
+    return substitute_tabs_with_pony_encode(python_code)
+
+
+def extract_function_imports(f: str) -> List[str]:
+    imports: List[str] = []
+    tree: ModuleType = ast.parse(f)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                imports.append(f"import {alias.name}")
+        elif isinstance(node, ast.ImportFrom):
+            module = node.module or ''
+            for alias in node.names:
+                imports.append(f"from {module} import {alias.name}")
+    return imports
