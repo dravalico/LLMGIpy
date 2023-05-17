@@ -55,7 +55,7 @@ def main():
 
     if cmd_args.jsons_dir != None:
         results_path: str = cmd_args.jsons_dir
-        print(f"{'=' * 80}")
+        print(f"\n{'=' * 80}")
     print("Creation of txt files representing the initial population")
     impr_filenames: List[str] = create_txt_population_foreach_json(results_path)
     print("Creation of txt files containing the parameters of each problem for genetic improvement")

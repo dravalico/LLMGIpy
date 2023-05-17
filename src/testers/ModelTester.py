@@ -26,7 +26,7 @@ class ModelTester():
         self.__iteration_timeout: int = iteration_timeout
 
     def run(self) -> str:
-        print(f"{'=' * 80}")
+        print(f"\n{'=' * 80}")
         print(f"Asking model '{self.__model.name}'...")
         for n_prob in range(len(self.__problems)):
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
