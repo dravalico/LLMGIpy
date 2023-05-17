@@ -9,7 +9,7 @@ import models
 from testers.ModelTester import ModelTester
 from testers.DatasetLoader import DatasetLoader
 import testers
-from scripts.generate_improvement_files import create_txt_population_foreach_json, create_params_file
+from scripts.improvement_files_generator import create_txt_population_foreach_json, create_params_file
 
 
 def set_parser() -> ArgumentParser:
