@@ -57,4 +57,4 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
         output_file.write(impr_file)
         output_file.close()
     chdir(cwd)
-    return params_dir_path
+    return os.path.abspath(params_dir_path)
