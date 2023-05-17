@@ -9,7 +9,8 @@ from scripts.function_util import (to_pony_individual,
                                    extract_function_from_str,
                                    extract_function_name,
                                    tabs_as_symbol,
-                                   extract_function_imports)
+                                   extract_function_imports,
+                                   remove_function_imports)
 
 
 class ModelTester():
@@ -44,11 +45,13 @@ class ModelTester():
                 futures_dict: Dict[Future, List[Any]] = self.__create_futures(
                     executor,
                     prob_name,
-                    res["f_bodies"],
+                    res["code"],
                     res["f_names"]
                 )
                 for i, (_, item) in enumerate(futures_dict.items()):
                     item.append(res["responses"][i])
+                    item.append(res["imports"][i])
+                    item.append(remove_function_imports(res["code"][i]))
                 futures: List[Future] = list(futures_dict.keys())
                 json_data: List[Dict[str, Any]] = []
                 json_element: Dict[str, any] = {}
@@ -58,8 +61,10 @@ class ModelTester():
                         "iteration": futures_dict[future][1] + 1,
                         "model_response": futures_dict[future][4],
                         "function_name": futures_dict[future][3],
-                        "function_extracted": tabs_as_symbol(futures_dict[future][2]),
-                        "individual": to_pony_individual(tabs_as_symbol(futures_dict[future][2]))
+                        "code": tabs_as_symbol(futures_dict[future][2]),
+                        "imports": futures_dict[future][5],
+                        "code_without_imports": tabs_as_symbol(futures_dict[future][6]),
+                        "individual": to_pony_individual(tabs_as_symbol(futures_dict[future][6]))
                     }
                     try:
                         result: Any = future.result(timeout=self.__iteration_timeout)
@@ -91,15 +96,20 @@ class ModelTester():
 
     def __ask_model_and_process(self, n_prob: int) -> Dict[str, List[str]]:
         responses: List[str] = []
-        f_bodies: List[str] = []
+        code: List[str] = []
+        f_imports: List[str] = []
         f_names: List[str] = []
         for iteration in range(self.__iterations):
             print(f"Iteration {iteration + 1}")
             description: str = self.__problems["Description"][n_prob]
             responses.append(self.__model.ask(description))
-            f_bodies.append(extract_function_from_str(responses[-1]))
-            f_names.append(extract_function_name(f_bodies[-1]))
-        return {"responses": responses, "f_bodies": f_bodies, "f_names": f_names}
+            code.append(extract_function_from_str(responses[-1]))
+            f_imports.append(extract_function_imports(code[-1]))
+            f_names.append(extract_function_name(code[-1]))
+        return {"responses": responses,
+                "code": code,
+                "imports": f_imports,
+                "f_names": f_names}
 
     def __create_futures(self, executor: ThreadPoolExecutor, prob_name: str, f_bodies: List[str], f_names: List[str]) -> Dict[Future, List[Any]]:
         futures: List[Future] = [executor.submit(self.__test_function, b, n, prob_name)

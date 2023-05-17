@@ -54,7 +54,7 @@ def remove_multiline_comments(python_code: str) -> str:
 
 
 def remove_empty_lines(python_code: str) -> str:
-    res: list = []
+    res: List[str] = []
     for line in python_code.split('\n'):
         if not regex.match(r'^\s*$', line):
             res.append(line + '\n')
@@ -67,7 +67,7 @@ def substitute_tabs_with_pony_encode(python_code: str) -> str:
     end_tab: str = ":}"
     tab_counter: int = 0
     tmp_tab_counter: int = 0
-    res: list = []
+    res: List[res] = []
     index: int = 0
     for line in python_code.split('\n'):
         tmp_tab_counter = line.count('\t')
@@ -109,3 +109,15 @@ def extract_function_imports(f: str) -> List[str]:
             for alias in node.names:
                 imports.append(f"from {module} import {alias.name}")
     return imports
+
+def remove_function_imports(f: str) -> str:
+    tree = ast.parse(f)
+    new_body = []
+    for node in tree.body:
+        if not isinstance(node, (ast.Import, ast.ImportFrom)):
+            new_body.append(node)
+    if hasattr(ast, 'TypeIgnore'):
+        new_tree = ast.Module(body=new_body, type_ignores=[])
+    else:
+        new_tree = ast.Module(body=new_body)
+    return ast.unparse(new_tree).strip()
