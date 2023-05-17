@@ -3,7 +3,6 @@ from typing import Any, List, Dict
 import os
 import subprocess
 from subprocess import CompletedProcess
-from scripts.function_util import extract_function_name
 
 
 def load_phenotypes_from_json(json_path: str) -> List[str]:
@@ -16,7 +15,7 @@ def load_phenotypes_from_json(json_path: str) -> List[str]:
     return phenotypes
 
 
-def obtain_genotypes(phenotypes: List[str], grammar_file: str) -> List[str]:
+def parse_genotypes(phenotypes: List[str], grammar_file: str) -> List[str]:
     if len(phenotypes) == 0:
         e: str = "You must specify at least one individual phenotype."
         raise Exception(e)
@@ -61,7 +60,7 @@ def txt_population(json_path: str,  grammar_file: str, output_dir_name: str) -> 
     os.chdir("../PonyGE2/src")
     try:
         res: List[str] = load_phenotypes_from_json(json_path)
-        res = obtain_genotypes(res, grammar_file)
+        res = parse_genotypes(res, grammar_file)
         create_txt_foreach_ind(output_dir_name, res)
     except:
         pass
