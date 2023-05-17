@@ -1,3 +1,8 @@
+import sys
+from argparse import ArgumentParser, Namespace
+from typing import List, Any
+from types import ModuleType
+from dotenv import load_dotenv
 from models.AbstractLanguageModel import AbstractLanguageModel
 from models import *
 import models
@@ -5,11 +10,6 @@ from testers.ModelTester import ModelTester
 from testers.DatasetLoader import DatasetLoader
 import testers
 from scripts.generate_improvement_files import create_txt_population_foreach_json, create_params_file
-from argparse import ArgumentParser, Namespace
-from typing import List, Any
-from types import ModuleType
-import sys
-from dotenv import load_dotenv
 
 
 def set_parser() -> ArgumentParser:
