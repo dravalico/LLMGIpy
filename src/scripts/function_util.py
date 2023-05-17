@@ -1,7 +1,7 @@
 import regex
 import ast
-from typing import List
-from types import ModuleType
+from typing import List, Any
+from ast import Module
 
 
 def extract_function_from_str(output: str) -> str:  # TODO More general and handle exception
@@ -99,7 +99,7 @@ def to_pony_individual(python_code: str) -> str:
 
 def extract_function_imports(f: str) -> List[str]:
     imports: List[str] = []
-    tree: ModuleType = ast.parse(f)
+    tree: Module = ast.parse(f)
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
@@ -111,8 +111,8 @@ def extract_function_imports(f: str) -> List[str]:
     return imports
 
 def remove_function_imports(f: str) -> str:
-    tree = ast.parse(f)
-    new_body = []
+    tree: Module = ast.parse(f)
+    new_body: List[Any] = []
     for node in tree.body:
         if not isinstance(node, (ast.Import, ast.ImportFrom)):
             new_body.append(node)

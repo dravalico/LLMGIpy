@@ -63,7 +63,7 @@ class ModelTester():
                         "function_name": futures_dict[future][3],
                         "code": tabs_as_symbol(futures_dict[future][2]),
                         "imports": futures_dict[future][5],
-                        "code_without_imports": tabs_as_symbol(futures_dict[future][6]),
+                        "code_without_imports_and_comments": tabs_as_symbol(futures_dict[future][6]),
                         "individual": to_pony_individual(tabs_as_symbol(futures_dict[future][6]))
                     }
                     try:
