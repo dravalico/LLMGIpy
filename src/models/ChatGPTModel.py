@@ -1,6 +1,6 @@
-from models.AbstractLanguageModel import AbstractLanguageModel
 import os
 import openai
+from models.AbstractLanguageModel import AbstractLanguageModel
 
 
 class ChatGPTModel(AbstractLanguageModel):
