@@ -29,29 +29,32 @@ def set_parser() -> ArgumentParser:
 
 def create_instance_of_class(module_name: str, class_name: str) -> Any:
     mod: ModuleType = sys.modules[module_name]
-    return getattr(mod, class_name)
+    return getattr(mod, class_name)()
 
 
 def main():
-    args: Namespace = set_parser().parse_args()
+    cmd_args: Namespace = set_parser().parse_args()
     load_dotenv()
 
-    if args.jsons_dir == None:
-        if (args.model not in models.models_list) or (args.model == None):
-            raise Exception(f"Model '{args.model}' not valid.")
-        if (args.dataset not in testers.datasets_list) or (args.dataset == None):
-            raise Exception(f"Dataset '{args.dataset}' not valid.")
-        model: AbstractLanguageModel = create_instance_of_class("models." + args.model, args.model)
-        loader: DatasetLoader = DatasetLoader(args.dataset, args.data_size) \
-            if args.data_size != None else DatasetLoader(args.dataset)
-        tester_args: List[Any] = [model, loader]
-        if args.iterations != None:
-            tester_args.append(args.iterations)
-        tester: ModelTester = ModelTester(*tester_args)
+    if cmd_args.jsons_dir == None:
+        if (cmd_args.model not in models.models_list) or (cmd_args.model == None):
+            raise Exception(f"Model '{cmd_args.model}' not valid.")
+        if (cmd_args.dataset not in testers.datasets_list) or (cmd_args.dataset == None):
+            raise Exception(f"Dataset '{cmd_args.dataset}' not valid.")
+        model: AbstractLanguageModel = create_instance_of_class("models." + cmd_args.model, cmd_args.model)
+        args: List[Any] = [cmd_args.dataset]
+        if cmd_args.data_size != None:
+            args.append(cmd_args.data_size)
+        loader: DatasetLoader = DatasetLoader(*args)
+        args.clear()
+        args.extend([model, loader])
+        if cmd_args.iterations != None:
+            args.append(cmd_args.iterations)
+        tester: ModelTester = ModelTester(*args)
         results_path: str = tester.run()
 
-    if args.jsons_dir != None:
-        results_path: str = args.jsons_dir
+    if cmd_args.jsons_dir != None:
+        results_path: str = cmd_args.jsons_dir
     impr_filenames: List[str] = create_txt_population_foreach_json(results_path)
     params_dir_path: str = create_params_file(results_path, impr_filenames)
 
