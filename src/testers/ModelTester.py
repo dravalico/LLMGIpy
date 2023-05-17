@@ -105,7 +105,7 @@ class ModelTester():
             responses.append(self.__model.ask(description))
             code.append(extract_function_from_str(responses[-1]))
             f_imports.append(extract_function_imports(code[-1]))
-            f_names.append(extract_function_name(code[-1]))
+            f_names.append(extract_function_name(code[-1])) # TODO handle case of no name
         return {"responses": responses,
                 "code": code,
                 "imports": f_imports,

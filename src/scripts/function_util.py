@@ -4,12 +4,13 @@ from typing import List, Any
 from ast import Module
 
 
-def extract_function_from_str(output: str) -> str:  # TODO More general and handle exception
-    return output[output.index("def"): len(output):]
+def extract_function_from_str(code: str) -> str:  # TODO More general and handle exception
+    return code[code.index("def"): len(code):]
 
 
 def extract_function_name(f: str) -> str:  # TODO Handle the case of no name
     return f[f.index("def ") + len("def "): f.index("(")]
+
 
 
 def tabs_as_symbol(f: str) -> str:
@@ -109,6 +110,7 @@ def extract_function_imports(f: str) -> List[str]:
             for alias in node.names:
                 imports.append(f"from {module} import {alias.name}")
     return imports
+
 
 def remove_function_imports(f: str) -> str:
     tree: Module = ast.parse(f)
