@@ -34,13 +34,13 @@ def create_instance_of_class(module_name: str, class_name: str) -> Any:
 
 def main():
     args: Namespace = set_parser().parse_args()
-    if (args.model not in models.models_list) or (args.model == None):
-        raise Exception(f"Model '{args.model}' not valid.")
-    if (args.dataset not in testers.datasets_list) or (args.dataset == None):
-        raise Exception(f"Dataset '{args.dataset}' not valid.")
     load_dotenv()
 
     if args.jsons_dir == None:
+        if (args.model not in models.models_list) or (args.model == None):
+            raise Exception(f"Model '{args.model}' not valid.")
+        if (args.dataset not in testers.datasets_list) or (args.dataset == None):
+            raise Exception(f"Dataset '{args.dataset}' not valid.")
         model: AbstractLanguageModel = create_instance_of_class("models." + args.model, args.model)
         loader: DatasetLoader = DatasetLoader(args.dataset, args.data_size) \
             if args.data_size != None else DatasetLoader(args.dataset)
