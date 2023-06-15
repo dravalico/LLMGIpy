@@ -43,7 +43,7 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
         impr_file: str = impr_base_file.replace(
             SEED_FOLDER_TAG,
             jsons_dir_name + '_' + impr_filename.replace(".json", ''))
-        with open(os.path.join(jsons_dir_path, impr_filename), "r") as read_file:
+        with open(os.path.join(jsons_dir_path, impr_filename), 'r') as read_file:
             extracted_json: Any = json.load(read_file)
         prob_name: List[Dict[str, Any]] = extracted_json["problem_name"]
         impr_file = impr_file.replace(

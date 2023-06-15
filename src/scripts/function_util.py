@@ -4,13 +4,19 @@ from typing import List, Any
 from ast import Module
 
 
-def extract_function_from_str(code: str) -> str:  # TODO More general and handle exception
-    return code[code.index("def"): len(code):]
+def extract_function_from_str(code: str) -> str:
+    code = code[code.index("def"): len(code):]
+    while len(code.split('\n')) > 1:
+        try:
+            ast.parse(code)
+            break
+        except:
+            code = '\n'.join(code.split('\n')[:-1])
+    return code
 
 
 def extract_function_name(f: str) -> str:  # TODO Handle the case of no name
     return f[f.index("def ") + len("def "): f.index("(")]
-
 
 
 def tabs_as_symbol(f: str) -> str:
@@ -118,7 +124,7 @@ def remove_function_imports(f: str) -> str:
     for node in tree.body:
         if not isinstance(node, (ast.Import, ast.ImportFrom)):
             new_body.append(node)
-    if hasattr(ast, 'TypeIgnore'):
+    if hasattr(ast, "TypeIgnore"):
         new_tree = ast.Module(body=new_body, type_ignores=[])
     else:
         new_tree = ast.Module(body=new_body)
