@@ -5,12 +5,13 @@ from pandas import DataFrame
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json, get_results_dir_path
-from scripts.function_util import (to_pony_individual,
-                                   extract_function_from_str,
+from scripts.function_util import (extract_function_from_str,
                                    extract_function_name,
                                    tabs_as_symbol,
+                                   to_pony_individual,
                                    extract_function_imports,
-                                   remove_function_imports)
+                                   remove_function_imports,
+                                   remove_imports_and_comments_and_format_tabs)
 
 
 class ModelTester():
@@ -63,7 +64,7 @@ class ModelTester():
                         "function_name": futures_dict[future][3],
                         "code": tabs_as_symbol(futures_dict[future][2]),
                         "imports": futures_dict[future][5],
-                        "code_without_imports_and_comments": tabs_as_symbol(futures_dict[future][6]),
+                        "code_without_imports_and_comments": remove_imports_and_comments_and_format_tabs(futures_dict[future][6]),
                         "individual": to_pony_individual(tabs_as_symbol(futures_dict[future][6]))
                     }
                     try:
@@ -103,9 +104,9 @@ class ModelTester():
             print(f"Iteration {iteration + 1}")
             description: str = self.__problems["Description"][n_prob]
             responses.append(self.__model.ask(description))
-            code.append(extract_function_from_str(responses[-1]))
-            f_imports.append(extract_function_imports(code[-1]))
-            f_names.append(extract_function_name(code[-1])) # TODO handle case of no name
+            code.append(extract_function_from_str(responses[-1]))  # TODO handle the case of no function
+            f_imports.append(extract_function_imports(responses[-1]))  # TODO handle the case of invalid code
+            f_names.append(extract_function_name(code[-1]))  # TODO handle the case of no name
         return {"responses": responses,
                 "code": code,
                 "imports": f_imports,

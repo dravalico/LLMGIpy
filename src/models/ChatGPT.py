@@ -3,7 +3,7 @@ import openai
 from models.AbstractLanguageModel import AbstractLanguageModel
 
 
-class ChatGPTModel(AbstractLanguageModel):
+class ChatGPT(AbstractLanguageModel):
     def __init__(self) -> None:
         super().__init__("ChatGPT")
 
@@ -15,7 +15,6 @@ class ChatGPTModel(AbstractLanguageModel):
             ]
         )
         res = completion.choices[0].message.content
-        print(res)
         return res
 
     def _load_model(self) -> None:

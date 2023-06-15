@@ -15,7 +15,7 @@ def extract_function_from_str(code: str) -> str:
     return code
 
 
-def extract_function_name(f: str) -> str:  # TODO Handle the case of no name
+def extract_function_name(f: str) -> str:
     return f[f.index("def ") + len("def "): f.index("(")]
 
 
@@ -129,3 +129,11 @@ def remove_function_imports(f: str) -> str:
     else:
         new_tree = ast.Module(body=new_body)
     return ast.unparse(new_tree).strip()
+
+
+def remove_imports_and_comments_and_format_tabs(f: str) -> str:
+    f = remove_inline_comments(f)
+    f = remove_multiline_comments(f)
+    f = remove_function_imports(f)
+    f = tabs_as_symbol(f)
+    return f
