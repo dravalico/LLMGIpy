@@ -4,6 +4,10 @@ from typing import List, Any
 from ast import Module
 
 
+# TODO start from top and verify import, from ... import and only then verify the def
+# pattern_import = r"^\s*import\s+[\w\s,.*]+\n"
+# pattern_from = r"^\s*from\s+[\w.]+\s+import\s+[\w\s*,]+\n"
+# pattern_def = r'\ndef\s+\w+\s*\('
 def extract_function_from_str(code: str) -> str:
     code = code[code.index("def"): len(code):]
     while len(code.split('\n')) > 1:
