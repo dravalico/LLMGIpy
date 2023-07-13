@@ -52,9 +52,9 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
         impr_file = impr_file.replace(
             TEST_DATASET_TAG,
             prob_name)
-        output_filepath: str = os.path.join("PonyGE2/parameters" + params_dir_path, impr_filename.replace(".json", ".txt"))
+        output_filepath: str = os.path.join(params_dir_path, impr_filename.replace(".json", ".txt"))
         output_file = open(output_filepath, 'w')
         output_file.write(impr_file)
         output_file.close()
     chdir(cwd)
-    return os.path.abspath(params_dir_path)
+    return "../PonyGE2/parameters/" + params_dir_path
