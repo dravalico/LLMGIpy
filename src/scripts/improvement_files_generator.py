@@ -33,10 +33,10 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
     jsons_dir_name: str = jsons_dir_path.split('/')[-1]
     with open("./progimpr_base.txt", 'r') as file:
         impr_base_file: str = file.read()
-    base_path: str = "./improvements/"
-    if not os.path.isdir(base_path):
-        os.mkdir(base_path)
-    params_dir_path: str = os.path.join(base_path, jsons_dir_name)
+    improvement_dir: str = "improvements"
+    if not os.path.isdir(improvement_dir):
+        os.mkdir(improvement_dir)
+    params_dir_path: str = os.path.join(improvement_dir, jsons_dir_name)
     if not os.path.isdir(params_dir_path):
         os.mkdir(params_dir_path)
     for impr_filename in impr_filenames:
@@ -52,7 +52,7 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
         impr_file = impr_file.replace(
             TEST_DATASET_TAG,
             prob_name)
-        output_filepath: str = os.path.join(params_dir_path, impr_filename.replace(".json", ".txt"))
+        output_filepath: str = os.path.join("PonyGE2/parameters" + params_dir_path, impr_filename.replace(".json", ".txt"))
         output_file = open(output_filepath, 'w')
         output_file.write(impr_file)
         output_file.close()
