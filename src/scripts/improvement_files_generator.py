@@ -31,9 +31,9 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
     cwd: str = os.getcwd()
     chdir("../PonyGE2/parameters")
     jsons_dir_name: str = jsons_dir_path.split('/')[-1]
-    with open("./progimpr_base.txt", 'r') as file:
-        impr_base_file: str = file.read()
     improvement_dir: str = "improvements"
+    with open(f"./{improvement_dir}/progimpr_base.txt", 'r') as file:
+        impr_base_file: str = file.read()
     if not os.path.isdir(improvement_dir):
         os.mkdir(improvement_dir)
     params_dir_path: str = os.path.join(improvement_dir, jsons_dir_name)
