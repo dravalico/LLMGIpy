@@ -65,7 +65,7 @@ class ModelTester():
                         "code": tabs_as_symbol(futures_dict[future][2]),
                         "imports": futures_dict[future][5],
                         "code_without_imports_and_comments": remove_imports_and_comments_and_format_tabs(futures_dict[future][6]),
-                        "individual": to_pony_individual(remove_imports_and_comments_and_format_tabs(tabs_as_symbol(futures_dict[future][6])))
+                        "individual": to_pony_individual(remove_imports_and_comments_and_format_tabs(futures_dict[future][6]))
                     }
                     try:
                         result: Any = future.result(timeout=self.__iteration_timeout)
