@@ -11,7 +11,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
         try:
             txt_population(jsons_dir_path + '/' + filename,
-                           "progsys/Fizz Buzz.bnf",  # TODO grammar from csv of problems
+                           "progsys/pybnf.bnf",  # FIXME hardcoded grammar
                            jsons_dir_path.split('/')[-1] + '_' + filename.replace(".json", ''))
             impr_filenames.append(filename)
         except Exception as e:
@@ -52,7 +52,7 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
         impr_file = impr_file.replace(
             TEST_DATASET_TAG,
             prob_name)
-        output_filepath: str = os.path.join(params_dir_path, impr_filename.replace(".json", "txt"))
+        output_filepath: str = os.path.join(params_dir_path, impr_filename.replace(".json", ".txt"))
         output_file = open(output_filepath, 'w')
         output_file.write(impr_file)
         output_file.close()

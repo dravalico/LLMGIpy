@@ -86,20 +86,24 @@ def substitute_tabs_and_newlines_with_pony_encode(python_code: str) -> str:
         line = line.replace('\t', '')
         if tmp_tab_counter > tab_counter:
             if index != 0:
-                res[index - 1] = res[index - 1].replace('\n', start_tab + newline)
+                res[index - 1] = res[index - 1].replace('\n', start_tab + '\n')
                 res.append(line)
             else:
-                res.append(line + start_tab + newline)
+                res.append(line + start_tab + '\n')
         if tmp_tab_counter < tab_counter:
-            res[index - 1] += end_tab + newline
+            res[index - 1] += end_tab + '\n'
             res.append(line)
         if tmp_tab_counter == tab_counter:
             res.append(line)
-        res += newline
+        res += '\n'
         tab_counter = tmp_tab_counter
         index = index + 2
     res.append(end_tab)
-    return start_tab.join(res + end_tab)
+    res.insert(0, start_tab)
+    res.insert(1, newline)
+    for _ in range(tab_counter):
+        res.append(end_tab)
+    return ''.join(res).replace('\n', '#')
 
 
 def to_pony_individual(python_code: str) -> str:
