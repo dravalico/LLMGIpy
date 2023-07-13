@@ -62,7 +62,5 @@ def txt_population(json_path: str,  grammar_file: str, output_dir_name: str) -> 
         res: List[str] = load_phenotypes_from_json(json_path)
         res = parse_genotypes(res, grammar_file)
         create_txt_foreach_ind(output_dir_name, res)
-    except:
-        pass
     finally:
         os.chdir(cwd)
