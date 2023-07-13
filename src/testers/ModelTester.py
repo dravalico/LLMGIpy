@@ -10,7 +10,7 @@ from scripts.function_util import (extract_function_from_str,
                                    tabs_as_symbol,
                                    to_pony_individual,
                                    extract_function_imports,
-                                   remove_function_imports,
+                                   remove_internal_function_imports,
                                    remove_imports_and_comments_and_format_tabs)
 
 
@@ -52,7 +52,7 @@ class ModelTester():
                 for i, (_, item) in enumerate(futures_dict.items()):
                     item.append(res["responses"][i])
                     item.append(res["imports"][i])
-                    item.append(remove_function_imports(res["code"][i]))
+                    item.append(remove_internal_function_imports(res["code"][i]))
                 futures: List[Future] = list(futures_dict.keys())
                 json_data: List[Dict[str, Any]] = []
                 json_element: Dict[str, any] = {}

@@ -127,7 +127,25 @@ def extract_function_imports(f: str) -> List[str]:
     return imports
 
 
-def remove_function_imports(f: str) -> str:
+def remove_internal_function_imports(f: str) -> str:
+    tree: ast.Module = ast.parse(f)
+    new_body: List[Any] = []
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef):
+            function_body: List[Any] = []
+            for function_node in node.body:
+                if not isinstance(function_node, (ast.Import, ast.ImportFrom)):
+                    function_body.append(function_node)
+            node.body = function_body
+        new_body.append(node)
+    if hasattr(ast, "TypeIgnore"):
+        new_tree = ast.Module(body=new_body, type_ignores=[])
+    else:
+        new_tree = ast.Module(body=new_body)
+    return ast.unparse(new_tree).strip()
+
+
+def remove_external_function_imports(f: str) -> str:
     tree: Module = ast.parse(f)
     new_body: List[Any] = []
     for node in tree.body:
@@ -143,6 +161,7 @@ def remove_function_imports(f: str) -> str:
 def remove_imports_and_comments_and_format_tabs(f: str) -> str:
     f = remove_inline_comments(f)
     f = remove_multiline_comments(f)
-    f = remove_function_imports(f)
+    f = remove_internal_function_imports(f)
+    f = remove_external_function_imports(f)
     f = tabs_as_symbol(f)
     return f
