@@ -11,7 +11,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
         try:
             txt_population(jsons_dir_path + '/' + filename,
-                           "progsys/pybnf.bnf",  # FIXME hardcoded grammar
+                           "pybnf_spaces.bnf",  # FIXME hardcoded grammar
                            jsons_dir_path.split('/')[-1] + '_' + filename.replace(".json", ''))
             impr_filenames.append(filename)
         except Exception as e:
