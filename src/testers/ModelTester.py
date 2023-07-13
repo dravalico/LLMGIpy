@@ -52,7 +52,7 @@ class ModelTester():
                 for i, (_, item) in enumerate(futures_dict.items()):
                     item.append(res["responses"][i])
                     item.append(res["imports"][i])
-                    item.append(remove_internal_function_imports(res["code"][i]))
+                    item.append(res["code"][i]) # TODO verify if is necessary to remove imports
                 futures: List[Future] = list(futures_dict.keys())
                 json_data: List[Dict[str, Any]] = []
                 json_element: Dict[str, any] = {}
