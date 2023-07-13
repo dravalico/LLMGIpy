@@ -73,9 +73,10 @@ def remove_empty_lines(python_code: str) -> str:
     return ''.join(res)
 
 
-def substitute_tabs_with_pony_encode(python_code: str) -> str:
+def substitute_tabs_and_newlines_with_pony_encode(python_code: str) -> str:
     start_tab: str = "{:"
     end_tab: str = ":}"
+    newline: str = '#'
     tab_counter: int = 0
     tmp_tab_counter: int = 0
     res: List[res] = []
@@ -85,27 +86,27 @@ def substitute_tabs_with_pony_encode(python_code: str) -> str:
         line = line.replace('\t', '')
         if tmp_tab_counter > tab_counter:
             if index != 0:
-                res[index - 1] = res[index - 1].replace('\n', start_tab + '\n')
+                res[index - 1] = res[index - 1].replace('\n', start_tab + newline)
                 res.append(line)
             else:
-                res.append(line + start_tab + '\n')
+                res.append(line + start_tab + newline)
         if tmp_tab_counter < tab_counter:
-            res[index - 1] += end_tab + '\n'
+            res[index - 1] += end_tab + newline
             res.append(line)
         if tmp_tab_counter == tab_counter:
             res.append(line)
-        res += '\n'
+        res += newline
         tab_counter = tmp_tab_counter
         index = index + 2
     res.append(end_tab)
-    return ''.join(res)
+    return start_tab.join(res + end_tab)
 
 
 def to_pony_individual(python_code: str) -> str:
     python_code = remove_inline_comments(python_code)
     python_code = remove_multiline_comments(python_code)
     python_code = remove_empty_lines(python_code)
-    return substitute_tabs_with_pony_encode(python_code)
+    return substitute_tabs_and_newlines_with_pony_encode(python_code)
 
 
 def extract_function_imports(f: str) -> List[str]:
