@@ -10,7 +10,6 @@ from scripts.function_util import (extract_function_from_str,
                                    tabs_as_symbol,
                                    to_pony_individual,
                                    extract_function_imports,
-                                   remove_internal_function_imports,
                                    remove_imports_and_comments_and_format_tabs)
 
 
