@@ -119,7 +119,10 @@ def extract_function_imports(f: str) -> List[str]:
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
-                imports.append(f"import {alias.name}")
+                if alias.asname != None:
+                    imports.append(f"import {alias.name} as {alias.asname}")
+                else:
+                    imports.append(f"import {alias.name}")
         elif isinstance(node, ast.ImportFrom):
             module = node.module or ''
             for alias in node.names:
