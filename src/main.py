@@ -59,13 +59,13 @@ def main():
     print("Creation of txt files representing the initial population")
     try:
         impr_filenames: List[str] = create_txt_population_foreach_json(results_path)
+        print("Creation of txt files containing the parameters of each problem for genetic improvement")
+        params_dir_path: str = create_params_file(results_path, impr_filenames)
+        print(f"The files have been saved in '{params_dir_path}'")
     except Exception as e:
         print(e)
-        return
-    print("Creation of txt files containing the parameters of each problem for genetic improvement")
-    params_dir_path: str = create_params_file(results_path, impr_filenames)
-    print(f"The files have been saved in '{params_dir_path}'")
-    print(f"{'=' * 80}")
+    finally:
+        print(f"{'=' * 80}")
 
 
 if __name__ == "__main__":

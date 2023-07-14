@@ -51,7 +51,7 @@ class ModelTester():
                 for i, (_, item) in enumerate(futures_dict.items()):
                     item.append(res["responses"][i])
                     item.append(res["imports"][i])
-                    item.append(res["code"][i]) # TODO verify if is necessary to remove imports
+                    item.append(res["code"][i])  # TODO verify if is necessary to remove imports
                 futures: List[Future] = list(futures_dict.keys())
                 json_data: List[Dict[str, Any]] = []
                 json_element: Dict[str, any] = {}
@@ -110,7 +110,7 @@ class ModelTester():
             try:
                 f_imports.append(extract_function_imports(responses[-1]))  # TODO handle the case of invalid code
             except:
-                f_imports.append("")
+                f_imports.append([])
             try:
                 f_names.append(extract_function_name(code[-1]))  # TODO handle the case of no name
             except:
