@@ -104,15 +104,15 @@ class ModelTester():
             description: str = self.__problems["Description"][n_prob]
             responses.append(self.__model.ask(description))
             try:
-                code.append(extract_function_from_str(responses[-1]))  # TODO handle the case of no function
+                code.append(extract_function_from_str(responses[-1]))
             except:
                 code.append("")
             try:
-                f_imports.append(extract_function_imports(responses[-1]))  # TODO handle the case of invalid code
+                f_imports.append(extract_function_imports(responses[-1]))
             except:
                 f_imports.append([])
             try:
-                f_names.append(extract_function_name(code[-1]))  # TODO handle the case of no name
+                f_names.append(extract_function_name(code[-1]))
             except:
                 f_names.append("")
         return {"responses": responses,
