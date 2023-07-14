@@ -1,5 +1,5 @@
 import sys
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace, BooleanOptionalAction
 from typing import List, Any
 from types import ModuleType
 from dotenv import load_dotenv
@@ -20,6 +20,9 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--iterations",
                            type=int,
                            help="Number of times to repete question and test for the same problem")
+    argparser.add_argument("--impr_files",
+                           action=BooleanOptionalAction,
+                           help="Boolean to generate also the files necessary for the improvement part")
     argparser.add_argument("--jsons_dir",
                            type=str,
                            help="Generate only improvement files; needs the path of jsons directory")
@@ -56,16 +59,18 @@ def main():
     if cmd_args.jsons_dir != None:
         results_path: str = cmd_args.jsons_dir
         print(f"\n{'=' * 80}")
-    print("Creation of txt files representing the initial population")
-    try:
-        impr_filenames: List[str] = create_txt_population_foreach_json(results_path)
-        print("Creation of txt files containing the parameters of each problem for genetic improvement")
-        params_dir_path: str = create_params_file(results_path, impr_filenames)
-        print(f"The files have been saved in '{params_dir_path}'")
-    except Exception as e:
-        print(e)
-    finally:
-        print(f"{'=' * 80}")
+
+    if cmd_args.impr_files or cmd_args.jsons_dir != None:
+        print("Creation of txt files representing the initial population")
+        try:
+            impr_filenames: List[str] = create_txt_population_foreach_json(results_path)
+            print("Creation of txt files containing the parameters of each problem for genetic improvement")
+            params_dir_path: str = create_params_file(results_path, impr_filenames)
+            print(f"The files have been saved in '{params_dir_path}'")
+        except Exception as e:
+            print(e)
+        finally:
+            print(f"{'=' * 80}")
 
 
 if __name__ == "__main__":
