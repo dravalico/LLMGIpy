@@ -57,7 +57,11 @@ def main():
         results_path: str = cmd_args.jsons_dir
         print(f"\n{'=' * 80}")
     print("Creation of txt files representing the initial population")
-    impr_filenames: List[str] = create_txt_population_foreach_json(results_path)
+    try:
+        impr_filenames: List[str] = create_txt_population_foreach_json(results_path)
+    except Exception as e:
+        print(e)
+        return
     print("Creation of txt files containing the parameters of each problem for genetic improvement")
     params_dir_path: str = create_params_file(results_path, impr_filenames)
     print(f"The files have been saved in '{params_dir_path}'")
