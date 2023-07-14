@@ -60,9 +60,9 @@ class ModelTester():
                     json_element = {
                         "iteration": futures_dict[future][1] + 1,
                         "model_response": futures_dict[future][4],
+                        "imports": futures_dict[future][5],
                         "function_name": futures_dict[future][3],
                         "code": tabs_as_symbol(futures_dict[future][2]),
-                        "imports": futures_dict[future][5],
                         "code_without_imports_and_comments": remove_imports_and_comments_and_format_tabs(futures_dict[future][6]),
                         "individual": to_pony_individual(remove_imports_and_comments_and_format_tabs(futures_dict[future][6]))
                     }
