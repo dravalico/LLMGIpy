@@ -126,7 +126,10 @@ def extract_function_imports(f: str) -> List[str]:
         elif isinstance(node, ast.ImportFrom):
             module = node.module or ''
             for alias in node.names:
-                imports.append(f"from {module} import {alias.name}")
+                if alias.asname != None:
+                    imports.append(f"from {module} import {alias.name} as {alias.asname}")
+                else:
+                    imports.append(f"from {module} import {alias.name}")
     return imports
 
 
