@@ -3,6 +3,7 @@ import json
 import subprocess
 from typing import Any, List, Dict
 from subprocess import CompletedProcess
+from scripts.function_util import extract_function_name
 
 
 def load_phenotypes_from_json(json_path: str) -> List[str]:
@@ -22,7 +23,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str) -> List[str]:
     genotypes: List[str] = []
     for phenotype in phenotypes:
         try:
-            # phenotype = phenotype.replace(extract_function_name(phenotype), "evolve") # TODO remove comment
+            phenotype = phenotype.replace(extract_function_name(phenotype), "evolve") # TODO remove comment
             process_res: CompletedProcess = subprocess.run(
                 ["python", "scripts/GE_LR_parser.py", "--grammar_file",
                     grammar_file, "--reverse_mapping_target", phenotype],
