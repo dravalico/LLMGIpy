@@ -23,7 +23,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str) -> List[str]:
     genotypes: List[str] = []
     for phenotype in phenotypes:
         try:
-            phenotype = phenotype.replace(extract_function_name(phenotype), "evolve") # TODO remove comment
+            phenotype = phenotype.replace(extract_function_name(phenotype), "evolve")
             process_res: CompletedProcess = subprocess.run(
                 ["python", "scripts/GE_LR_parser.py", "--grammar_file",
                     grammar_file, "--reverse_mapping_target", phenotype],
