@@ -51,20 +51,21 @@ class ModelTester():
                 for i, (_, item) in enumerate(futures_dict.items()):
                     item.append(res["responses"][i])
                     item.append(res["imports"][i])
-                    item.append(res["code"][i])  # TODO verify if is necessary to remove imports
                 futures: List[Future] = list(futures_dict.keys())
                 json_data: List[Dict[str, Any]] = []
                 json_element: Dict[str, any] = {}
                 print("\nTesting...")
                 for future in futures:
+                    formatted_code: str = remove_imports_and_comments_and_format_tabs(futures_dict[future][2])
+                    imports: List[str] = futures_dict[future][5]
                     json_element = {
                         "iteration": futures_dict[future][1] + 1,
                         "model_response": futures_dict[future][4],
-                        "imports": futures_dict[future][5],
+                        "imports": imports,
                         "function_name": futures_dict[future][3],
                         "code": tabs_as_symbol(futures_dict[future][2]),
-                        "code_without_imports_and_comments": remove_imports_and_comments_and_format_tabs(futures_dict[future][6]),
-                        "individual": to_pony_individual(remove_imports_and_comments_and_format_tabs(futures_dict[future][6]))
+                        "code_without_imports_and_comments": formatted_code,
+                        "individual": to_pony_individual(formatted_code, imports)
                     }
                     try:
                         result: Any = future.result(timeout=self.__iteration_timeout)

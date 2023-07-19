@@ -117,10 +117,22 @@ def substitute_tabs_and_newlines_with_pony_encode(python_code: str) -> str:
     return ''.join(res).replace('\n', '#')
 
 
-def to_pony_individual(python_code: str) -> str:
+def insert_strings_after_signature(python_code: str, imports: str) -> str:
+    code_lines: List[str] = python_code.split("\n")
+    function_line_index: str = next((i for i, line in enumerate(code_lines) if line.strip().startswith("def")), None)
+    if function_line_index is None:
+        raise ValueError("Problems with the function")
+    for string in imports:
+        code_lines.insert(function_line_index + 1, '\t' + string)
+    modified_code = "\n".join(code_lines)
+    return modified_code
+
+
+def to_pony_individual(python_code: str, imports: str) -> str:
     python_code = remove_inline_comments(python_code)
     python_code = remove_multiline_comments(python_code)
     python_code = remove_empty_lines(python_code)
+    python_code = insert_strings_after_signature(python_code, imports)
     return substitute_tabs_and_newlines_with_pony_encode(python_code)
 
 
