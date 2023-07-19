@@ -6,7 +6,7 @@ import re
 from re import Match
 
 
-def extract_imports(text: str) -> List[str]:
+def extract_external_imports(text: str) -> List[str]:
     pattern: str = r"(?:^|\n)(?:from\s+(\S+)\s+)?import\s+(.+?)(?:\s+as\s+(\w+))?(?=$|\n)"
     imports_match: List[str] = re.findall(pattern, text, re.MULTILINE)
     imports: List[str] = []
@@ -114,7 +114,8 @@ def remove_empty_lines(code: str) -> str:
     return ''.join(res)
 
 
-def extract_function_imports(code: str) -> List[str]:
+def extract_internal_imports(code: str) -> List[str]:
+    code = tabs_as_symbol(code)
     imports: List[str] = []
     tree: Module = ast.parse(code)
     for node in ast.walk(tree):

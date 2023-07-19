@@ -5,10 +5,11 @@ from pandas import DataFrame
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json, get_results_dir_path
-from scripts.function_util import (extract_imports,
+from scripts.function_util import (extract_external_imports,
                                    extract_function,
                                    extract_function_name,
                                    tabs_as_symbol,
+                                   extract_internal_imports,
                                    remove_imports_and_comments_and_format_tabs)
 from scripts.ponyge.individual_formatter import to_pony_individual
 
@@ -98,7 +99,7 @@ class ModelTester():
     def __ask_model_and_process(self, n_prob: int) -> Dict[str, List[str]]:
         responses: List[str] = []
         code: List[str] = []
-        f_imports: List[str] = []
+        f_imports: List[List[str]] = []
         f_names: List[str] = []
         for iteration in range(self.__iterations):
             print(f"Iteration {iteration + 1}")
@@ -109,7 +110,8 @@ class ModelTester():
             except:
                 code.append("")
             try:
-                f_imports.append(extract_imports(responses[-1]))
+                f_imports.append(list(set(extract_external_imports(responses[-1]) + 
+                                          extract_internal_imports(code[-1]))))
             except:
                 f_imports.append([])
             try:
