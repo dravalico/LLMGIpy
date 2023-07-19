@@ -2,21 +2,32 @@ import regex
 import ast
 from typing import List, Any
 from ast import Module
+import re
 
 
 # TODO start from top and verify import, from ... import and only then verify the def
-# pattern_import = r"^\s*import\s+[\w\s,.*]+\n"
-# pattern_from = r"^\s*from\s+[\w.]+\s+import\s+[\w\s*,]+\n"
-# pattern_def = r'\ndef\s+\w+\s*\('
-def extract_function_from_str(code: str) -> str:
-    code = code[code.index("def"): len(code):]
-    while len(code.split('\n')) > 1:
+def extract_function_from_str(text: str) -> str:
+    python_code: str = try_extract_code_inside_python_tag(text)
+    if python_code is not None:
+        return python_code
+    text = text[text.index("def"): len(text):]
+    while len(text.split('\n')) > 1:
         try:
-            ast.parse(code)
+            ast.parse(text)
             break
         except:
-            code = '\n'.join(code.split('\n')[:-1])
-    return code
+            text = '\n'.join(text.split('\n')[:-1])
+    if len(text.split('\n')) == 1:
+        text = text + "\n\tpass"
+    return text
+
+
+def try_extract_code_inside_python_tag(text: str) -> str:
+    pattern = r'```python\s*([\s\S]*?)\s*```'
+    match = re.search(pattern, text)
+    if match:
+        return match.group(1)
+    return None
 
 
 def extract_function_name(f: str) -> str:
