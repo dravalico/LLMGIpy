@@ -21,7 +21,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str) -> List[str]:
         e: str = "You must specify at least one individual phenotype."
         raise Exception(e)
     genotypes: List[str] = []
-    for phenotype in phenotypes:
+    for phenotype in list(set(phenotypes)):
         try:
             phenotype = phenotype.replace(extract_function_name(phenotype), "evolve")
             process_res: CompletedProcess = subprocess.run(
