@@ -39,7 +39,7 @@ class ModelTester():
             prob_name: str = self.__problems\
                 .get("Problem Name")[n_prob]\
                 .replace(' ', '-')\
-                .lower()  # TODO Maybe it's better if all the problem files have a directly correct name
+                .lower()  # NOTE Maybe it's better if all the problem files have a directly correct name
             n_threads: int = cpu_count() if self.__iterations > cpu_count() else self.__iterations
             with ThreadPoolExecutor(max_workers=n_threads) as executor:
                 futures_dict: Dict[Future, List[Any]] = self.__create_futures(
@@ -58,7 +58,7 @@ class ModelTester():
                 for future in futures:
                     formatted_code: str = remove_imports_and_comments_and_format_tabs(futures_dict[future][2])
                     imports: List[str] = futures_dict[future][5]
-                    json_element = {
+                    json_element = {  # NOTE is this elegant?
                         "iteration": futures_dict[future][1] + 1,
                         "model_response": futures_dict[future][4],
                         "imports": imports,
@@ -104,7 +104,7 @@ class ModelTester():
             print(f"Iteration {iteration + 1}")
             description: str = self.__problems["Description"][n_prob]
             responses.append(self.__model.ask(description))
-            try:
+            try:  # TODO check if this management is ok
                 code.append(extract_function_from_str(responses[-1]))
             except:
                 code.append("")

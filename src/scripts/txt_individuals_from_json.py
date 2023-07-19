@@ -21,9 +21,9 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str) -> List[str]:
         e: str = "You must specify at least one individual phenotype."
         raise Exception(e)
     genotypes: List[str] = []
-    for phenotype in list(set(phenotypes)):
+    for phenotype in list(set(phenotypes)):  # NOTE takes only different phenotypes
         try:
-            phenotype = phenotype.replace(extract_function_name(phenotype), "evolve")
+            phenotype = phenotype.replace(extract_function_name(phenotype), "evolve")  # NOTE hardcoded
             process_res: CompletedProcess = subprocess.run(
                 ["python", "scripts/GE_LR_parser.py", "--grammar_file",
                     grammar_file, "--reverse_mapping_target", phenotype],

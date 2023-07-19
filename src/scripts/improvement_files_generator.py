@@ -22,6 +22,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
     return impr_filenames
 
 
+# NOTE maybe ponyge related things can be enucleate
 TRAIN_DATASET_TAG: str = "<train>"
 TEST_DATASET_TAG: str = "<test>"
 SEED_FOLDER_TAG: str = "<seedFolder>"
