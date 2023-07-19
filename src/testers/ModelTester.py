@@ -5,12 +5,12 @@ from pandas import DataFrame
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json, get_results_dir_path
-from scripts.function_util import (extract_function,
+from scripts.function_util import (extract_imports,
+                                   extract_function,
                                    extract_function_name,
                                    tabs_as_symbol,
-                                   to_pony_individual,
-                                   extract_imports,
                                    remove_imports_and_comments_and_format_tabs)
+from scripts.ponyge.individual_formatter import to_pony_individual
 
 
 class ModelTester():

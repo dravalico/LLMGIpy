@@ -3,7 +3,7 @@ from os import listdir, chdir
 from os.path import isfile, join
 import json
 from typing import List, Any, Dict
-from scripts.txt_individuals_from_json import txt_population
+from scripts.ponyge.txt_individuals_from_json import txt_population
 
 
 def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
