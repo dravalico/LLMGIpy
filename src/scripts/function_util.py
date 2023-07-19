@@ -170,19 +170,10 @@ def remove_external_function_imports(code: str) -> str:
 
 
 def remove_imports_and_comments_and_format_tabs(code: str) -> str:
-    print("---------")
-    print("1\n" + code)
     code = remove_inline_comments(code)
-    print("2\n" + code)
     code = remove_multiline_comments(code)
-    print("3\n" + code)
     code = remove_internal_function_imports(code)
-    print("4\n" + code)
     code = remove_external_function_imports(code)
-    print("5\n" + code)
     code = remove_empty_lines(code)
-    print("6\n" + code)
     code = tabs_as_symbol(code)
-    print("7\n" + code)
-    print("---------")
     return code
