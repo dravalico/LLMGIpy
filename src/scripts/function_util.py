@@ -6,30 +6,53 @@ import re
 from re import Match
 
 
-# FIXME start from top and verify import, from ... import and only then verify the def
-def extract_function_from_str(text: str) -> str:
-    python_code: str = try_extract_code_inside_python_tag(text)
-    if python_code is not None:
-        return python_code
-    text = text[text.index("def"): len(text):]
-    while len(text.split('\n')) > 1:
+def extract_imports(text: str) -> List[str]:
+    pattern: str = r"(?:^|\n)(?:from\s+(\S+)\s+)?import\s+(.+?)(?:\s+as\s+(\w+))?(?=$|\n)"
+    imports_match: List[str] = re.findall(pattern, text, re.MULTILINE)
+    imports: List[str] = []
+    for import_data in imports_match:
+        package, items, alias = import_data
+        if items:
+            if package:
+                if alias:
+                    imports.append(f"from {package} import {items} as {alias}")
+                else:
+                    imports.append(f"from {package} import {items}")
+            else:
+                if alias:
+                    imports.append(f"import {items} as {alias}")
+                else:
+                    imports.append(f"import {items}")
+    return imports
+
+
+def extract_function(text: str) -> str:  # NOTE starts from def, imports should already be saved
+    code: str = try_extract_code_inside_python_tag(text)
+    if code is not None:
+        return code
+    code = text[text.index("def"): len(text):]
+    while len(code.split('\n')) > 1:
         try:
-            ast.parse(text)
+            ast.parse(code)
             break
         except:
-            text = '\n'.join(text.split('\n')[:-1])
-    if len(text.split('\n')) == 1:
-        text = text + "\n\tpass"
-    return text
+            code = '\n'.join(code.split('\n')[:-1])
+    if len(code.split('\n')) == 1:
+        return code + "\n\tpass"
+    return try_to_remove_extra_strings(code)
 
 
 def try_extract_code_inside_python_tag(text: str) -> str:
     pattern: str = r'```python\s*([\s\S]*?)\s*```'
     match: Match[str] = re.search(pattern, text)
-    if not match:
-        return None
-    code: str = tabs_as_symbol(match.group(1))
-    lines = code.split('\n')
+    if match:
+        return try_to_remove_extra_strings(match.group(1))
+    return None
+
+
+def try_to_remove_extra_strings(code: str) -> str:
+    code: str = code.replace("    ", '\t')
+    lines: List[str] = code.split('\n')
     code = lines[0]
     for line in lines[1:]:
         if line.count('\t') >= 1:

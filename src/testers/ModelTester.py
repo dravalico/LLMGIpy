@@ -5,11 +5,11 @@ from pandas import DataFrame
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json, get_results_dir_path
-from scripts.function_util import (extract_function_from_str,
+from scripts.function_util import (extract_function,
                                    extract_function_name,
                                    tabs_as_symbol,
                                    to_pony_individual,
-                                   extract_function_imports,
+                                   extract_imports,
                                    remove_imports_and_comments_and_format_tabs)
 
 
@@ -105,11 +105,11 @@ class ModelTester():
             description: str = self.__problems["Description"][n_prob]
             responses.append(self.__model.ask(description))
             try:  # TODO check if this management is ok
-                code.append(extract_function_from_str(responses[-1]))
+                code.append(extract_function(responses[-1]))
             except:
                 code.append("")
             try:
-                f_imports.append(extract_function_imports(responses[-1]))
+                f_imports.append(extract_imports(responses[-1]))
             except:
                 f_imports.append([])
             try:
