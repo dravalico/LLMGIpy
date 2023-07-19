@@ -5,7 +5,7 @@ from ast import Module
 import re
 
 
-# TODO start from top and verify import, from ... import and only then verify the def
+# FIXME start from top and verify import, from ... import and only then verify the def
 def extract_function_from_str(text: str) -> str:
     python_code: str = try_extract_code_inside_python_tag(text)
     if python_code is not None:
@@ -30,17 +30,17 @@ def try_extract_code_inside_python_tag(text: str) -> str:
     return None
 
 
-def extract_function_name(f: str) -> str:
-    return f[f.index("def ") + len("def "): f.index("(")]
+def extract_function_name(code: str) -> str:
+    return code[code.index("def ") + len("def "): code.index("(")]
 
 
 def tabs_as_symbol(f: str) -> str:
     return f.replace("    ", '\t').replace("  ", '\t')
 
 
-def remove_inline_comments(python_code: str) -> str:
+def remove_inline_comments(code: str) -> str:
     res: str = ""
-    for line in python_code.split('\n'):
+    for line in code.split('\n'):
         try:
             comment: str = line.split('#', 1)[1].split('\n', 1)[0]
             res += line.replace('#' + comment, '').rstrip()
@@ -50,15 +50,15 @@ def remove_inline_comments(python_code: str) -> str:
     return res
 
 
-def remove_multiline_comments(python_code: str) -> str:
+def remove_multiline_comments(code: str) -> str:
     triple_2q: str = '"""'
     triple_1q: str = "'''"
     res: str = ""
-    line_init: str = python_code.split('\n')[0].lstrip()
+    line_init: str = code.split('\n')[0].lstrip()
     is_take: bool = False if (line_init == triple_2q) or (line_init == triple_1q) else True
     is_stmn: bool = True if ((triple_2q in line_init) or (triple_1q in line_init)) and is_take else False
     is_take_prev: bool = is_take
-    for line in python_code.split('\n'):
+    for line in code.split('\n'):
         if len(line.lstrip()) > 0:
             if (line.lstrip()[0] == '"""' and line.rstrip()[-1] == '"""') or \
                     (line.lstrip()[0] == "'''" and line.rstrip()[-1] == "'''"):
@@ -75,16 +75,16 @@ def remove_multiline_comments(python_code: str) -> str:
     return res
 
 
-def remove_empty_lines(python_code: str) -> str:
+def remove_empty_lines(code: str) -> str:
     res: List[str] = []
-    for line in python_code.split('\n'):
+    for line in code.split('\n'):
         if not regex.match(r'^\s*$', line):
             res.append(line + '\n')
     res[-1] = res[-1].replace('\n', '')
     return ''.join(res)
 
 
-def substitute_tabs_and_newlines_with_pony_encode(python_code: str) -> str:
+def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     start_tab: str = "{:"
     end_tab: str = ":}"
     newline: str = '#'
@@ -92,7 +92,7 @@ def substitute_tabs_and_newlines_with_pony_encode(python_code: str) -> str:
     tmp_tab_counter: int = 0
     res: List[res] = []
     index: int = 0
-    for line in python_code.split('\n'):
+    for line in code.split('\n'):
         tmp_tab_counter = line.count('\t')
         line = line.replace('\t', '')
         if tmp_tab_counter > tab_counter:
@@ -117,8 +117,8 @@ def substitute_tabs_and_newlines_with_pony_encode(python_code: str) -> str:
     return ''.join(res).replace('\n', '#')
 
 
-def insert_strings_after_signature(python_code: str, imports: str) -> str:
-    code_lines: List[str] = python_code.split("\n")
+def insert_strings_after_signature(code: str, imports: str) -> str:
+    code_lines: List[str] = code.split("\n")
     function_line_index: str = next((i for i, line in enumerate(code_lines) if line.strip().startswith("def")), None)
     if function_line_index is None:
         raise ValueError("Problems with the function")
@@ -128,17 +128,17 @@ def insert_strings_after_signature(python_code: str, imports: str) -> str:
     return modified_code
 
 
-def to_pony_individual(python_code: str, imports: str) -> str:
-    python_code = remove_inline_comments(python_code)
-    python_code = remove_multiline_comments(python_code)
-    python_code = remove_empty_lines(python_code)
-    python_code = insert_strings_after_signature(python_code, imports)
-    return substitute_tabs_and_newlines_with_pony_encode(python_code)
+def to_pony_individual(code: str, imports: str) -> str:
+    code = remove_inline_comments(code)
+    code = remove_multiline_comments(code)
+    code = remove_empty_lines(code)
+    code = insert_strings_after_signature(code, imports)
+    return substitute_tabs_and_newlines_with_pony_encode(code)
 
 
-def extract_function_imports(f: str) -> List[str]:
+def extract_function_imports(code: str) -> List[str]:
     imports: List[str] = []
-    tree: Module = ast.parse(f)
+    tree: Module = ast.parse(code)
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
@@ -156,8 +156,8 @@ def extract_function_imports(f: str) -> List[str]:
     return imports
 
 
-def remove_internal_function_imports(f: str) -> str:
-    tree: ast.Module = ast.parse(f)
+def remove_internal_function_imports(code: str) -> str:
+    tree: ast.Module = ast.parse(code)
     new_body: List[Any] = []
     for node in tree.body:
         if isinstance(node, ast.FunctionDef):
@@ -174,8 +174,8 @@ def remove_internal_function_imports(f: str) -> str:
     return ast.unparse(new_tree).strip()
 
 
-def remove_external_function_imports(f: str) -> str:
-    tree: Module = ast.parse(f)
+def remove_external_function_imports(code: str) -> str:
+    tree: Module = ast.parse(code)
     new_body: List[Any] = []
     for node in tree.body:
         if not isinstance(node, (ast.Import, ast.ImportFrom)):
@@ -187,10 +187,10 @@ def remove_external_function_imports(f: str) -> str:
     return ast.unparse(new_tree).strip()
 
 
-def remove_imports_and_comments_and_format_tabs(f: str) -> str:
-    f = remove_inline_comments(f)
-    f = remove_multiline_comments(f)
-    f = remove_internal_function_imports(f)
-    f = remove_external_function_imports(f)
-    f = tabs_as_symbol(f)
-    return f
+def remove_imports_and_comments_and_format_tabs(code: str) -> str:
+    code = remove_inline_comments(code)
+    code = remove_multiline_comments(code)
+    code = remove_internal_function_imports(code)
+    code = remove_external_function_imports(code)
+    code = tabs_as_symbol(code)
+    return code
