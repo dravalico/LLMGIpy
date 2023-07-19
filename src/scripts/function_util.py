@@ -56,6 +56,7 @@ def try_to_remove_extra_strings(code: str) -> str:
     is_start: bool = True
     for line in lines[1:]:
         if is_start and line.count('\t') < 1:
+            code += '\n' + line
             continue
         if line.count('\t') >= 1:
             is_start = False
