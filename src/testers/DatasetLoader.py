@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 
 class DatasetLoader():  # TODO Is a good abstraction?
-    def __init__(self, dataset: str, data_size: int = 1000) -> None:
+    def __init__(self, dataset: str, data_size: int = 150) -> None:
         self.__data_size: int = data_size
         self.__problems: DataFrame = None
         self.__dataset = dataset
