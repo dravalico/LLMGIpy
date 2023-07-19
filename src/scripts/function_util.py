@@ -3,6 +3,7 @@ import ast
 from typing import List, Any
 from ast import Module
 import re
+from re import Match
 
 
 # FIXME start from top and verify import, from ... import and only then verify the def
@@ -23,11 +24,17 @@ def extract_function_from_str(text: str) -> str:
 
 
 def try_extract_code_inside_python_tag(text: str) -> str:
-    pattern = r'```python\s*([\s\S]*?)\s*```'
-    match = re.search(pattern, text)
-    if match:
-        return match.group(1)
-    return None
+    pattern: str = r'```python\s*([\s\S]*?)\s*```'
+    match: Match[str] = re.search(pattern, text)
+    if not match:
+        return None
+    code: str = tabs_as_symbol(match.group(1))
+    lines = code.split('\n')
+    code = lines[0]
+    for line in lines[1:]:
+        if line.count('\t') >= 1:
+            code += '\n' + line
+    return code
 
 
 def extract_function_name(code: str) -> str:
