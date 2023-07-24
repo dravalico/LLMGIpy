@@ -86,6 +86,7 @@ class ModelTester():
                     "model_name": self.__model.name,
                     "problem_name": prob_name,
                     "problem_index": n_prob,
+                    "data_test_size": self.__dataset_loader.data_size,
                     "data": json_data
                 }
             )
@@ -96,7 +97,7 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, n_prob: int) -> Dict[str, List[str]]:
+    def __ask_model_and_process(self, n_prob: int) -> Dict[str, Any]:
         responses: List[str] = []
         code: List[str] = []
         f_imports: List[List[str]] = []

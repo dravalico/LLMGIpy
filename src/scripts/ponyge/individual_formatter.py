@@ -19,7 +19,7 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
             else:
                 res.append(line + start_tab + '\n')
         if tmp_tab_counter < tab_counter:
-            res[index - 1] += end_tab + '\n'
+            res[index - 1] += end_tab  # NOTE + '\n' probably not correct
             res.append(line)
         if tmp_tab_counter == tab_counter:
             res.append(line)
@@ -28,10 +28,10 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
         index = index + 2
     res.append(end_tab)
     res.insert(0, start_tab)
-    res.insert(1, newline)
+    res.insert(1, '\n')
     for _ in range(tab_counter):
         res.append(end_tab)
-    return ''.join(res).replace('\n', '#')
+    return ''.join(res).replace('\n', newline)
 
 
 def insert_strings_after_signature(code: str, imports: str) -> str:
