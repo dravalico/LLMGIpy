@@ -1,5 +1,5 @@
 from typing import List, Any, Dict, Callable
-from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError
+from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError, as_completed
 from multiprocessing import cpu_count
 from pandas import DataFrame
 from testers.DatasetLoader import DatasetLoader
@@ -34,15 +34,15 @@ class ModelTester():
     def run(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Asking model '{self.__model.name}'...")
-        for n_prob in range(len(self.__problems)):
-            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
-            res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
-            prob_name: str = self.__problems\
-                .get("Problem Name")[n_prob]\
-                .replace(' ', '-')\
-                .lower()  # NOTE Maybe it's better if all the problem files have a directly correct name
-            n_threads: int = cpu_count() if self.__iterations > cpu_count() else self.__iterations
-            with ThreadPoolExecutor(max_workers=n_threads) as executor:
+        n_threads: int = cpu_count() if self.__iterations > cpu_count() else self.__iterations
+        with ThreadPoolExecutor(max_workers=n_threads) as executor:
+            for n_prob in range(len(self.__problems)):
+                print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
+                res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
+                prob_name: str = self.__problems\
+                    .get("Problem Name")[n_prob]\
+                    .replace(' ', '-')\
+                    .lower()  # NOTE Maybe it's better if all the problem files have a directly correct name
                 futures_dict: Dict[Future, List[Any]] = self.__create_futures(
                     executor,
                     prob_name,
@@ -75,23 +75,25 @@ class ModelTester():
                         print("Exception for iteration", futures_dict[future][1] + 1)
                         if isinstance(e, TimeoutError):
                             e = "Timeout for tests"
-                            future.cancel()
                         result = {"error": str(e)}
                     json_element["tests_results"] = result
                     json_data.append(json_element)
-                print("\nSaving results...")
-            create_and_save_json(
-                f"{self.__model.name}{'_problem'}{n_prob}",
-                {
-                    "model_name": self.__model.name,
-                    "problem_name": prob_name,
-                    "problem_index": n_prob,
-                    "data_test_size": self.__dataset_loader.data_size,
-                    "data": json_data
-                }
-            )
-            print(f"Problem '{prob_name}' completed.")
-        print(f"{'=' * 80}")
+                    future.cancel()
+                print("\nSaving results...")  # TODO in case of exception it never goes further
+                create_and_save_json(
+                    f"{self.__model.name}{'_problem'}{n_prob}",
+                    {
+                        "model_name": self.__model.name,
+                        "problem_name": prob_name,
+                        "problem_index": n_prob,
+                        "data_test_size": self.__dataset_loader.data_size,
+                        "data": json_data
+                    }
+                )
+                print(f"Problem '{prob_name}' completed.")
+                print(f"{'=' * 80}")
+            remaining_futures = executor._work_queue.qsize()
+            executor.shutdown()
         dir_name: str = get_results_dir_path()
         print(f"Results saved in {dir_name}")
         print(f"{'=' * 80}")
@@ -111,7 +113,7 @@ class ModelTester():
             except:
                 code.append("")
             try:
-                f_imports.append(list(set(extract_external_imports(responses[-1]) + 
+                f_imports.append(list(set(extract_external_imports(responses[-1]) +
                                           extract_internal_imports(code[-1]))))
             except:
                 f_imports.append([])

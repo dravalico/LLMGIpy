@@ -41,10 +41,10 @@ class Alpaca7B(AbstractLanguageModel):
         return self.__extract_response(result)
 
     def _load_model(self) -> None:
+        super()._load_model()
         self.__tokenizer = LLaMATokenizer.from_pretrained(
             "decapoda-research/llama-7b-hf"
         )
-        super()._load_model()
         self.__model = LLaMAForCausalLM.from_pretrained(
             "decapoda-research/llama-7b-hf",
             load_in_8bit=True,

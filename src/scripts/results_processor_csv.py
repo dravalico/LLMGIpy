@@ -8,6 +8,7 @@ from os.path import isfile, join
 import matplotlib.pyplot as plt
 from typing import List, Any, Tuple, Dict
 from datetime import datetime
+import numpy as np
 
 
 BASE_PATH: str = "../processed_results/"
@@ -20,20 +21,24 @@ def load_data_from_json(json_path: str) -> Any:
     return data
 
 
-def calculate_statistics(values) -> Tuple[float]:
+def calculate_statistics(values, size) -> Tuple[float]:
     try:
-        mean: float = round(statistics.mean(values), 5)
+        mean: float = round(statistics.mean(values) * 100 / size, 3)
     except:
-        mean = 0
+        mean = 0.0
     try:
-        median: float = round(statistics.median(values), 5)
+        median: float = round(statistics.median(values) * 100 / size, 3)
     except:
-        median = 0
+        median = 0.0
     try:
-        variance: float = round(statistics.variance(values), 5)
+        mode: float = round(statistics.mode(values) * 100 / size, 3)
     except:
-        variance = 0
-    return mean, median, variance
+        mode = 0.0
+    try:
+        variance: float = round(statistics.stdev(values) * 100 / size, 3)
+    except:
+        variance = 0.0
+    return mean, mode, median, variance
 
 
 def create_statistics_table(data) -> Dict[str, Any]:
@@ -43,7 +48,7 @@ def create_statistics_table(data) -> Dict[str, Any]:
     if problem_name not in table:
         table[problem_name] = {}
     if model_name not in table[problem_name]:
-        table[problem_name][model_name] = {"μ, med, σ²": []}
+        table[problem_name][model_name] = {"μ, mode, med, σ": []}
     json_data: List[Dict[str, Any]] = data["data"]
     statistics_data: List[int] = []
     for item in json_data:
@@ -51,7 +56,7 @@ def create_statistics_table(data) -> Dict[str, Any]:
             statistics_data.append(item["tests_results"]["passed"])
         except:
             pass
-    table[problem_name][model_name]["μ, med, σ²"] = calculate_statistics(statistics_data)
+    table[problem_name][model_name]["μ, mode, med, σ"] = calculate_statistics(statistics_data, data["data_test_size"])
     return table
 
 
@@ -79,8 +84,8 @@ def create_csv_statistics(jsons_dirs_path: List[str]) -> str:
     data: List[Dict[str, Any]] = []
     for jsons_dir_path in jsons_dirs_path:
         for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
-            data = load_data_from_json(join(jsons_dir_path + '/' + filename))
-            statistics_table: Dict[str, Any] = create_statistics_table(data)
+            data1 = load_data_from_json(join(jsons_dir_path + '/' + filename))
+            statistics_table: Dict[str, Any] = create_statistics_table(data1)
             data.append(statistics_table)
     if not os.path.isdir(BASE_PATH):
         os.mkdir(BASE_PATH)
@@ -111,8 +116,7 @@ def create_csv_table_fig(csv_path: str) -> None:
 
 
 def main():  # TODO remove it
-    path: str = create_csv_statistics(["/mnt/data/dravalico/workspace/LLMGIpy/results/2023-07-19_16:56:21",
-                                       "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-07-14_14:02:53"])
+    path: str = create_csv_statistics(["/mnt/data/dravalico/workspace/LLMGIpy/results/2"])
     create_csv_table_fig(path)
 
 

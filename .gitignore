@@ -5,3 +5,5 @@ __pycache__
 /PonyGE2
 .env
 /processed_results
+src/prova.py
+.gitignore
