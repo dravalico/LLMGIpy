@@ -109,8 +109,6 @@ class ModelTester():
         try:
             result_queue.put(self.__test_function(*args_with_queue[:-1]))
         except Exception as e:
-            with open("/mnt/data/dravalico/workspace/LLMGIpy/src/testers/a.txt", 'a') as file:
-                file.write(str(e))
             result_queue.put(e)
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Dict[str, int]:
