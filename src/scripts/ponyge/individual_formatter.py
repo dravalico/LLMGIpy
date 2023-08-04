@@ -1,4 +1,7 @@
 from typing import List, Any
+import ast
+import re
+from scripts.function_util import extract_function_name
 
 
 def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
@@ -45,6 +48,55 @@ def insert_strings_after_signature(code: str, imports: str) -> str:
     return modified_code
 
 
+def extract_variables_names(code: str) -> List[str]:
+    exec(code, locals())
+    return list(extract_function_name(code).__code__.co_varnames)
+
+
+def extract_variables_names_test(code: str) -> List[str]:  # TODO remove it
+    tree = ast.parse(code)
+    names = []
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Assign, ast.For, ast.While)):
+            if isinstance(node, ast.For):
+                target = node.target
+            else:
+                target = node.targets[0]
+            if isinstance(target, ast.Name):
+                names.append(target.id)
+            elif isinstance(target, ast.Tuple):
+                for i in range(len(target.elts)):
+                    names.append(target.elts[i].id)
+    return list(set(names))
+
+
+def substitute_variables_name_with_predefined(names: List[str], code: str) -> str:
+    possible_names = ["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9",
+                      "v10", "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18", "v19"]
+    pred_names_dict = {}
+    for i, v in enumerate(names):
+        pred_names_dict[v] = possible_names[i]
+    pattern = r'(\W+)'
+    splitted_code = re.split(pattern, code)
+    ss = 0
+    for i in range(len(splitted_code)):
+        if ss == 0:
+            if splitted_code[i].find('"') != -1 or splitted_code[i].find("'") != -1 \
+                    or splitted_code[i].find('"""') != -1 or splitted_code[i].find("'''") != -1:
+                ss = 1
+            else:
+                if splitted_code[i] in pred_names_dict.keys():
+                    splitted_code[i] = pred_names_dict[splitted_code[i]]
+        elif ss == 1:
+            if splitted_code[i].find('"') != -1 or splitted_code[i].find("'") != -1 \
+                    or splitted_code[i].find('"""') != -1 or splitted_code[i].find("'''") != -1:
+                ss = 0
+    return ''.join(splitted_code)
+
+
 def to_pony_individual(code: str, imports: str) -> str:
     code = insert_strings_after_signature(code, imports)
+    # params: List[str] = extract_function_parameters(code)
+    # names: List[str] = extract_variables_names(code)
+    # code = substitute_variables_name_with_predefined(names, code)
     return substitute_tabs_and_newlines_with_pony_encode(code)

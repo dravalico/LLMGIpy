@@ -1,6 +1,5 @@
-from typing import List, Any, Dict, Callable
-from concurrent.futures import ThreadPoolExecutor, Future, TimeoutError, as_completed
-from multiprocessing import cpu_count
+from typing import List, Any, Dict, Callable, Tuple
+from multiprocessing import Process, Queue
 from pandas import DataFrame
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
@@ -33,67 +32,43 @@ class ModelTester():
 
     def run(self) -> str:
         print(f"\n{'=' * 80}")
-        print(f"Asking model '{self.__model.name}'...")
-        n_threads: int = cpu_count() if self.__iterations > cpu_count() else self.__iterations
-        with ThreadPoolExecutor(max_workers=n_threads) as executor:
-            for n_prob in range(len(self.__problems)):
-                print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
-                res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
-                prob_name: str = self.__problems\
-                    .get("Problem Name")[n_prob]\
-                    .replace(' ', '-')\
-                    .lower()  # NOTE Maybe it's better if all the problem files have a directly correct name
-                futures_dict: Dict[Future, List[Any]] = self.__create_futures(
-                    executor,
-                    prob_name,
-                    res["code"],
-                    res["f_names"]
-                )
-                for i, (_, item) in enumerate(futures_dict.items()):
-                    item.append(res["responses"][i])
-                    item.append(res["imports"][i])
-                futures: List[Future] = list(futures_dict.keys())
-                json_data: List[Dict[str, Any]] = []
-                json_element: Dict[str, any] = {}
-                print("\nTesting...")
-                for future in futures:
-                    formatted_code: str = remove_imports_and_comments_and_format_tabs(futures_dict[future][2])
-                    imports: List[str] = futures_dict[future][5]
-                    json_element = {  # NOTE is this elegant?
-                        "iteration": futures_dict[future][1] + 1,
-                        "model_response": futures_dict[future][4],
-                        "imports": imports,
-                        "function_name": futures_dict[future][3],
-                        "code": tabs_as_symbol(futures_dict[future][2]),
-                        "code_without_imports_and_comments": formatted_code,
-                        "individual": to_pony_individual(formatted_code, imports)
-                    }
-                    try:
-                        result: Any = future.result(timeout=self.__iteration_timeout)
-                        print("Result obtained for iteration", futures_dict[future][1] + 1)
-                    except Exception as e:
-                        print("Exception for iteration", futures_dict[future][1] + 1)
-                        if isinstance(e, TimeoutError):
-                            e = "Timeout for tests"
-                        result = {"error": str(e)}
-                    json_element["tests_results"] = result
-                    json_data.append(json_element)
-                    future.cancel()
-                print("\nSaving results...")  # TODO in case of exception it never goes further
-                create_and_save_json(
-                    f"{self.__model.name}{'_problem'}{n_prob}",
-                    {
-                        "model_name": self.__model.name,
-                        "problem_name": prob_name,
-                        "problem_index": n_prob,
-                        "data_test_size": self.__dataset_loader.data_size,
-                        "data": json_data
-                    }
-                )
-                print(f"Problem '{prob_name}' completed.")
-                print(f"{'=' * 80}")
-            remaining_futures = executor._work_queue.qsize()
-            executor.shutdown()
+        print(f"Model '{self.__model.name}'")
+        for n_prob in range(6, 8):
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
+            res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
+            prob_name: str = self.__problems\
+                .get("Problem Name")[n_prob]\
+                .replace(' ', '-')\
+                .lower()  # NOTE Maybe it's better if all the problem files have a directly correct name
+            args: List[Tuple] = self.__create_task_input(prob_name, res["code"], res["f_names"])
+            data: List[List[Any]] = []
+            for i, arg in enumerate(args):
+                temp = list(arg)
+                temp.pop()
+                temp.append(res["responses"][i])
+                temp.append(res["imports"][i])
+                temp.append(i)
+                data.append(temp)
+            workers = []
+            print("\nTesting...")
+            for i in range(len(args)):
+                process = Process(target=self.__worker_function, args=args[i])
+                process.start()
+                workers.append(process)
+            for i, worker in enumerate(workers):
+                try:
+                    worker.join(timeout=self.__iteration_timeout)
+                    if worker.is_alive():
+                        worker.terminate()
+                        raise Exception("Process timed out")
+                    print(f"Result obtained for iteration {args[i][1]}")
+                    data[i].append(args[i][-1].get())
+                except Exception as e:
+                    print(f"Exception for iteration {args[i][1]}")
+                    data[i].append({"passed": 0, "error": str(e)})
+            self.__create_and_save_json(data, n_prob, prob_name)
+            print(f"Problem '{prob_name}' completed.")
+            print(f"{'=' * 80}")
         dir_name: str = get_results_dir_path()
         print(f"Results saved in {dir_name}")
         print(f"{'=' * 80}")
@@ -126,10 +101,17 @@ class ModelTester():
                 "imports": f_imports,
                 "f_names": f_names}
 
-    def __create_futures(self, executor: ThreadPoolExecutor, prob_name: str, f_bodies: List[str], f_names: List[str]) -> Dict[Future, List[Any]]:
-        futures: List[Future] = [executor.submit(self.__test_function, b, n, prob_name)
-                                 for b, n in zip(f_bodies, f_names)]
-        return {f: [prob_name, i, f_bodies[i], f_names[i]] for i, f in enumerate(futures)}
+    def __create_task_input(self, prob_name: str, f_bodies: List[str], f_names: List[str]) -> List[Tuple]:
+        return [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
+
+    def __worker_function(self, *args_with_queue):
+        result_queue = args_with_queue[-1]
+        try:
+            result_queue.put(self.__test_function(*args_with_queue[:-1]))
+        except Exception as e:
+            with open("/mnt/data/dravalico/workspace/LLMGIpy/src/testers/a.txt", 'a') as file:
+                file.write(str(e))
+            result_queue.put(e)
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Dict[str, int]:
         try:
@@ -154,3 +136,31 @@ class ModelTester():
                 except Exception as e:
                     with_exception += 1
             return {"passed": passed, "not_passed": not_passed, "with_exception(s)": with_exception}
+
+    def __create_and_save_json(self, data: List[List[Any]], n_prob: int, prob_name: str) -> None:
+        json_data: List[Dict[str, Any]] = []
+        json_element: Dict[str, any] = {}
+        for element in data:
+            formatted_code: str = remove_imports_and_comments_and_format_tabs(element[0])
+            imports: List[str] = element[4]
+            json_element = {
+                "iteration": element[5] + 1,
+                "model_response": element[3],
+                "imports": imports,
+                "function_name": element[1],
+                "code": tabs_as_symbol(element[0]),
+                "code_without_imports_and_comments": formatted_code,
+                "individual": to_pony_individual(formatted_code, imports),
+                "tests_results": element[-1]
+            }
+            json_data.append(json_element)
+        create_and_save_json(
+            f"{self.__model.name}{'_problem'}{n_prob}",
+            {
+                "model_name": self.__model.name,
+                "problem_name": prob_name,
+                "problem_index": n_prob,
+                "data_test_size": self.__dataset_loader.data_size,
+                "data": json_data
+            }
+        )
