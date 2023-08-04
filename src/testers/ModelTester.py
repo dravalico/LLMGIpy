@@ -61,10 +61,10 @@ class ModelTester():
                     if worker.is_alive():
                         worker.terminate()
                         raise Exception("Process timed out")
-                    print(f"Result obtained for iteration {args[i][1]}")
+                    print(f"Result obtained for iteration {args[i][5]}")
                     data[i].append(args[i][-1].get())
                 except Exception as e:
-                    print(f"Exception for iteration {args[i][1]}")
+                    print(f"Exception for iteration {args[i][5]}")
                     data[i].append({"passed": 0, "error": str(e)})
             self.__create_and_save_json(data, n_prob, prob_name)
             print(f"\nProblem '{prob_name}' completed.")
