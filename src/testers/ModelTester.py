@@ -67,7 +67,7 @@ class ModelTester():
                     print(f"Exception for iteration {args[i][1]}")
                     data[i].append({"passed": 0, "error": str(e)})
             self.__create_and_save_json(data, n_prob, prob_name)
-            print(f"Problem '{prob_name}' completed.")
+            print(f"\nProblem '{prob_name}' completed.")
             print(f"{'=' * 80}")
         dir_name: str = get_results_dir_path()
         print(f"Results saved in {dir_name}")
