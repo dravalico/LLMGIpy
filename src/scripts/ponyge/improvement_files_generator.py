@@ -13,9 +13,10 @@ def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
             txt_population(jsons_dir_path + '/' + filename,
                            "pybnf_spaces.bnf",  # FIXME hardcoded grammar
                            jsons_dir_path.split('/')[-1] + '_' + filename.replace(".json", ''))
+            print(f"'{filename}' leads to a valid seed for improvement")
             impr_filenames.append(filename)
         except Exception as e:
-            print(f"{filename} raises an exception: {str(e)}")
+            print(f"'{filename}' raises an exception: {str(e)}")
     if len(impr_filenames) == 0:
         e: str = "None of given jsons lead to a valid seed for improvement"
         raise Exception(e)
