@@ -32,7 +32,9 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     res.append(end_tab)
     res.insert(0, start_tab)
     res.insert(1, '\n')
-    for _ in range(tab_counter):
+    temp_res: str = ''.join(res)
+    missing_tabs: int = temp_res.count(start_tab) - temp_res.count(end_tab)
+    for _ in range(missing_tabs):
         res.append(end_tab)
     return ''.join(res).replace('\n', newline)
 
@@ -44,7 +46,7 @@ def insert_strings_after_signature(code: str, imports: str) -> str:
         raise ValueError("Problems with the function")
     for string in imports:
         code_lines.insert(function_line_index + 1, '\t' + string)
-    modified_code = "\n".join(code_lines)
+    modified_code = '\n'.join(code_lines)
     return modified_code
 
 
