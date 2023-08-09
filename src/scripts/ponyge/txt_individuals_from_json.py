@@ -24,7 +24,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str) -> List[List[str]]
     args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
                               for p in list(set(phenotypes))]
     with multiprocessing.Pool(processes=len(args)) as pool:
-        genotypes = pool.starmap(worker_function, args)
+        genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
     return genotypes
 
 

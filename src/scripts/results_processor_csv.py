@@ -116,8 +116,7 @@ def create_csv_table_fig(csv_path: str) -> None:
 
 
 def main():  # TODO remove it
-    path: str = create_csv_statistics(["/mnt/data/dravalico/workspace/LLMGIpy/results/2023-08-04_15:37:45",
-                                       "/mnt/data/dravalico/workspace/LLMGIpy/results/2023-08-07_07:17:17"])
+    path: str = create_csv_statistics([])
     create_csv_table_fig(path)
 
 
