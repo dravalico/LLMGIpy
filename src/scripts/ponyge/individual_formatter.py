@@ -1,7 +1,7 @@
 from typing import List, Any
 import ast
 import re
-from scripts.function_util import extract_function_name
+from scripts.function_util import extract_function_name, insert_strings_after_signature
 
 
 def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
@@ -37,17 +37,6 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     for _ in range(missing_tabs):
         res.append(end_tab)
     return ''.join(res).replace('\n', newline)
-
-
-def insert_strings_after_signature(code: str, imports: str) -> str:
-    code_lines: List[str] = code.split("\n")
-    function_line_index: str = next((i for i, line in enumerate(code_lines) if line.strip().startswith("def")), None)
-    if function_line_index is None:
-        raise ValueError("Problems with the function")
-    for string in imports:
-        code_lines.insert(function_line_index + 1, '\t' + string)
-    modified_code = '\n'.join(code_lines)
-    return modified_code
 
 
 def extract_variables_names(code: str) -> List[str]:
@@ -97,7 +86,7 @@ def substitute_variables_name_with_predefined(names: List[str], code: str) -> st
 
 
 def to_pony_individual(code: str, imports: str) -> str:
-    code = insert_strings_after_signature(code, imports)
+    # code = insert_strings_after_signature(code, imports)
     # params: List[str] = extract_function_parameters(code)
     # names: List[str] = extract_variables_names(code)
     # code = substitute_variables_name_with_predefined(names, code)

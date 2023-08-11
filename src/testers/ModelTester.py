@@ -9,7 +9,8 @@ from scripts.function_util import (extract_external_imports,
                                    extract_function_name,
                                    tabs_as_symbol,
                                    extract_internal_imports,
-                                   remove_imports_and_comments_and_format_tabs)
+                                   remove_imports_and_comments_and_format_tabs,
+                                   insert_strings_after_signature)
 from scripts.ponyge.individual_formatter import to_pony_individual
 
 
@@ -96,6 +97,10 @@ class ModelTester():
                 f_names.append(extract_function_name(code[-1]))
             except:
                 f_names.append("")
+            if f_imports[-1] != []:
+                for imp in f_imports[-1]:
+                    if imp not in code[-1]:
+                        code[-1] = insert_strings_after_signature(code[-1], [imp])
         return {"responses": responses,
                 "code": code,
                 "imports": f_imports,
