@@ -41,7 +41,7 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
 
 def extract_variables_names(code: str) -> List[str]:
     exec(code, locals())
-    return list(extract_function_name(code).__code__.co_varnames)
+    return list(eval(extract_function_name(code)).__code__.co_varnames)  # FIXME does not work
 
 
 def extract_variables_names_test(code: str) -> List[str]:  # TODO remove it
@@ -85,9 +85,12 @@ def substitute_variables_name_with_predefined(names: List[str], code: str) -> st
     return ''.join(splitted_code)
 
 
-def to_pony_individual(code: str, imports: str) -> str:
-    # code = insert_strings_after_signature(code, imports)
-    # params: List[str] = extract_function_parameters(code)
-    # names: List[str] = extract_variables_names(code)
-    # code = substitute_variables_name_with_predefined(names, code)
+def to_pony_individual_with_imports(code: str, imports: str) -> str:
+    code = insert_strings_after_signature(code, imports)
+    return substitute_tabs_and_newlines_with_pony_encode(code)
+
+
+def substitute_variables_name(code):
+    names: List[str] = extract_variables_names(code)
+    code = substitute_variables_name_with_predefined(names, code)
     return substitute_tabs_and_newlines_with_pony_encode(code)

@@ -11,7 +11,9 @@ from scripts.function_util import (extract_external_imports,
                                    extract_internal_imports,
                                    remove_imports_and_comments_and_format_tabs,
                                    insert_strings_after_signature)
-from scripts.ponyge.individual_formatter import to_pony_individual
+from scripts.ponyge.individual_formatter import (to_pony_individual_with_imports,
+                                                 substitute_tabs_and_newlines_with_pony_encode,
+                                                 substitute_variables_name)
 
 
 class ModelTester():
@@ -146,6 +148,8 @@ class ModelTester():
         for element in data:
             formatted_code: str = remove_imports_and_comments_and_format_tabs(element[0])
             imports: List[str] = element[4]
+            pony_individual: str = substitute_tabs_and_newlines_with_pony_encode(formatted_code)
+            code_with_imports: str = insert_strings_after_signature(formatted_code, imports)
             json_element = {
                 "iteration": element[5] + 1,
                 "model_response": element[3],
@@ -153,7 +157,10 @@ class ModelTester():
                 "function_name": element[1],
                 "code": tabs_as_symbol(element[0]),
                 "code_without_imports_and_comments": formatted_code,
-                "individual": to_pony_individual(formatted_code, imports),
+                "individual_no_imports": pony_individual,
+                "individual_no_imports_predefined_vars": substitute_variables_name(formatted_code),
+                "individual_imports": to_pony_individual_with_imports(formatted_code, imports),
+                "individual_imports_predefined_vars": substitute_variables_name(code_with_imports),
                 "tests_results": element[-1]
             }
             json_data.append(json_element)
