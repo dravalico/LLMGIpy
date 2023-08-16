@@ -1,0 +1,6 @@
+def fitnessTrainingCase(i, o):
+  eval = evolve(*i)
+  if str([eval]) == str(o):
+    return [0]
+  else:
+    return [1]

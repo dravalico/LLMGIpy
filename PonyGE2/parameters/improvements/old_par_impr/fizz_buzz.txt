@@ -1,0 +1,22 @@
+CACHE:                  False
+CODON_SIZE:             100000
+CROSSOVER:              variable_onepoint
+CROSSOVER_PROBABILITY:  0.9
+DATASET_TRAIN:          Fizz Buzz/Train.txt
+DATASET_TEST:           Fizz Buzz/Test.txt
+DEBUG:                  False
+ERROR_METRIC:           mse
+GENERATIONS:            50
+MAX_GENOME_LENGTH:      100
+GRAMMAR_FILE:           progsys/Fizz Buzz.bnf
+INITIALISATION:         PI_grow
+INVALID_SELECTION:      False
+MAX_INIT_TREE_DEPTH:    10
+MAX_TREE_DEPTH:         17
+MUTATION:               int_flip_per_codon
+POPULATION_SIZE:        500
+FITNESS_FUNCTION:       progsys
+REPLACEMENT:            generational
+SELECTION:              tournament
+TOURNAMENT_SIZE:        5
+VERBOSE:                False

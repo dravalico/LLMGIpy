@@ -1,0 +1,28 @@
+<predefined> ::= "def evolve("<vars>"):{:"<NEWLINE><code>":}"
+
+<NEWLINE> ::= "#"
+<vars> ::= <var> | <var>", "<var>
+<var> ::= "v0" | "v1" | "v2" | "v3" | "v4" | "v5" | "v6" | "v7" | "v8" | "v9"
+
+<code> ::= <statement> | <code><statement>
+<statement> ::= <stmt_list><NEWLINE> | <compound_stmt>
+<compound_stmt> ::= <if> | <for> | <while>
+<stmt_list> ::= <assign> | <return> | <update_var> | "break"
+
+<if> ::= "if "<condition>":{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1> | "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}"
+<if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
+<condition> ::= <var>" "<op>" "<num>" == 0" | <var>" "<op>" "<num>" == 1" | <condition>" "<cond_op>" "<condition> | <var>" "<op>" "<num> | <var>" == -1" | <var>"["<var>"] == "<var>"["<var>" + 1]"
+<op> ::= "%" | ">" | "-"
+<cond_op> ::= "or"|"and"
+
+<assign> ::= <var>" = "<var> | <var>" = "<var>" % "<var> | <var>" = "<num> | <var>" = []" | <var>" = 0" | <var>" = "<var>".split('-')" | <var>" = "<var>".split()" | <var>" = ["<var>"[0].lower()]" | <var>" = "<var>" + 1" | <var>" = "<var>".find("<var>", "<var>")" | <var>" = len("<var>")" | <var>" = "<var>" // 2" | <var>" += int("<var>"["<var>"])" | <var>" = "<var>"[0].lower() + ''.join(("<var>".title() for "<var>" in "<var>"[1:]))"
+<num> ::= "0"|"1"|"2"|"3"|"4"|"5"|"6"|"7"|"8"|"9"
+
+<return> ::= "return "<var> | "return "<num> | "return "<string> | "return str("<var>")" | "return ''.join("<var>")" | "return "<var>"["<var>"]" | "return "<var>"["<var>" - 1:"<var>" + 1]"
+<string> ::= "'Fizz'" | "'Buzz'" | "'FizzBuzz'"
+
+<for> ::= "for "<var>" in "<var>":{:"<NEWLINE><code>":}" | "for "<var>" in "<var>"[1:]:{:"<NEWLINE><code>":}" | "for "<var>" in range("<var>" - 1):{:"<NEWLINE><code>":}"
+
+<while> ::= "while "<var>":{:"<NEWLINE><code>":}" | "while "<var>" < len("<var>"):{:"<NEWLINE><code>":}"
+
+<update_var> ::= <var>".append("<var>".capitalize())" | <var>".append("<var>")"

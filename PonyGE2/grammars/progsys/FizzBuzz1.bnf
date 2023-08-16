@@ -1,0 +1,19 @@
+<predefined> ::= 'def evolve(in0):{:'
+<code>
+'return res0:}'
+<code> ::= <code><statement>'\n'|<statement>
+<statement> ::= <assign>|<if>
+<if> ::= 'if '<condition>':{:\n'<code>'\n:}' | 'if '<condition>':{:\n'<code>'\n:}else:{:\n'<code>'\n:}' | 'if '<condition>':{:\n'<code>'\n:}'<if_stmt1> | 'if '<condition>':{:\n'<code>'\n:}'<if_stmt1>'else:{:\n'<code>'\n:}'
+<if_stmt1> ::= 'elif '<condition>':{:\n'<code>'\n:}' | <if_stmt1>'elif '<condition>':{:\n'<code>'\n:}'
+<assign> ::= 'res0 = '<string> | "res0 = '"<string>"'"
+<string> ::= <string><literal>|<literal>|'str('<input>')'
+<input> ::= 'in0'
+<literal> ::= 'A'|'B'|'C'|'D'|'E'|'F'|'G'|'H'|'I'|'J'|'K'|'L'|'M'|'N'|'O'|'P'|'Q'|'R'|'S'|'T'|'U'|'V'|'W'|'X'|'Y'|'Z'|'['|'\\\\'|']'|'^'|'_'|'`'|'a'|'b'|'c'|'d'|'e'|'f'|'g'|'h'|'i'|'j'|'k'|'l'|'m'|'n'|'o'|'p'|'q'|'r'|'s'|'t'|'u'|'v'|'w'|'x'|'y'|'z'
+<condition> ::= <input>' '<op>' '<number>' == 0' | <condition>' '<cond_op>' '<condition>
+<op> ::= '%'
+<cond_op> ::= 'or'|'and'
+<number> ::= <number><num>|<num>
+<num> ::= '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'
+
+
+def evolve(in0):{:\nif in0 % 3 == 0 and in0 % 8 == 0:{:\nres0 = 'FizzBuzz'\n:}\nreturn res0:}

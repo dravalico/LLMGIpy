@@ -2,8 +2,8 @@
 /src/datasets
 /results
 __pycache__
-/PonyGE2
 .env
 /processed_results
 src/prova.py
 .gitignore
+/PonyGE/results

@@ -1,0 +1,2 @@
+Phenotype:
+def evolve(in0):{:\nif in0 % 2 == 0 and in0 % 5 == 0:{:\nres0 = 'FizzBuzz'\n:}elif in0 % 5 == 0:{:\nres0 = 'Buzz'\n:}else:{:\nres0 = str(in0)\n:}\nreturn res0:}

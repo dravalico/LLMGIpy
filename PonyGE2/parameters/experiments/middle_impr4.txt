@@ -1,0 +1,32 @@
+CACHE:                  True
+DEBUG:                  False
+VERBOSE:                True
+
+GRAMMAR_FILE:           progsys/damiano_middle.bnf
+DATASET_TRAIN:          middle-char/Train.txt
+DATASET_TEST:           middle-char/Test.txt
+FITNESS_FILE:           fitness_cases.txt
+FITNESS_FUNCTION:       progimpr
+
+INITIALISATION:         seed_individuals
+TARGET_SEED_FOLDER:     middle
+
+POPULATION_SIZE:        10000
+GENERATIONS:            1000
+MAX_GENOME_LENGTH:      1000
+CODON_SIZE:             1000
+
+MAX_INIT_TREE_DEPTH:    10
+MAX_TREE_DEPTH:         30
+
+CROSSOVER:              variable_onepoint
+CROSSOVER_PROBABILITY:  0.9
+MUTATION:               int_flip_per_codon
+MUTATION_PROBABILITY:   0.4
+
+ERROR_METRIC:           mse
+REPLACEMENT:            generational
+SELECTION:              tournament
+TOURNAMENT_SIZE:        10
+INVALID_SELECTION:      False
+

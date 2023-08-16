@@ -1,0 +1,22 @@
+<predefined> ::= "def evolve("<var>"):{:"<NEWLINE><code>":}"
+
+<NEWLINE> ::= "#"
+<vars> ::= <var>
+<var> ::= "v0" | "v1" | "v2" | "v3"
+
+<code> ::= <statement> | <code><statement>
+<statement> ::= <stmt_list><NEWLINE> | <compound_stmt>
+<compound_stmt> ::= <if>
+<stmt_list> ::= <assign> | <return>
+
+<if> ::= "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}"
+<if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
+<condition> ::= <var>" "<op>" "<num>" == 0" | <condition>" "<cond_op>" "<condition>
+<op> ::= "%"
+<cond_op> ::= "or"|"and"
+
+<assign> ::= <var>" = "<var>
+<num> ::= "0"|"3"|"5"
+
+<return> ::= "return "<var> | "return "<string> | "return str("<var>")" | "print("<string>")" | "print("<var>")"
+<string> ::= "'Fizz'" | "'Buzz'" | "'FizzBuzz'"

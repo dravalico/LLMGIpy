@@ -1,0 +1,25 @@
+CACHE:                  True
+CODON_SIZE:             100000
+CROSSOVER:              subtree
+CROSSOVER_PROBABILITY:  0.2
+MUTATION_PROBABILITY:   0.8
+GENERATIONS:            200
+MAX_GENOME_LENGTH:      1000
+DATASET_TRAIN:          Fizz Buzz/Train.txt
+DATASET_TEST:           Fizz Buzz/Test.txt
+GRAMMAR_FILE:           progsys/Fizz Buzz.bnf
+INITIALISATION:         seed_individuals
+MAX_INIT_TREE_DEPTH:    10
+MAX_TREE_DEPTH:         17
+MUTATION:               subtree
+MUTATION_PROBABILITY:   8
+POPULATION_SIZE:        2000
+ELITE_SIZE:  		    100
+FITNESS_FUNCTION:       progsys
+REPLACEMENT:            generational
+SAVE_ALL:               True
+SAVE_PLOTS:             True
+SELECTION:              tournament
+TOURNAMENT_SIZE:        2
+VERBOSE:                True
+TARGET_SEED_FOLDER:     fb2

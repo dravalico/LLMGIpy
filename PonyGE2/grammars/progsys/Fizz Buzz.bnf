@@ -1,0 +1,14 @@
+<predefined> ::= 'res0 = str()'
+<code>
+<code> ::= <code><statement>'\n'|<statement>'\n'
+<statement> ::= <assign>|<if>
+<if> ::= 'if '<condition>':{:\n'<assign>'\n:}'
+<assign> ::= 'res0 = '<string>
+<string> ::= <literal>|'str('<input>')'
+<input> ::= 'in0'
+<literal> ::= "'Fizz'"|"'Buzz'"|"'FizzBuzz'"
+<condition> ::= <input>' '<op>' '<number>' == 0'
+<op> ::= '%'
+<cond_op> ::= 'or'|'and'
+<number> ::= <number><num>|<num>
+<num> ::= '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'

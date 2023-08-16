@@ -1,0 +1,35 @@
+CACHE:                  True
+DEBUG:                  False
+VERBOSE:                True
+SAVE_ALL:               True
+
+GRAMMAR_FILE:           progsys/FizzBuzz1.bnf
+DATASET_TRAIN:          Fizz Buzz/Train.txt
+DATASET_TEST:           Fizz Buzz/Test.txt
+FITNESS_FILE:           fitness_string.txt
+FITNESS_FUNCTION:       progimpr
+
+INITIALISATION:         seed_individuals
+TARGET_SEED_FOLDER:     fizz_buzz1
+
+POPULATION_SIZE:        1000
+GENERATIONS:            2000
+MAX_GENOME_LENGTH:      2000
+CODON_SIZE:             2000
+
+MAX_INIT_TREE_DEPTH:    100
+MAX_TREE_DEPTH:         200
+
+CROSSOVER:              subtree
+CROSSOVER_PROBABILITY:  0.6
+NO_CROSSOVER_INVALIDS:  True
+MUTATION:               int_flip_per_ind
+MUTATION_EVENTS:        60
+NO_MUTATION_INVALIDS:   True
+
+ERROR_METRIC:           mse
+REPLACEMENT:            generational
+SELECTION:              tournament
+TOURNAMENT_SIZE:        300
+INVALID_SELECTION:      False
+

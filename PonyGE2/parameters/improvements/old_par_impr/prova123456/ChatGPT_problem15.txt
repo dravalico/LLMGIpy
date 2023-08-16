@@ -1,0 +1,35 @@
+CACHE:                  True
+DEBUG:                  False
+VERBOSE:                True
+SAVE_ALL:               True
+
+GRAMMAR_FILE:           pybnf_spaces.bnf
+DATASET_TRAIN:          middle-character/Train.txt
+DATASET_TEST:           middle-character/Test.txt
+FITNESS_FILE:           fitness_cases.txt
+FITNESS_FUNCTION:       progimpr
+
+INITIALISATION:         seed_individuals
+TARGET_SEED_FOLDER:     prova123456_ChatGPT_problem15
+
+POPULATION_SIZE:        50
+GENERATIONS:            200
+MAX_GENOME_LENGTH:      2000
+CODON_SIZE:             2000
+
+MAX_INIT_TREE_DEPTH:    100
+MAX_TREE_DEPTH:         200
+
+CROSSOVER:              subtree
+CROSSOVER_PROBABILITY:  0.9
+NO_CROSSOVER_INVALIDS:  True
+MUTATION:               subtree
+MUTATION_EVENTS:        10
+NO_MUTATION_INVALIDS:   True
+
+ERROR_METRIC:           mse
+REPLACEMENT:            generational
+SELECTION:              tournament
+TOURNAMENT_SIZE:        10
+INVALID_SELECTION:      False
+

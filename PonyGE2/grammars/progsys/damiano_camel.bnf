@@ -1,0 +1,17 @@
+<predefined> ::= "def evolve("<var>"):{:"<NEWLINE><code>":}"
+
+<NEWLINE> ::= "#"
+<var> ::= "v0" | "v1" | "v2" | "v3" | "v4" | "v5" | "v6"
+
+<code> ::= <statement> | <code><statement>
+<statement> ::= <stmt_list><NEWLINE> | <compound_stmt>
+<compound_stmt> ::= <for>
+<stmt_list> ::= <assign> | <return> | <update_var>
+
+<assign> ::= <var>" = "<var> | <var>" = "<var>".split('-')" | <var>" = ["<var>"[0].lower()]" | <var>" = []" | <var>" = "<var>".split()" | <var>" = "<var>"[0].lower() + ''.join(("<var>".title() for "<var>" in "<var>"[1:]))"
+
+<return> ::= "return "<var> | "return ''.join("<var>")"
+
+<for> ::= "for "<var>" in "<var>":{:"<NEWLINE><code>":}" | "for "<var>" in "<var>"[1:]:{:"<NEWLINE><code>":}"
+
+<update_var> ::= <var>".append("<var>".capitalize())" | <var>".append("<var>")"
