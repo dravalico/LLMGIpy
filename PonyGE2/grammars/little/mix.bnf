@@ -12,7 +12,7 @@
 <cond_op> ::= "or" | "and" | "not"
 <assign> ::= <var>" "<ass_op>" ''" | <var>" "<ass_op>" "<var> | <var>" "<ass_op>" []" |  <var>" "<ass_op>" "<split> | <var>" "<ass_op>" ["<list>"]" | <var>"["<var>"] "<ass_op>" "<var>"["<var>"].capitalize()" | <var>" "<ass_op>" ''.join("<var>")" |  <var>"["<num>"] "<ass_op>" "<var>"["<num>"].capitalize()" | <var>" "<ass_op>" "<sum> | <var>" "<ass_op>" ''.join("<var>").replace(' ', '')" | <var>" "<ass_op>" "<var>".capitalize()" | <var>" "<ass_op>" "<common> |  <var>" "<ass_op>" "<num> | <var>" "<ass_op>" "<var>"["<var>"]" | <var>" "<ass_op>" "<var> | <var>" "<ass_op>" np.cumsum("<var>")" | <var>" "<ass_op>" np.argmin("<var>" "<op>" "<num>")"
 <num> ::= "-1" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15"
-<index> ::= "1:" | <num>
+<index> ::= "1:" | <num> | <var>":" | ":"<var> | <var>":"<var>
 <return> ::= "return "<var> | "return "<string> | "return str("<var>")" | "return ''.join("<var>")" | "return "<num> | "return "<var>" "<math_op>" "<num>
 <print> ::= "print("<string>")" | "print("<var>")"
 <string> ::= "'Fizz'" | "'Buzz'" | "'FizzBuzz'" | "'-'" | "'[-\\\\s]+'" | "'[-\\\\s]'" | "' '" | "'-| '"
@@ -26,4 +26,4 @@
 <math_op> ::= "+" | "-" | "%"
 <ass_op> ::= "=" | "+="
 <list_op> ::= "+"
-<func> ::= "sum(["<var>"])" | "len("<var>") "<math_op>" "<num>
+<func> ::= "sum(["<var>"])" | "len("<var>") "<math_op>" "<num> | "sum("<var>"["<index><math_op><num>"])"
