@@ -65,7 +65,11 @@ class ModelTester():
                         worker.terminate()
                         raise Exception("Process timed out")
                     print(f"Result obtained for iteration {i + 1}")
-                    data[i].append(args[i][-1].get())
+                    task_res: Any = args[i][-1].get()
+                    if isinstance(task_res, Exception):
+                        data[i].append({"passed": 0, "error": str(task_res)})
+                    else:
+                        data[i].append(args[i][-1].get())
                 except Exception as e:
                     print(f"Exception for iteration {i + 1}")
                     data[i].append({"passed": 0, "error": str(e)})
