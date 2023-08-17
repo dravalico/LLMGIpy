@@ -2,14 +2,14 @@ CACHE:                  True
 DEBUG:                  False
 VERBOSE:                True
 
-GRAMMAR_FILE:           little/camel.bnf
-DATASET_TRAIN:          camel-case/Train.txt
-DATASET_TEST:           camel-case/Test.txt
+GRAMMAR_FILE:           little/basement.bnf
+DATASET_TRAIN:          Basement/Train.txt
+DATASET_TEST:           Basement/Test.txt
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
 INITIALISATION:         seed_individuals
-TARGET_SEED_FOLDER:     camel_med
+TARGET_SEED_FOLDER:     ciao
 
 POPULATION_SIZE:        1000
 GENERATIONS:            1000

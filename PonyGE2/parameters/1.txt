@@ -2,31 +2,31 @@ CACHE:                  True
 DEBUG:                  False
 VERBOSE:                True
 
-GRAMMAR_FILE:           progsys/damiano_fizz.bnf
+GRAMMAR_FILE:           little/fizz.bnf
 DATASET_TRAIN:          Fizz Buzz/Train.txt
 DATASET_TEST:           Fizz Buzz/Test.txt
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
 INITIALISATION:         seed_individuals
-TARGET_SEED_FOLDER:     isGen?
+TARGET_SEED_FOLDER:     fizz_med
 
-POPULATION_SIZE:        10000
+POPULATION_SIZE:        1000
 GENERATIONS:            1000
-MAX_GENOME_LENGTH:      1000
-CODON_SIZE:             1000
+MAX_GENOME_LENGTH:      0
+CODON_SIZE:             200
 
-MAX_INIT_TREE_DEPTH:    10
-MAX_TREE_DEPTH:         30
+MAX_INIT_TREE_DEPTH:     15
+MAX_TREE_DEPTH:          30
 
-CROSSOVER:              variable_onepoint
+CROSSOVER:              subtree
 CROSSOVER_PROBABILITY:  0.8
-MUTATION:               int_flip_per_codon
-MUTATION_PROBABILITY:   0.75
+MUTATION:               subtree
+MUTATION_PROBABILITY:   0.8
 
 ERROR_METRIC:           mse
 REPLACEMENT:            generational
 SELECTION:              tournament
-TOURNAMENT_SIZE:        10
+TOURNAMENT_SIZE:        50
 INVALID_SELECTION:      False
 
