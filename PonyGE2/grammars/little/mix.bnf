@@ -1,0 +1,29 @@
+<predefined> ::= "def evolve("<var>"):{:"<NEWLINE><code>":}"
+<NEWLINE> ::= "#"
+<var> ::= "v0" | "v1" | "v2" | "v3" | "v4" | "v5" | "v6"
+<code> ::= <statement> | <code><statement> | <statement> | <statement> | <statement>
+<statement> ::= <stmt_list><NEWLINE> | <compound_stmt> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE>
+<compound_stmt> ::= <if> | <for>
+<stmt_list> ::= <assign> | <return> | <print> | <update_var>
+<if> ::= "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>
+<if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
+<condition> ::= <var>" "<math_op>" "<num>" "<op>" "<num> | <condition>" "<cond_op>" "<condition> |  <var>" "<op>" "<num> | <func>" "<op>" "<num> | <var>" "<op>" "<func>
+<op> ::= "<" | "<=" | ">" | ">=" | "!=" | "=="
+<cond_op> ::= "or" | "and" | "not"
+<assign> ::= <var>" "<ass_op>" ''" | <var>" "<ass_op>" "<var> | <var>" "<ass_op>" []" |  <var>" "<ass_op>" "<split> | <var>" "<ass_op>" ["<list>"]" | <var>"["<var>"] "<ass_op>" "<var>"["<var>"].capitalize()" | <var>" "<ass_op>" ''.join("<var>")" |  <var>"["<num>"] "<ass_op>" "<var>"["<num>"].capitalize()" | <var>" "<ass_op>" "<sum> | <var>" "<ass_op>" ''.join("<var>").replace(' ', '')" | <var>" "<ass_op>" "<var>".capitalize()" | <var>" "<ass_op>" "<common> |  <var>" "<ass_op>" "<num> | <var>" "<ass_op>" "<var>"["<var>"]" | <var>" "<ass_op>" "<var> | <var>" "<ass_op>" np.cumsum("<var>")" | <var>" "<ass_op>" np.argmin("<var>" "<op>" "<num>")"
+<num> ::= "-1" | "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "11" | "12" | "13" | "14" | "15"
+<index> ::= "1:" | <num>
+<return> ::= "return "<var> | "return "<string> | "return str("<var>")" | "return ''.join("<var>")" | "return "<num> | "return "<var>" "<math_op>" "<num>
+<print> ::= "print("<string>")" | "print("<var>")"
+<string> ::= "'Fizz'" | "'Buzz'" | "'FizzBuzz'" | "'-'" | "'[-\\\\s]+'" | "'[-\\\\s]'" | "' '" | "'-| '"
+<for> ::= "for "<var>" in "<var>":{:"<NEWLINE><code>":}" | <inline_for>":{:"<NEWLINE><code>":}" | "for "<var>" in range("<num>", len("<var>")):{:"<NEWLINE><code>":}" | "for "<var>" in range(len("<var>")):{:"<NEWLINE><code>":}" | "for ("<var>", "<var>") in enumerate("<var>"):{:"<NEWLINE><code>":}"
+<common> ::= <var>"["<num>"].lower()"
+<inline_for> ::= "for "<var>" in "<var>"["<index>"]"
+<update_var> ::= <var>".append("<var>".capitalize())" | <var>".append("<var>")" | <var>".append("<var>".title())"
+<split> ::= <var>".split("<string>")" | <var>".split()" | "re.split('"<string>", "<var>")" | "re.split("<string>", "<var>")" | <var>"["<var>"].split("<string>")"
+<list> ::= <common> | <inline_for> | <var>".capitalize() for "<var>" in "<var> | <var>"["<index>"]" | <var>".title() "<inline_for> | <var>".capitalize() "<inline_for>
+<sum> ::= <common>" "<list_op>" ''.join(("<var>".title() "<inline_for>"))" | "["<list>"] "<list_op>" ["<list>"]"
+<math_op> ::= "+" | "-" | "%"
+<ass_op> ::= "=" | "+="
+<list_op> ::= "+"
+<func> ::= "sum(["<var>"])" | "len("<var>") "<math_op>" "<num>

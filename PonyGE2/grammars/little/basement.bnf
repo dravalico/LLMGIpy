@@ -12,9 +12,9 @@
 
 <assign> ::= <var>" "<ass_op>" "<num> | <var>" "<ass_op>" "<var>"["<var>"]" | <var>" "<ass_op>" "<var> | <var>" "<ass_op>" np.cumsum("<var>")" | <var>" "<ass_op>" np.argmin("<var>" "<op>" "<num>")"
 
-<for> ::= "for "<var>" in range(len("<var>")):{:"<NEWLINE><code>":}"
+<for> ::= "for "<var>" in range(len("<var>")):{:"<NEWLINE><code>":}" | "for ("<var>", "<var>") in enumerate("<var>"):{:"<NEWLINE><code>":}"
 
-<if> ::= "if "<condition>":{:"<NEWLINE><code>":}" | "for ("<var>", "<var>") in enumerate("<var>"):{:"<NEWLINE><code>":}"
+<if> ::= "if "<condition>":{:"<NEWLINE><code>":}"
 <condition> ::= <var>" "<op>" "<num> | <condition>" "<cond_op>" "<condition> | <func>" "<op>" "<num> | <var>" "<op>" "<func>
 <op> ::= "<" | "<=" | ">" | ">=" | "!="
 <cond_op> ::= "or" | "and" | "not"
