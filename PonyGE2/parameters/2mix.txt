@@ -9,7 +9,7 @@ FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
 INITIALISATION:         seed_individuals
-TARGET_SEED_FOLDER:     camle_gpt_mix
+TARGET_SEED_FOLDER:     camel_gpt_mix
 
 POPULATION_SIZE:        1000
 GENERATIONS:            1000
