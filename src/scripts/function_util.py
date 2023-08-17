@@ -65,7 +65,7 @@ def try_to_remove_extra_strings(code: str) -> str:
 
 
 def extract_function_name(code: str) -> str:
-    return code[code.index("def ") + len("def "): code.index("(")]
+    return code[code.index("def ") + len("def "): code.index('(')]
 
 
 def tabs_as_symbol(f: str) -> str:
@@ -183,7 +183,7 @@ def remove_imports_and_comments_and_format_tabs(code: str) -> str:
 def insert_strings_after_signature(code: str, imports: List[str]) -> str:
     if imports == []:
         return code
-    code_lines: List[str] = code.split("\n")
+    code_lines: List[str] = code.split('\n')
     function_line_index: str = next((i for i, line in enumerate(code_lines) if line.strip().startswith("def")), None)
     if function_line_index is None:
         raise ValueError("Problems with the function")
