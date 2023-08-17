@@ -9,7 +9,7 @@ FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
 INITIALISATION:         seed_individuals
-TARGET_SEED_FOLDER:     ciao
+TARGET_SEED_FOLDER:     basement_med_alpaca
 
 POPULATION_SIZE:        1000
 GENERATIONS:            1000
