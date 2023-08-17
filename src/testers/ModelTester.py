@@ -69,7 +69,7 @@ class ModelTester():
                     if isinstance(task_res, Exception):
                         data[i].append({"passed": 0, "error": str(task_res)})
                     else:
-                        data[i].append(args[i][-1].get())
+                        data[i].append(task_res)
                 except Exception as e:
                     print(f"Exception for iteration {i + 1}")
                     data[i].append({"passed": 0, "error": str(e)})
