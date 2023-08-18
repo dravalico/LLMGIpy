@@ -27,3 +27,7 @@
 <num> ::= "0" | "1" | "1:"
 
 <string> ::= "'-'" | "'[-\\\\s]+'" | "'[-\\\\s]'" | "' '" | "'-| '"
+<FUNC> ::= "enumerate" | "int" | "int" | "get_strike_bonus" | "get_spare_bonus" | "get_strike_bonus" | "int" | "int" | "int" | "int" | "int" | "strike_bonus" | "int" | "int" | "int" | "spare_bonus" 
+<METHOD> ::= ".isdigit" | ".isdigit" | ".isdigit" | ".isdigit" | ".isdigit" 
+<STRINGS> ::= "/" | "X" | "/" | "X" 
+<var> ::= "v0" | "v1" | "v2" | "v3" | "v4" | "v5" | "v6" | "v0" | "v1" | "v2" | "v3" | "v4" | "v5" | "v6" 

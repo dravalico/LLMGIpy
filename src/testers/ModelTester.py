@@ -13,7 +13,9 @@ from scripts.function_util import (extract_external_imports,
                                    insert_strings_after_signature)
 from scripts.ponyge.individual_formatter import (to_pony_individual_with_imports,
                                                  substitute_tabs_and_newlines_with_pony_encode,
-                                                 substitute_variables_name)
+                                                 substitute_variables_name,
+                                                 extract_variables_names,
+                                                 substitute_variables_name_with_predefined)
 
 
 class ModelTester():
@@ -152,19 +154,34 @@ class ModelTester():
         for element in data:
             formatted_code: str = remove_imports_and_comments_and_format_tabs(element[0])
             imports: List[str] = element[4]
-            pony_individual: str = substitute_tabs_and_newlines_with_pony_encode(formatted_code)
             code_with_imports: str = insert_strings_after_signature(formatted_code, imports)
+            code_with_imports_predefined, _ = substitute_variables_name_with_predefined(
+                extract_variables_names(code_with_imports), code_with_imports)
+            code_no_imports_predefined, used_names = substitute_variables_name_with_predefined(extract_variables_names(code_with_imports), code_with_imports)
+            code_no_imports_predefined = remove_imports_and_comments_and_format_tabs(code_no_imports_predefined)
+            pony_individual: str = substitute_tabs_and_newlines_with_pony_encode(formatted_code)
+            imports_predefined = extract_internal_imports(code_with_imports_predefined)
+            temp = ""
+            for i in imports_predefined:
+                temp += i + '#'
+            ind = temp + substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined)
             json_element = {
                 "iteration": element[5] + 1,
                 "model_response": element[3],
                 "imports": imports,
+                "imports_predefined": imports_predefined,
+                "variables_names": used_names,
                 "function_name": element[1],
                 "code": tabs_as_symbol(element[0]),
-                "code_without_imports_and_comments": formatted_code,
+                "code_no_imports_and_comments": formatted_code,
+                "code_no_imports_and_comments_predefined_vars": code_no_imports_predefined,
+                "code_imports_and_no_comments": code_with_imports,
+                "code_imports_and_no_comments_predefined_vars": code_with_imports_predefined,
                 "individual_no_imports": pony_individual,
-                "individual_no_imports_predefined_vars": substitute_variables_name(formatted_code),
+                "individual_no_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined),
                 "individual_imports": to_pony_individual_with_imports(formatted_code, imports),
-                "individual_imports_predefined_vars": substitute_variables_name(code_with_imports),
+                "individual_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_with_imports_predefined),
+                "final_individual": ind,
                 "tests_results": element[-1]
             }
             json_data.append(json_element)
