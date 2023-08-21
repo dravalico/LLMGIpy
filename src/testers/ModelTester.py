@@ -38,7 +38,7 @@ class ModelTester():
     def run(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(len(self.__problems)):
+        for n_prob in range(6, 7):
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
             prob_name: str = self.__problems\
@@ -181,7 +181,7 @@ class ModelTester():
                 "individual_no_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined),
                 "individual_imports": to_pony_individual_with_imports(formatted_code, imports),
                 "individual_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_with_imports_predefined),
-                "final_individual": ind,
+                "final_individual": ind.replace(element[1], "evolve"),
                 "tests_results": element[-1]
             }
             json_data.append(json_element)

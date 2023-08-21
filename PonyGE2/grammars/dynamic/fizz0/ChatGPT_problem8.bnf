@@ -8,14 +8,12 @@
 <var_list> ::= <var><index_list> | <var>"["<STRINGS>"]" | <var><index_list><method> | <var>"["<STRINGS>"]"<method> | <all_vars><index_list>
 <index_list> ::= "["<all_vars>"]" | "["<all_vars>":]" | "["<all_vars>":"<all_vars>"]" | "[:"<all_vars>"]"
 <var_fuction> ::= <FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method>
-<var_expr> ::= <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> | "("<var_expr>")" | <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars>
+<var_expr> ::= <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars>
 
 <code> ::= <statement> | <code><statement> | <statement> | <statement> | <statement>
 <statement> ::= <stmt_list><NEWLINE> | <compound_stmt> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE>
 <compound_stmt> ::= <if> | <for> | <while>
-<stmt_list> ::= <assign> | <return> | <print> | <update_var> | "break" | "continue" | "pass" | <assign> | <return> | <raise> | <update_var> | "break" | "continue" | "pass"
-
-<raise> ::= "raise ValueError("<STRINGS>")"
+<stmt_list> ::= <assign> | <return> | <print> | <update_var> | "break" | "continue" | "pass"
 
 <if> ::= "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>
 <if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
@@ -37,7 +35,7 @@
 
 <method> ::= <METHOD>"()" | <METHOD>"("<all_vars>")"
 
-<nums> ::=  <num> | <num> | <num> | <num><nums> | "-"<nums>
+<nums> ::=  <num> | <num> | <num> | <num> | <num> | <num> | <num><nums> | "-"<nums>
 <num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
 <return> ::= "return "<var> | "return "<STRINGS> | "return str("<var>")" | "return ''.join("<var>")" | "return "<nums> | "return "<all_vars> | "return str("<all_vars>")"
@@ -48,7 +46,7 @@
           "for "<var>" in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
           "for "<var>" in "<FUNC>"("<FUNC>"("<all_vars>")):{:"<NEWLINE><code>":}" |
           "for "<var>", "<var>" in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
-          "for ("<var>", "<var>") in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
+          "for ("<var>", "<var>") in "<FUNC>"("<var>"):{:"<NEWLINE><code>":}" |
           "for "<var>" in "<var_list>":{:"<NEWLINE><code>":}"
 
 <while> ::= "while "<var>":{:"<NEWLINE><code>":}" | "while "<var>" "<op>" "<all_vars>":{:"<NEWLINE><code>":}"
@@ -63,8 +61,13 @@
 
 <sum> ::= <all_vars>" "<list_op>" ''.join(("<all_vars>" "<inline_for>"))" | "["<list>"] "<list_op>" ["<list>"]"
 
-<math_op> ::= "+" | "-" | "%" | "//" | "*" | "/" | "**"
-<ass_op> ::= "=" | "+=" | "-=" | "*="
+<math_op> ::= "+" | "-" | "%" | "//"
+<ass_op> ::= "=" | "+="
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")"
+<FUNC> ::= "print" 
+<METHOD> ::= ''
+<STRINGS> ::= "'FizzBuzz'" | "'Buzz'" | "'Fizz'"
+<var> ::= "v0" 
+<IMPORTS> ::= "" | ""

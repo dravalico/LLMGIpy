@@ -5,7 +5,7 @@ Bowling;Given a string representing the individual bowls in a 10-frame round of 
 Coin Sums;Given a random currency (random numbers [1, 50] of length [1, 10]), how many different ways can you make n pounds?
 Camel Case;"Take a string and convert all of the words to camelCase. Each group of words is delimitered by ""-"", and each group of words is separated by a space"
 Cut Vector;Given an array, find the spot where if you cut the array, the numbers on both sides are either equal, or the difference is as small as possible
-Dice Game;Peter has an n sided die and Colin has an m sided die, where n < m. If they both roll their dice, what is the probabilitiy that Peter rolls strictly higher than Colin
+Dice Game;Peter has an n sided die and Colin has an m sided die. If they both roll their dice, what is the probabilitiy that Peter rolls strictly higher than Colin
 Find Pair;Given a list of integers, find the two that sum to a target integer. Return those two integers.
 Fizz Buzz;"Given an integer 1 <= x <= 50,000, print ""Fizz"" if x is divisible by 3, ""Buzz"" if x is divisible by 5, ""FizzBuzz"" if x is divisible by 3 and 5, and x if none of the above hold."
 Fuel Cost;Given a list of integers, divide each by 3, round down, and subtract 2. Then sum the result.

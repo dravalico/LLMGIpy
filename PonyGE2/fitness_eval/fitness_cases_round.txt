@@ -1,0 +1,6 @@
+def fitnessTrainingCase(i, o):
+  eval = evolve(*i)
+  if str([round(eval, 2)]) == str([round(o[0], 2)]):
+    return [0]
+  else:
+    return [1]

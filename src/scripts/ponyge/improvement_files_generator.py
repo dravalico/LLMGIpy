@@ -54,26 +54,30 @@ def create_grammar_from(json_path: str) -> str:
     temp: str = ""
     flat_list = [item for sublist in extracted_functions_from_individuals for item in sublist]
     for i in flat_list:
-        if "." in i:
+        if "." in i and i not in temp0:
             temp0 += f'"{i}" | '
-        else:
+        elif i not in temp:
             temp += f'"{i}" | '
     temp0 = temp0[:-2]
     temp = temp[:-2]
-    temp1: str = ""
+    temp1: str = []
     flat_list1 = [item for sublist in extracted_strings_from_individuals for item in sublist]
     for i in flat_list1:
-        temp1 += f'"{i}" | '
-    temp1 = temp1[:-2]
+        if f'"\'{i}\'"' not in temp1:
+            temp1.append(f'"\'{i}\'"')
+            temp1.append(" | ")
+    temp1 = temp1[:-1]
     temp2: str = ""
     flat_list2 = [item for sublist in variables for item in sublist]
     for i in flat_list2:
-        temp2 += f'"{i}" | '
+        if i not in temp2:
+            temp2 += f'"{i}" | '
     temp2 = temp2[:-2]
     temp3: str = ""
     flat_list3 = [item for sublist in imports for item in sublist]
     for i in flat_list3:
-        temp3 += i + '#'
+        if i not in temp3:
+            temp3 += i + '#'
     with open("../dynamic.bnf", 'rb') as source_file, open(json_path.split('/')[-1].replace(".json", ".bnf"), 'wb') as dest_file:
         dest_file.write(source_file.read())
     with open(json_path.split('/')[-1].replace(".json", ".bnf"), 'a') as bnf:
@@ -85,16 +89,15 @@ def create_grammar_from(json_path: str) -> str:
             bnf.write("<METHOD> ::= " + temp0 + '\n')
         else:
             bnf.write("<METHOD> ::= " + "''" + '\n')
-        if temp1 != "":
-            bnf.write("<STRINGS> ::= " + temp1 + '\n')
+        if temp1 != []:
+            bnf.write("<STRINGS> ::= " + ''.join(temp1) + '\n')
         else:
             bnf.write("<STRINGS> ::= " + "''" + '\n')
         if temp2 != "":
             bnf.write("<var> ::= " + temp2 + '\n')
         else:
             bnf.write("<var> ::= " + "''" + '\n')
-        if temp3 != "":
-            bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
+        bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
     chdir(cwd)
     return json_path.split('/')[-2] + '/' + json_path.split('/')[-1].replace(".json", ".bnf")
 
