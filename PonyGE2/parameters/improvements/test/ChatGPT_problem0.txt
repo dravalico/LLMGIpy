@@ -2,14 +2,14 @@ CACHE:                  True
 DEBUG:                  False
 VERBOSE:                True
 
-GRAMMAR_FILE:           dynamic/<bnf>
-DATASET_TRAIN:          <train>/Train.txt
-DATASET_TEST:           <test>/Test.txt
+GRAMMAR_FILE:           dynamic/test/ChatGPT_problem0.bnf
+DATASET_TRAIN:          Basement/Train.txt
+DATASET_TEST:           Basement/Test.txt
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
 INITIALISATION:         seed_individuals
-TARGET_SEED_FOLDER:     <seedFolder>
+TARGET_SEED_FOLDER:     test_ChatGPT_problem0
 
 POPULATION_SIZE:        1000
 GENERATIONS:            1000

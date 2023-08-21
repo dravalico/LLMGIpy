@@ -12,7 +12,7 @@ def load_phenotypes_from_json(json_path: str) -> List[str]:
     data: List[Dict[str, Any]] = json_file["data"]
     phenotypes: List[str] = []
     for i in range(0, len(data)):
-        phenotypes.append(data[i]["individual"])
+        phenotypes.append(data[i]["final_individual"])
     return phenotypes
 
 

@@ -10,10 +10,11 @@ import ast
 def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
     impr_filenames: List[str] = []
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
-        grammar_path: str = create_grammar_from(jsons_dir_path + '/' + filename)
+        create_grammar_from(jsons_dir_path + '/' + filename)
+        print("dynamic/" + jsons_dir_path.split('/')[-1] + "/" +  filename.replace(".json", '.bnf'))
         try:
             txt_population(jsons_dir_path + '/' + filename,
-                           "pybnf_spaces.bnf",  # FIXME hardcoded grammar
+                           "dynamic/" + jsons_dir_path.split('/')[-1] + "/" +  filename.replace(".json", ".bnf"),  # FIXME hardcoded grammar
                            jsons_dir_path.split('/')[-1] + '_' + filename.replace(".json", ''))
             print(f"'{filename}' leads to a valid seed for improvement")
             impr_filenames.append(filename)
@@ -25,7 +26,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
     return impr_filenames
 
 
-def create_grammar_from(json_path: str) -> str:
+def create_grammar_from(json_path: str) -> None:
     cwd: str = os.getcwd()
     chdir("../PonyGE2/grammars")
     if not os.path.isdir("dynamic"):
@@ -72,19 +73,27 @@ def create_grammar_from(json_path: str) -> str:
     flat_list3 = [item for sublist in imports for item in sublist]
     for i in flat_list3:
         temp3 += i + '#'
-    with open("../base.bnf", 'rb') as source_file, open(json_path.split('/')[-1].replace(".json", ".bnf"), 'wb') as dest_file:
+    with open("../dynamic.bnf", 'rb') as source_file, open(json_path.split('/')[-1].replace(".json", ".bnf"), 'wb') as dest_file:
         dest_file.write(source_file.read())
     with open(json_path.split('/')[-1].replace(".json", ".bnf"), 'a') as bnf:
         if temp != "":
             bnf.write("<FUNC> ::= " + temp + '\n')
+        else:
+             bnf.write("<FUNC> ::= " + "''" + '\n')
         if temp0 != "":
             bnf.write("<METHOD> ::= " + temp0 + '\n')
+        else:
+             bnf.write("<METHOD> ::= " + "''" + '\n')
         if temp1 != "":
             bnf.write("<STRINGS> ::= " + temp1 + '\n')
+        else:
+             bnf.write("<STRINGS> ::= " + "''" + '\n')
         if temp2 != "":
             bnf.write("<var> ::= " + temp2 + '\n')
+        else:
+             bnf.write("<var> ::= " + "''" + '\n')
         if temp3 != "":
-            bnf.write('<IMPORTS> ::= "' + temp3 + '"' + '\n')
+            bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
     chdir(cwd)
 
 

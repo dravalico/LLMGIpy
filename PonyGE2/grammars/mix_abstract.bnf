@@ -1,0 +1,68 @@
+<predefined> ::= <IMPORTS>"def evolve("<vars>"):{:"<NEWLINE><code>":}"
+<NEWLINE> ::= "#"
+
+<vars> ::= <var> | <var>", "<vars> | <var> | <var> | <var> | <var> | <var>
+
+<code> ::= <statement> | <code><statement> | <statement> | <statement> | <statement>
+<statement> ::= <stmt_list><NEWLINE> | <compound_stmt> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE>
+<compound_stmt> ::= <if> | <for> | <while>
+<stmt_list> ::= <assign> | <return> | <print> | <update_var> | "break" | "continue" | "pass"
+
+<if> ::= "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>
+<if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
+<condition> ::= <var>" "<math_op>" "<num>" "<op>" "<num> | <condition>" "<cond_op>" "<condition> |  <var>" "<op>" "<num> | <funcss>" "<op>" "<num> | <var>" "<op>" "<funcss>
+<op> ::= "<" | "<=" | ">" | ">=" | "!=" | "=="
+<cond_op> ::= "or" | "and" | "not"
+
+<assign> ::= <var>" "<ass_op>" ''" |
+             <var>" "<ass_op>" "<var> |
+             <var>" "<ass_op>" []" |  
+             <var>" "<ass_op>" "<split> | 
+             <var>" "<ass_op>" ["<list>"]" | 
+             <var>"["<var>"] "<ass_op>" "<var>"["<var>"]"<method>"()" | 
+             <var>" "<ass_op>" ''.join("<var>")" |  
+             <var>" "<ass_op>" "<sum> | 
+             <var>" "<ass_op>" ''.join("<var>")"<method>"(' ', '')" | 
+             <var>" "<ass_op>" "<var>""<method>"()" | 
+             <var>" "<ass_op>" "<common> |  
+             <var>" "<ass_op>" "<num> | 
+             <var>" "<ass_op>" "<var>"["<var>"]" | 
+             <var>" "<ass_op>" "<var> | 
+             <var>" "<ass_op>" "<var><method>"("<var>")" |
+             <var>" "<ass_op>" "<var><method>"("<var>" "<op>" "<num>")"
+
+<nums> ::=  <num> | <num> | <num> | <num> | <num> | <num> | <num><nums> | "-"<nums>
+<num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+<index> ::= "1:" | <num> | <var>":" | ":"<var> | <var>":"<var>
+
+<return> ::= "return "<var> | "return "<string> | "return str("<var>")" | "return ''.join("<var>")" | "return "<num> | "return "<var>" "<math_op>" "<num>
+
+<print> ::= "print("<string>")" | "print("<var>")"
+
+<for> ::= "for "<var>" in "<var>":{:"<NEWLINE><code>":}" | 
+            <inline_for>":{:"<NEWLINE><code>":}" | 
+            "for "<var>" in "<func>"("<num>", "<func>"("<var>")):{:"<NEWLINE><code>":}" | 
+            "for "<var>" in "<func>"("<func>"("<var>")):{:"<NEWLINE><code>":}" | 
+            "for ("<var>", "<var>") in "<func>"("<var>"):{:"<NEWLINE><code>":}"
+
+<while> ::= "while "<var>":{:"<NEWLINE><code>":}" | "while "<var>" "<op>" "<func>"("<var>"):{:"<NEWLINE><code>":}"
+
+<common> ::= <var>"["<num>"]"<method>"()"
+<inline_for> ::= "for "<var>" in "<var>"["<index>"]"
+
+<update_var> ::= <var><method>"("<var><method>")" | <var><method>"("<var>")" | <var><method>"("<vars>")" | <var><method>"("<nums>")" | <var><method>"("<string>")"
+
+<split> ::= <var>""<method>"("<string>")" | <var><method>"()" | <var><method>"('"<string>", "<var>")" | <var><method>"("<string>", "<var>")" | <var>"["<var>"]"<method>"("<string>")"
+
+<list> ::= <common> | <inline_for> | <var><method>"() for "<var>" in "<var> | <var>"["<index>"]" | <var><method>"() "<inline_for>
+
+<sum> ::= <common>" "<list_op>" ''.join(("<var><method>"() "<inline_for>"))" | "["<list>"] "<list_op>" ["<list>"]"
+
+<math_op> ::= "+" | "-" | "%"
+<ass_op> ::= "=" | "+="
+<list_op> ::= "+"
+
+<funcss> ::= <func>"(["<var>"])" | <func>"("<var>") "<math_op>" "<num> | <func>"("<var>"["<index><math_op><num>"])"
+
+<func> ::= "len, range ..."
+<method> ::= ".lower .title ...."
