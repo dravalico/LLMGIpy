@@ -3,8 +3,8 @@ DEBUG:                  False
 VERBOSE:                True
 
 GRAMMAR_FILE:           dynamic/test/ChatGPT_problem0.bnf
-DATASET_TRAIN:          Basement/Train.txt
-DATASET_TEST:           Basement/Test.txt
+DATASET_TRAIN:          basement/Train.txt
+DATASET_TEST:           basement/Test.txt
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 

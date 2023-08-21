@@ -2,31 +2,32 @@ import os
 from os import listdir, chdir
 from os.path import isfile, join
 import json
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Tuple
 from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
 
 
-def create_txt_population_foreach_json(jsons_dir_path: str) -> List[str]:
+def create_txt_population_foreach_json(jsons_dir_path: str) -> Any:
     impr_filenames: List[str] = []
+    grammars_filenames: List[str] = []
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
-        create_grammar_from(jsons_dir_path + '/' + filename)
-        print("dynamic/" + jsons_dir_path.split('/')[-1] + "/" +  filename.replace(".json", '.bnf'))
+        bnf_filename: str = create_grammar_from(jsons_dir_path + '/' + filename)
         try:
             txt_population(jsons_dir_path + '/' + filename,
-                           "dynamic/" + jsons_dir_path.split('/')[-1] + "/" +  filename.replace(".json", ".bnf"),  # FIXME hardcoded grammar
+                           "dynamic/" + jsons_dir_path.split('/')[-1] + "/" + filename.replace(".json", ".bnf"),
                            jsons_dir_path.split('/')[-1] + '_' + filename.replace(".json", ''))
             print(f"'{filename}' leads to a valid seed for improvement")
             impr_filenames.append(filename)
+            grammars_filenames.append(bnf_filename)
         except:
             print(f"'{filename}' raises an exception; no population generated")
     if len(impr_filenames) == 0:
         e: str = "\nNone of given jsons lead to a valid seed for improvement"
         raise Exception(e)
-    return impr_filenames
+    return impr_filenames, grammars_filenames
 
 
-def create_grammar_from(json_path: str) -> None:
+def create_grammar_from(json_path: str) -> str:
     cwd: str = os.getcwd()
     chdir("../PonyGE2/grammars")
     if not os.path.isdir("dynamic"):
@@ -79,22 +80,23 @@ def create_grammar_from(json_path: str) -> None:
         if temp != "":
             bnf.write("<FUNC> ::= " + temp + '\n')
         else:
-             bnf.write("<FUNC> ::= " + "''" + '\n')
+            bnf.write("<FUNC> ::= " + "''" + '\n')
         if temp0 != "":
             bnf.write("<METHOD> ::= " + temp0 + '\n')
         else:
-             bnf.write("<METHOD> ::= " + "''" + '\n')
+            bnf.write("<METHOD> ::= " + "''" + '\n')
         if temp1 != "":
             bnf.write("<STRINGS> ::= " + temp1 + '\n')
         else:
-             bnf.write("<STRINGS> ::= " + "''" + '\n')
+            bnf.write("<STRINGS> ::= " + "''" + '\n')
         if temp2 != "":
             bnf.write("<var> ::= " + temp2 + '\n')
         else:
-             bnf.write("<var> ::= " + "''" + '\n')
+            bnf.write("<var> ::= " + "''" + '\n')
         if temp3 != "":
             bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
     chdir(cwd)
+    return json_path.split('/')[-2] + '/' + json_path.split('/')[-1].replace(".json", ".bnf")
 
 
 def extract_functions_and_methods(code: str) -> List[str]:
@@ -134,9 +136,10 @@ def extract_strings(code: str) -> List[str]:
 TRAIN_DATASET_TAG: str = "<train>"
 TEST_DATASET_TAG: str = "<test>"
 SEED_FOLDER_TAG: str = "<seedFolder>"
+BNF_GRAMMAR_TAG: str = "<bnf>"
 
 
-def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
+def create_params_file(jsons_dir_path: str, impr_filenames: List[str], grammars_filenames) -> str:
     cwd: str = os.getcwd()
     chdir("../PonyGE2/parameters")
     jsons_dir_name: str = jsons_dir_path.split('/')[-1]
@@ -148,10 +151,11 @@ def create_params_file(jsons_dir_path: str, impr_filenames: List[str]) -> str:
     params_dir_path: str = os.path.join(improvement_dir, jsons_dir_name)
     if not os.path.isdir(params_dir_path):
         os.mkdir(params_dir_path)
-    for impr_filename in impr_filenames:
+    for (impr_filename, grammar_filename) in zip(impr_filenames, grammars_filenames):
         impr_file: str = impr_base_file.replace(
             SEED_FOLDER_TAG,
             jsons_dir_name + '_' + impr_filename.replace(".json", ''))
+        impr_file = impr_file.replace(BNF_GRAMMAR_TAG, grammar_filename)
         with open(os.path.join(jsons_dir_path, impr_filename), 'r') as read_file:
             extracted_json: Any = json.load(read_file)
         prob_name: List[Dict[str, Any]] = extracted_json["problem_name"]
