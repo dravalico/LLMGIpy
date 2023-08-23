@@ -2,14 +2,14 @@ CACHE:                  True
 DEBUG:                  False
 VERBOSE:                True
 
-GRAMMAR_FILE:           dynamic/2023-08-21_09:42:27/ChatGPT_problem8.bnf
-DATASET_TRAIN:          fizz-buzz/Train.txt
-DATASET_TEST:           fizz-buzz/Test.txt
+GRAMMAR_FILE:           dynamic/a13bnew/Alpaca13B_problem16.bnf
+DATASET_TRAIN:          paired-digits/Train.txt
+DATASET_TEST:           paired-digits/Test.txt
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
 INITIALISATION:         seed_individuals
-TARGET_SEED_FOLDER:     2023-08-21_09:42:27_ChatGPT_problem8
+TARGET_SEED_FOLDER:     a13bnew_Alpaca13B_problem16
 
 POPULATION_SIZE:        1000
 GENERATIONS:            1000

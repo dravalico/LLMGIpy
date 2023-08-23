@@ -68,3 +68,8 @@
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars>
+<FUNC> ::= ".upper" | ".split" 
+<METHOD> ::= ".upper" | ".split" 
+<STRINGS> ::= "''" | "'-'"
+<var> ::= "v0" | "v1" | "v2" 
+<IMPORTS> ::= "import v1#" | ""

@@ -68,3 +68,8 @@
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars>
+<FUNC> ::= "print" | "len" 
+<METHOD> ::= ''
+<STRINGS> ::= "'Your tweet has {} characters'" | "'Too many characters'"
+<var> ::= "v0" 
+<IMPORTS> ::= "" | ""
