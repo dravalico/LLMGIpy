@@ -4,34 +4,34 @@
 
 Large Language Model Genetic Improvement Python (LLMGIpy) is a software that allows you to evaluate the Python code generation of some LLMs (for now Alpaca) and (in the future) test the improvements of the code after applying Genetic Improvement.
 
-## Install dependencies
+## Setup
 
-Currently LLMGIpy only supports Alpaca with the psb2 dataset; the ```llmgipy-example.py``` file currently uses the above model and runs tests only on the psb2 dataset.
+To clone this repository, you need to have `git` installed. After that you can open a terminal window and run
 
-It is recommended to use a conda environment in which python version 3.9 is installed
 ```
-pip install python=3.9
-```
-
-To run LLMGIpy using the "Alpaca" large language model, you need to install the following packages
-```
-pip install datasets
-pip install loralib
-pip install sentencepiece
-pip install git+https://github.com/zphang/transformers@c3dc391
-pip install git+https://github.com/huggingface/peft.git
-pip install bitsandbytes
+git clone https://github.com/damianoravalico/LLMGIpy
 ```
 
-Also, to have the psb2 dataset available, run the following command
+Move to the project folder
+
 ```
-pip install psb2
+cd LLMGIpy
 ```
 
-## Example
+Now you need to install the dependencies. Make sure you have `pip` installed and then run
 
-After cloning the repository, run
+```
+pip install -r requirements.txt
+```
+
+To run the program, do the following
+
 ```
 cd src
-python llmgipy-example.py
+```
+
+and finally, you can run the helper to know the parameters you can use
+
+```
+python main.py --help
 ```
