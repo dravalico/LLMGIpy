@@ -3,7 +3,7 @@
 
 <all_vars> ::= <vars> | <STRINGS> | <nums> | <var_list> | <var_fuction> | <var_expr> |
                <vars> | <STRINGS> | <nums> | <var_list> | <var_expr> |
-               <vars> | <STRINGS> | <nums> <vars> | <STRINGS> | <nums>
+               <vars> | <STRINGS> | <nums> <vars> | <STRINGS> | <nums> | "None"
 <vars> ::= <var> | <var>", "<vars> | <var> | <var> | <var> | <var> | <var> | <var> | <var>", "<all_vars> | <var> | <var> | <all_vars>", "<all_vars>
 <var_list> ::= <var><index_list> | <var>"["<STRINGS>"]" | <var><index_list><method> | <var>"["<STRINGS>"]"<method> | <all_vars><index_list>
 <index_list> ::= "["<all_vars>"]" | "["<all_vars>":]" | "["<all_vars>":"<all_vars>"]" | "[:"<all_vars>"]"

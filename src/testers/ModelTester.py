@@ -13,7 +13,6 @@ from scripts.function_util import (extract_external_imports,
                                    insert_strings_after_signature)
 from scripts.ponyge.individual_formatter import (to_pony_individual_with_imports,
                                                  substitute_tabs_and_newlines_with_pony_encode,
-                                                 substitute_variables_name,
                                                  extract_variables_names,
                                                  substitute_variables_name_with_predefined)
 from scripts.imports_and_prompt import real_imports
