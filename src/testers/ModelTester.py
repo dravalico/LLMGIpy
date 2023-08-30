@@ -164,10 +164,10 @@ class ModelTester():
             pony_individual: str = substitute_tabs_and_newlines_with_pony_encode(formatted_code)
             imports_predefined = extract_internal_imports(code_with_imports_predefined)
             temp = ""
-            for i in imports_predefined:
+            final_imports, vars = real_imports(imports, imports_predefined, used_names)
+            for i in final_imports:
                 temp += i + '#'
             ind = temp + substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined)
-            final_imports, vars = real_imports(imports, imports_predefined, used_names)
             json_element = {
                 "iteration": element[5] + 1,
                 "model_response": element[3],
@@ -177,13 +177,13 @@ class ModelTester():
                 "function_name": element[1],
                 "code": tabs_as_symbol(element[0]),
                 "code_no_imports_and_comments": formatted_code,
-                "code_no_imports_and_comments_predefined_vars": code_no_imports_predefined,
+                #"code_no_imports_and_comments_predefined_vars": code_no_imports_predefined,
                 "code_imports_and_no_comments": code_with_imports,
-                "code_imports_and_no_comments_predefined_vars": code_with_imports_predefined,
+                #"code_imports_and_no_comments_predefined_vars": code_with_imports_predefined,
                 "individual_no_imports": pony_individual,
-                "individual_no_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined),
-                "individual_imports": to_pony_individual_with_imports(formatted_code, imports),
-                "individual_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_with_imports_predefined),
+                #"individual_no_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined),
+                #"individual_imports": to_pony_individual_with_imports(formatted_code, imports),
+                #"individual_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_with_imports_predefined),
                 "final_individual": ind.replace(element[1], "evolve"),
                 "tests_results": element[-1]
             }
