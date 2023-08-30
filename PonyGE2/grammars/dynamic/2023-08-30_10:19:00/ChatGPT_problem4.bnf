@@ -38,6 +38,7 @@
 <method> ::= <METHOD>"()" | <METHOD>"("<all_vars>")"
 
 <nums> ::=  <num> | <num> | <num> | <num><nums> | "-"<nums>
+<num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
 
 <return> ::= "return "<var> | "return "<STRINGS> | "return str("<var>")" | "return ''.join("<var>")" | "return "<nums> | "return "<all_vars> | "return str("<all_vars>")" | "return "<sum> | "return "<funcss>
 
@@ -67,3 +68,9 @@
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars>
+<FUNC> ::= ''
+<METHOD> ::= ".split" | ".join" | ".capitalize" 
+<STRINGS> ::= "'words'" | "'space'" | "'string'" | "'separated'"
+<var> ::= "v0" | "v1" | "v2" | "v3" | "v4" | "v5" 
+<num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
+<IMPORTS> ::= "" | ""

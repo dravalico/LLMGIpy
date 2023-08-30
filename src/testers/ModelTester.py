@@ -16,6 +16,7 @@ from scripts.ponyge.individual_formatter import (to_pony_individual_with_imports
                                                  substitute_variables_name,
                                                  extract_variables_names,
                                                  substitute_variables_name_with_predefined)
+from scripts.imports_and_prompt import real_imports
 
 
 class ModelTester():
@@ -38,7 +39,7 @@ class ModelTester():
     def run(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(17, len(self.__problems)):
+        for n_prob in [0, 4, 7, 8, 18]:
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
             prob_name: str = self.__problems\
@@ -157,7 +158,8 @@ class ModelTester():
             code_with_imports: str = insert_strings_after_signature(formatted_code, imports)
             code_with_imports_predefined, _ = substitute_variables_name_with_predefined(
                 extract_variables_names(code_with_imports), code_with_imports)
-            code_no_imports_predefined, used_names = substitute_variables_name_with_predefined(extract_variables_names(code_with_imports), code_with_imports)
+            code_no_imports_predefined, used_names = substitute_variables_name_with_predefined(
+                extract_variables_names(code_with_imports), code_with_imports)
             code_no_imports_predefined = remove_imports_and_comments_and_format_tabs(code_no_imports_predefined)
             pony_individual: str = substitute_tabs_and_newlines_with_pony_encode(formatted_code)
             imports_predefined = extract_internal_imports(code_with_imports_predefined)
@@ -165,12 +167,13 @@ class ModelTester():
             for i in imports_predefined:
                 temp += i + '#'
             ind = temp + substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined)
+            final_imports, vars = real_imports(imports, imports_predefined, used_names)
             json_element = {
                 "iteration": element[5] + 1,
                 "model_response": element[3],
                 "imports": imports,
-                "imports_predefined": imports_predefined,
-                "variables_names": used_names,
+                "imports_predefined": final_imports,
+                "variables_names": vars,
                 "function_name": element[1],
                 "code": tabs_as_symbol(element[0]),
                 "code_no_imports_and_comments": formatted_code,
@@ -190,6 +193,7 @@ class ModelTester():
             {
                 "model_name": self.__model.name,
                 "problem_name": prob_name,
+                "prompt": self.__problems["Description"][n_prob],
                 "problem_index": n_prob,
                 "data_test_size": self.__dataset_loader.data_size,
                 "data": json_data

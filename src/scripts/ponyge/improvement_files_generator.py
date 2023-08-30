@@ -5,6 +5,7 @@ import json
 from typing import List, Any, Dict, Tuple
 from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
+from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
 
 
 def create_txt_population_foreach_json(jsons_dir_path: str) -> Any:
@@ -44,10 +45,14 @@ def create_grammar_from(json_path: str) -> str:
     extracted_strings_from_individuals: List[List[str]] = []
     variables: List[List[str]] = []
     imports: List[List[str]] = []
+    nums = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
     for e in data:
         extracted_functions_from_individuals.append(
             extract_functions_and_methods(e["code_no_imports_and_comments"]))
-        extracted_strings_from_individuals.append(extract_strings(e["code_no_imports_and_comments"]))
+        res_strings = extract_strings(e["code_no_imports_and_comments"])
+        prompt_info_strings = extract_prompt_info_with_keybert(json_file["prompt"])
+        extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
+        nums.append(extract_numbers_from_string(json_file["prompt"]))
         variables.append(e["variables_names"])
         imports.append(e["imports_predefined"])
     temp0: str = ""
@@ -78,25 +83,32 @@ def create_grammar_from(json_path: str) -> str:
     for i in flat_list3:
         if i not in temp3:
             temp3 += i + '#'
+    temp4: str = ""
+    flat_list4 = [item for sublist in nums for item in sublist]
+    for i in flat_list4:
+        if str(i) not in temp4:
+            temp4 += f'"{i}" | '
+    temp4 = temp4[:-2]
     with open("../dynamic.bnf", 'rb') as source_file, open(json_path.split('/')[-1].replace(".json", ".bnf"), 'wb') as dest_file:
         dest_file.write(source_file.read())
     with open(json_path.split('/')[-1].replace(".json", ".bnf"), 'a') as bnf:
         if temp != "":
             bnf.write("<FUNC> ::= " + temp + '\n')
         else:
-            bnf.write("<FUNC> ::= " + "''" + '\n')
+            bnf.write("<FUNC> ::= " + '""' + '\n')
         if temp0 != "":
             bnf.write("<METHOD> ::= " + temp0 + '\n')
         else:
-            bnf.write("<METHOD> ::= " + "''" + '\n')
+            bnf.write("<METHOD> ::= " + '""' + '\n')
         if temp1 != []:
             bnf.write("<STRINGS> ::= " + ''.join(temp1) + '\n')
         else:
-            bnf.write("<STRINGS> ::= " + "''" + '\n')
+            bnf.write("<STRINGS> ::= " + '""' + '\n')
         if temp2 != "":
             bnf.write("<var> ::= " + temp2 + '\n')
         else:
-            bnf.write("<var> ::= " + "''" + '\n')
+            bnf.write("<var> ::= " + '""' + '\n')
+        bnf.write("<num> ::= " + temp4 + '\n')
         bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
     chdir(cwd)
     return json_path.split('/')[-2] + '/' + json_path.split('/')[-1].replace(".json", ".bnf")
