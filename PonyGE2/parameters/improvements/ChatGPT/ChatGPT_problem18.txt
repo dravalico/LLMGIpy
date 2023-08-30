@@ -12,7 +12,7 @@ INITIALISATION:         seed_individuals
 TARGET_SEED_FOLDER:     ChatGPT_ChatGPT_problem18
 
 POPULATION_SIZE:        1000
-GENERATIONS:            1000
+GENERATIONS:            100
 MAX_GENOME_LENGTH:      0
 CODON_SIZE:             200
 
