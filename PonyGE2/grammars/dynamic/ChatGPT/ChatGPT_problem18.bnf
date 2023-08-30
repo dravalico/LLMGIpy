@@ -69,7 +69,7 @@
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars>
 <FUNC> ::= "range" 
 <METHOD> ::= ""
-<STRINGS> ::= "'floats'" | "'snow'" | "'percent'" | "'int'"
+<STRINGS> ::= "'snow'" | "'int'" | "'floats'" | "'percent'"
 <var> ::= "v0" | "v1" | "v2" | "v3" | "v4" | "v5" | "v6" | "v7" 
 <num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
 <IMPORTS> ::= "import math as v4#" | ""

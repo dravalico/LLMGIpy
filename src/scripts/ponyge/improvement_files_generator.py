@@ -61,7 +61,7 @@ def create_grammar_from(json_path: str) -> str:
     for i in flat_list:
         if "." in i and i not in temp0:
             temp0 += f'"{i}" | '
-        elif i not in temp:
+        elif "." not in i and i not in temp:
             temp += f'"{i}" | '
     temp0 = temp0[:-2]
     temp = temp[:-2]

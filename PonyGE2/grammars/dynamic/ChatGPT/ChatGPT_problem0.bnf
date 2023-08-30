@@ -69,7 +69,7 @@
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars>
 <FUNC> ::= "range" | "len" | "enumerate" | "print" 
 <METHOD> ::= ""
-<STRINGS> ::= "'position'" | "'integer'" | "'integers'" | "'sum'" | "'list'" | "'No negative sum found.'" | "'.'" | "'The first negative sum is at position '"
+<STRINGS> ::= "'integer'" | "'position'" | "'list'" | "'sum'" | "'integers'" | "'No negative sum found.'" | "'The first negative sum is at position '" | "'.'"
 <var> ::= "v0" | "v1" | "v2" | "v3" | "v4" 
 <num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
 <IMPORTS> ::= "" | ""
