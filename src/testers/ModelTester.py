@@ -39,7 +39,7 @@ class ModelTester():
     def run(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in [0, 4, 7, 8, 18]:
+        for n_prob in [0, 4, 6, 8, 18]:
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
             prob_name: str = self.__problems\
