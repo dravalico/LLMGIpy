@@ -19,7 +19,7 @@
 
 <if> ::= "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>
 <if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
-<condition> ::= <all_vars>" "<math_op>" "<num>" "<op>" "<num> | <condition>" "<cond_op>" "<condition> |  <all_vars>" "<op>" "<num> | <funcss>" "<op>" "<num> | <all_vars>" "<op>" "<funcss> | <all_vars>" "<op>" "<all_vars>
+<condition> ::= <all_vars>" "<math_op>" "<num>" "<op>" "<num> | <condition>" "<cond_op>" "<condition> |  <all_vars>" "<op>" "<num> | <funcss>" "<op>" "<num> | <all_vars>" "<op>" "<funcss> | <all_vars>" "<op>" "<all_vars> | <all_vars>" "<op>" "<all_vars>" "<op>" "<all_vars>
 <op> ::= "<" | "<=" | ">" | ">=" | "!=" | "=="
 <cond_op> ::= "or" | "and" | "not"
 
@@ -28,12 +28,10 @@
              <var>" "<ass_op>" []" | 
              <vars>" "<ass_op>" "<all_vars> |
              <vars>" "<ass_op>" "<var_expr> |
-
              <var>" "<ass_op>" ["<list>"]" | 
              <var>" "<ass_op>" ''.join("<var>")" |  
              <var>" "<ass_op>" "<sum> | 
              <var>" "<ass_op>" ''.join("<var>")"<method>"(' ', '')"
-
 
 <method> ::= <METHOD>"()" | <METHOD>"("<all_vars>")"
 

@@ -78,6 +78,7 @@ def create_grammar_from(json_path: str) -> str:
         if i not in temp2:
             temp2 += f'"{i}" | '
     temp2 = temp2[:-2]
+    temp2 += '| "a0" | "a1" | "a2"'
     temp3: str = ""
     flat_list3 = [item for sublist in imports for item in sublist]
     for i in flat_list3:
