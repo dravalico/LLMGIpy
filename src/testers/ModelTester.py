@@ -13,7 +13,6 @@ from scripts.function_util import (extract_external_imports,
                                    insert_strings_after_signature)
 from scripts.ponyge.individual_formatter import (substitute_tabs_and_newlines_with_pony_encode,
                                                  replace_variables_with_names)
-from scripts.imports_and_prompt import real_imports
 
 
 class ModelTester():
@@ -36,7 +35,7 @@ class ModelTester():
     def run(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in [4]:
+        for n_prob in [0, 4, 6, 8, 18]:
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
             prob_name: str = self.__problems\

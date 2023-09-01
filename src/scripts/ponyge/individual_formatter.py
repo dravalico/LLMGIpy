@@ -1,6 +1,6 @@
 from typing import List
 import ast
-from scripts.function_util import extract_function_name, insert_strings_after_signature
+from scripts.function_util import insert_strings_after_signature
 
 
 def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
@@ -36,11 +36,6 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     for _ in range(missing_tabs):
         res.append(end_tab)
     return ''.join(res).replace('\n', newline)
-
-
-def extract_variables_names_all(code: str) -> List[str]:
-    exec(code, locals())
-    return list(eval(extract_function_name(code)).__code__.co_varnames)
 
 
 def import_manipulation1(imports):
