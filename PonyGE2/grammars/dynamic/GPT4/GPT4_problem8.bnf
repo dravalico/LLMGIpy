@@ -67,3 +67,9 @@
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars>
+<FUNC> ::= "print" 
+<METHOD> ::= ""
+<STRINGS> ::= "'FizzBuzz'" | "'Buzz'" | "'Fizz'" | "'Invalid input. Please enter a number between 1 and 50,000.'" | "'divisible'" | "'integer'" | "'Input value is out of validity range.'" | "'Input must be between 1 and 50,000'" | "'The input is out of range!'" | "'Input must be an integer between 1 and 50,000.'" | "'Input out of valid range'" | "'Invalid value'" | "'Invalid input. Please input a number between 1 and 50,000.'" | "'Invalid input. Please enter an integer between 1 and 50000'" | "'The input is not in the valid range.'" | "'Input is out of range. Please provide a value between 1 and 50,000.'" | "'Input should be between 1 and 50000'" | "'Please provide an integer between 1 and 50000.'"
+<var> ::= "v0" | "a0" | "a1" | "a2"
+<num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "50" 
+<IMPORTS> ::= "" | ""

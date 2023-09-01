@@ -67,3 +67,9 @@
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars>
+<FUNC> ::= "range" | "round" | "max" 
+<METHOD> ::= ""
+<STRINGS> ::= "'floats'" | "'percent'" | "'snow'" | "'int'" | "'Determine the amount of snow on the ground after a specific period.'"
+<var> ::= "v2" | "v3" | "v1" | "v5" | "v7" | "v0" | "v4" | "v6" | "a0" | "a1" | "a2"
+<num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
+<IMPORTS> ::= "" | ""
