@@ -2,7 +2,7 @@ import os
 from os import listdir, chdir
 from os.path import isfile, join
 import json
-from typing import List, Any, Dict, Tuple
+from typing import List, Any, Dict
 from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
@@ -54,7 +54,7 @@ def create_grammar_from(json_path: str) -> str:
         extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
         nums.append(extract_numbers_from_string(json_file["prompt"]))
         variables.append(e["variables_names"])
-        imports.append(e["imports_predefined"])
+        imports.append(e["imports"])
     temp0: str = ""
     temp: str = ""
     flat_list = [item for sublist in extracted_functions_from_individuals for item in sublist]

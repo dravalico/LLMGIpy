@@ -2,7 +2,6 @@ import os
 import json
 import subprocess
 from typing import Any, List, Dict, Tuple
-from scripts.function_util import extract_function_name
 import multiprocessing
 
 

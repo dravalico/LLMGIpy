@@ -1,6 +1,5 @@
-from typing import List, Any
+from typing import List
 import ast
-import re
 from scripts.function_util import extract_function_name, insert_strings_after_signature
 
 
@@ -39,60 +38,55 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     return ''.join(res).replace('\n', newline)
 
 
-def extract_variables_names(code: str) -> List[str]:
+def extract_variables_names_all(code: str) -> List[str]:
     exec(code, locals())
     return list(eval(extract_function_name(code)).__code__.co_varnames)
 
 
-def extract_variables_names_test(code: str) -> List[str]:
+def import_manipulation1(imports):
+    final = []
+    for imp in imports:
+        imp_splitted = imp.split()
+        final.append(imp_splitted[-1])
+    return final
+
+
+def extract_variables_names(code: str):
     tree = ast.parse(code)
-    names = []
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.Assign, ast.For, ast.While)):
-            if isinstance(node, ast.For):
-                target = node.target
-            else:
-                target = node.targets[0]
-            if isinstance(target, ast.Name):
-                names.append(target.id)
-            elif isinstance(target, ast.Tuple):
-                for i in range(len(target.elts)):
-                    names.append(target.elts[i].id)
-    return list(set(names))
+    function_defs = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
+    if len(function_defs) == 0:
+        return []
+    first_function = function_defs[0]
+    local_vars = [arg.arg for arg in first_function.args.args]
+    for node in ast.walk(first_function):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            local_vars.append(node.id)
+    return local_vars
 
 
-def substitute_variables_name_with_predefined(names: List[str], code: str):
-    possible_names = ["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9",
-                      "v10", "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18", "v19"]
-    pred_names_dict = {}
-    used_names: List[str] = []
-    for i, v in enumerate(names):
-        pred_names_dict[v] = possible_names[i]
-        used_names.append(possible_names[i])
-    pattern = r'(\W+)'
-    splitted_code = re.split(pattern, code)
-    ss = 0
-    for i in range(len(splitted_code)):
-        if ss == 0:
-            if splitted_code[i].find('"') != -1 or splitted_code[i].find("'") != -1 \
-                    or splitted_code[i].find('"""') != -1 or splitted_code[i].find("'''") != -1:
-                ss = 1
-            else:
-                if splitted_code[i] in pred_names_dict.keys():
-                    splitted_code[i] = pred_names_dict[splitted_code[i]]
-        elif ss == 1:
-            if splitted_code[i].find('"') != -1 or splitted_code[i].find("'") != -1 \
-                    or splitted_code[i].find('"""') != -1 or splitted_code[i].find("'''") != -1:
-                ss = 0
-    return ''.join(splitted_code), used_names
+def replace_variables_with_names(code: str, imports):
+    variables = extract_variables_names(code)
+    var_names = ["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9",
+                 "v10", "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18", "v19"]
+    var_mapping = {var: new_name for var, new_name in zip(variables, var_names)}
+
+    def replace_var_names(node):
+        if isinstance(node, ast.Name) and node.id in var_mapping:
+            node.id = var_mapping[node.id]
+        for child_node in ast.iter_child_nodes(node):
+            replace_var_names(child_node)
+    tree = ast.parse(code)
+    first_function = next((node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)), None)
+    if first_function:
+        for i, var in enumerate(var_names):
+            if i < len(first_function.args.args):
+                first_function.args.args[i].arg = var
+    replace_var_names(tree)
+    modified_code = ast.unparse(tree)
+    used_variables = [var_mapping[var] for var in variables if var in var_mapping]
+    return modified_code, list(set(used_variables + import_manipulation1(imports)))
 
 
 def to_pony_individual_with_imports(code: str, imports: str) -> str:
     code = insert_strings_after_signature(code, imports)
-    return substitute_tabs_and_newlines_with_pony_encode(code)
-
-
-def substitute_variables_name(code):
-    names: List[str] = extract_variables_names(code)
-    code = substitute_variables_name_with_predefined(names, code)
     return substitute_tabs_and_newlines_with_pony_encode(code)

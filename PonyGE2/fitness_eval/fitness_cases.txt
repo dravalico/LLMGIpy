@@ -1,6 +1,6 @@
 def fitnessTrainingCase(i, o):
-  eval = evolve(*i)
-  if str([eval]) == str(o):
-    return [0]
-  else:
+  try:
+    eval = evolve(*i)
+  except:
     return [1]
+  return [0] if str([eval]) == str(o) else [1]

@@ -11,10 +11,8 @@ from scripts.function_util import (extract_external_imports,
                                    extract_internal_imports,
                                    remove_imports_and_comments_and_format_tabs,
                                    insert_strings_after_signature)
-from scripts.ponyge.individual_formatter import (to_pony_individual_with_imports,
-                                                 substitute_tabs_and_newlines_with_pony_encode,
-                                                 extract_variables_names,
-                                                 substitute_variables_name_with_predefined)
+from scripts.ponyge.individual_formatter import (substitute_tabs_and_newlines_with_pony_encode,
+                                                 replace_variables_with_names)
 from scripts.imports_and_prompt import real_imports
 
 
@@ -38,7 +36,7 @@ class ModelTester():
     def run(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in [0, 4, 6, 8, 18]:
+        for n_prob in [4]:
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
             prob_name: str = self.__problems\
@@ -153,36 +151,25 @@ class ModelTester():
         json_element: Dict[str, any] = {}
         for element in data:
             formatted_code: str = remove_imports_and_comments_and_format_tabs(element[0])
-            imports: List[str] = element[4]
+            imports: List[str] = list(set(e.strip() for e in element[4]))
             code_with_imports: str = insert_strings_after_signature(formatted_code, imports)
-            code_with_imports_predefined, _ = substitute_variables_name_with_predefined(
-                extract_variables_names(code_with_imports), code_with_imports)
-            code_no_imports_predefined, used_names = substitute_variables_name_with_predefined(
-                extract_variables_names(code_with_imports), code_with_imports)
+            code_no_imports_predefined, used_names = replace_variables_with_names(code_with_imports, imports)
             code_no_imports_predefined = remove_imports_and_comments_and_format_tabs(code_no_imports_predefined)
             pony_individual: str = substitute_tabs_and_newlines_with_pony_encode(formatted_code)
-            imports_predefined = extract_internal_imports(code_with_imports_predefined)
             temp = ""
-            final_imports, vars = real_imports(imports, imports_predefined, used_names)
-            for i in final_imports:
+            for i in imports:
                 temp += i + '#'
             ind = temp + substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined)
             json_element = {
                 "iteration": element[5] + 1,
                 "model_response": element[3],
                 "imports": imports,
-                "imports_predefined": final_imports,
-                "variables_names": vars,
+                "variables_names": used_names,
                 "function_name": element[1],
                 "code": tabs_as_symbol(element[0]),
                 "code_no_imports_and_comments": formatted_code,
-                #"code_no_imports_and_comments_predefined_vars": code_no_imports_predefined,
                 "code_imports_and_no_comments": code_with_imports,
-                #"code_imports_and_no_comments_predefined_vars": code_with_imports_predefined,
                 "individual_no_imports": pony_individual,
-                #"individual_no_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined),
-                #"individual_imports": to_pony_individual_with_imports(formatted_code, imports),
-                #"individual_imports_predefined_vars": substitute_tabs_and_newlines_with_pony_encode(code_with_imports_predefined),
                 "final_individual": ind.replace(element[1], "evolve"),
                 "tests_results": element[-1]
             }
