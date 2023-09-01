@@ -26,7 +26,6 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--jsons_dir",
                            type=str,
                            help="Generate only improvement files; needs the path of jsons directory")
-    argparser.add_argument("-v", "--verbose", action="store_true", help="Print everything")  # TODO complete it
     return argparser
 
 
