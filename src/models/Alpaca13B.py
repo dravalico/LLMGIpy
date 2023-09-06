@@ -1,5 +1,5 @@
 from peft import PeftModel
-from transformers import LLaMATokenizer, LLaMAForCausalLM, GenerationConfig
+from transformers import GenerationConfig, AutoModel, AutoTokenizer
 from models.AbstractLanguageModel import AbstractLanguageModel
 
 
@@ -42,10 +42,10 @@ class Alpaca13B(AbstractLanguageModel):
 
     def _load_model(self) -> None:
         super()._load_model()
-        self.__tokenizer = LLaMATokenizer.from_pretrained(
+        self.__tokenizer = AutoTokenizer.from_pretrained(
             "decapoda-research/llama-13b-hf"
         )
-        self.__model = LLaMAForCausalLM.from_pretrained(
+        self.__model = AutoModel.from_pretrained(
             "decapoda-research/llama-13b-hf",
             load_in_8bit=True,
             device_map="auto",
