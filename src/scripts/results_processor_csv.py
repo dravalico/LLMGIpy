@@ -115,7 +115,7 @@ def create_csv_table_fig(csv_path: str) -> None:
 
 
 def main():  # TODO remove it
-    path: str = create_csv_statistics(["/mnt/data/dravalico/workspace/LLMGIpy/results/GPT4"])
+    path: str = create_csv_statistics([""])
     create_csv_table_fig(path)
 
 
