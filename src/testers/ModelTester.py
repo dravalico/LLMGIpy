@@ -84,7 +84,7 @@ class ModelTester():
     def run_with_reask(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(len(self.__problems)):
+        for n_prob in range(1, len(self.__problems)):
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
@@ -145,7 +145,7 @@ class ModelTester():
                         break
                 print('\n')
             self.__create_and_save_json(to_save, n_prob, prob_name)
-            print(f"\nProblem '{prob_name}' completed.")
+            print(f"Problem '{prob_name}' completed.")
             print(f"{'=' * 80}")
         dir_name: str = get_results_dir_path()
         print(f"Results saved in {dir_name}")
