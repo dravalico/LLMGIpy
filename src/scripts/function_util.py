@@ -114,7 +114,10 @@ def remove_empty_lines(code: str) -> str:
     for line in code.split('\n'):
         if not re.match(r'^\s*$', line):
             res.append(line + '\n')
-    res[-1] = res[-1].replace('\n', '')
+    try:
+        res[-1] = res[-1].replace('\n', '')
+    except:
+        pass
     return ''.join(res)
 
 
