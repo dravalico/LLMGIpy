@@ -90,7 +90,7 @@ class ModelTester():
             for iteration in range(self.__iterations):
                 print(f"Iteration {iteration + 1}")
                 data_not_passed: List[Any] = []
-                for rep in range(5):
+                for rep in range(10):
                     print(f"Repetition {rep + 1}")
                     prompt: str = ""
                     if data_not_passed == []:
