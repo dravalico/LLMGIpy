@@ -131,7 +131,7 @@ class ModelTester():
                             if worker.is_alive():
                                 worker.terminate()
                                 raise Exception("Process timed out")
-                            print(f"Result obtained for iteration {i + 1}.{rep + 1}")
+                            print(f"Result obtained for repetition {rep + 1}")
                             task_res, data_not_passed = args[i][-1].get()
                             if isinstance(task_res, Exception):
                                 data[i].append({"passed": 0, "error": str(task_res)})
