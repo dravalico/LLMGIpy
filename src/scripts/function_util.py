@@ -26,7 +26,7 @@ def extract_external_imports(text: str) -> List[str]:
 
 
 def extract_function(text: str) -> str:  # NOTE starts from def, imports should already be saved
-    code: str = try_extract_code_inside_python_tag(text)
+    code: str = try_extract_code_inside_tags(text)
     if code is not None:
         return code
     code = text[text.index("def"): len(text):]
@@ -41,9 +41,15 @@ def extract_function(text: str) -> str:  # NOTE starts from def, imports should 
     return try_to_remove_extra_strings(code)
 
 
-def try_extract_code_inside_python_tag(text: str) -> str:
+def try_extract_code_inside_tags(text: str) -> str:
     pattern: str = r'```python\s*([\s\S]*?)\s*```'
     match: Match[str] = re.search(pattern, text)
+    if match:
+        return try_to_remove_extra_strings(match.group(1))
+    pattern = r'```\s*([\s\S]*?)\s*```'
+    if match:
+        return try_to_remove_extra_strings(match.group(1))
+    pattern = r'\begin{code}\s*([\s\S]*?)\s*\end{code}'
     if match:
         return try_to_remove_extra_strings(match.group(1))
     return None
