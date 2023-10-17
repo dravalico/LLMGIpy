@@ -21,7 +21,7 @@ class DatasetLoader():  # TODO Is a good abstraction?
                 raise Exception("Cannot load data for test")
 
     def __set_problems_to_psb2(self) -> None:
-        self.__problems = pandas.read_csv("../resources/pbs2_problems_description.csv", sep=";")
+        self.__problems = pandas.read_csv("../resources/pbs2_problems_description_from_paper.csv", sep=";")
 
     @property
     def problems(self) -> DataFrame:

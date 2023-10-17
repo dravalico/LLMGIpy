@@ -22,10 +22,13 @@ def set_parser() -> ArgumentParser:
                            help="Number of times to repete question and test for the same problem")
     argparser.add_argument("--impr_files",
                            action=BooleanOptionalAction,
-                           help="Boolean to generate also the files necessary for the improvement part")
+                           help="Boolean flag to generate also the files necessary for the improvement part")
     argparser.add_argument("--jsons_dir",
                            type=str,
                            help="Generate only improvement files; needs the path of jsons directory")
+    argparser.add_argument("--reask",
+                           action=BooleanOptionalAction,
+                           help="Boolean flag to ask the model to correct the answer if wrong")
     return argparser
 
 
@@ -52,8 +55,14 @@ def main():
         args.extend([model, loader])
         if cmd_args.iterations != None:
             args.append(cmd_args.iterations)
+        if cmd_args.reask:
+            args.append("reask = True")
         tester: ModelTester = ModelTester(*args)
-        results_path: str = tester.run()
+        if cmd_args.reask:
+            tester.run_with_reask()
+            return
+        else:
+            results_path: str = tester.run()
 
     if cmd_args.jsons_dir != None:
         results_path: str = cmd_args.jsons_dir

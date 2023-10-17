@@ -16,12 +16,12 @@ from scripts.ponyge.individual_formatter import (substitute_tabs_and_newlines_wi
 
 
 class ModelTester():
-    def __init__(  # TODO Check if args are ok
+    def __init__(
             self,
             model: AbstractLanguageModel,
             dataset_loader: DatasetLoader,
             iterations: int = 5,
-            iteration_timeout: int = 60
+            reask: bool = False
     ) -> None:
         if (not isinstance(model, AbstractLanguageModel)) or (model == None):
             e: str = "You must provide an AbstractLanguageModel instance."
@@ -30,18 +30,19 @@ class ModelTester():
         self.__dataset_loader: DatasetLoader = dataset_loader
         self.__problems: DataFrame = self.__dataset_loader.problems
         self.__iterations: int = iterations
-        self.__iteration_timeout: int = iteration_timeout
+        self.__reask: bool = reask
+        self.__iteration_timeout: int = 60
 
     def run(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
         for n_prob in range(len(self.__problems)):
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
-            res: Dict[str, List[str]] = self.__ask_model_and_process(n_prob)
+            res: Dict[str, List[str]] = self.__ask_model_and_process(self.__problems["Description"][n_prob])
             prob_name: str = self.__problems\
                 .get("Problem Name")[n_prob]\
                 .replace(' ', '-')\
-                .lower()  # NOTE Maybe it's better if all the problem files have a directly correct name
+                .lower()
             args: List[Tuple] = self.__create_task_input(prob_name, res["code"], res["f_names"])
             data: List[List[Any]] = []
             for i, arg in enumerate(args):
@@ -64,7 +65,7 @@ class ModelTester():
                         worker.terminate()
                         raise Exception("Process timed out")
                     print(f"Result obtained for iteration {i + 1}")
-                    task_res: Any = args[i][-1].get()
+                    task_res, _ = args[i][-1].get()
                     if isinstance(task_res, Exception):
                         data[i].append({"passed": 0, "error": str(task_res)})
                     else:
@@ -80,16 +81,86 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, n_prob: int) -> Dict[str, Any]:
+    def run_with_reask(self) -> str:
+        print(f"\n{'=' * 80}")
+        print(f"Model '{self.__model.name}'")
+        for n_prob in range(22, 23):
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
+            to_save: List[List[Any]] = []
+            for iteration in range(self.__iterations):
+                print(f"Iteration {iteration + 1}")
+                data_not_passed: List[Any] = []
+                for rep in range(5):
+                    print(f"Repetition {rep + 1}")
+                    prompt: str = ""
+                    if data_not_passed == []:
+                        prompt = self.__problems["Description"][n_prob]
+                    else:
+                        if data_not_passed != []:
+                            temp_prompt: List[str] = ["Below are pairs of values specified as input -> output for which given those input values, "
+                                                      "the result obtained from the function you generated is different from the specified "
+                                                      "output. If there are multiple input or output values, they are separated by commas. "
+                                                      "Correct the previous function according to these specified values in order to pass also this test cases.\n"]
+                            for i in range(len(data_not_passed[:20])):
+                                temp_prompt.append(str(data_not_passed[i][0]).replace('[', '').replace(']', '') + " -> "
+                                                   + str(data_not_passed[i][1]).replace('[', '').replace(']', '') + '\n')
+                            prompt = ''.join(temp_prompt)
+                    res: Dict[str, List[str]] = self.__ask_model_and_process(prompt)
+                    prob_name: str = self.__problems\
+                        .get("Problem Name")[n_prob]\
+                        .replace(' ', '-')\
+                        .lower()
+                    args: List[Tuple] = self.__create_task_input(prob_name, res["code"], res["f_names"])
+                    data: List[List[Any]] = []
+                    for i, arg in enumerate(args):
+                        temp = list(arg)
+                        temp.pop()
+                        temp.append(res["responses"][i])
+                        temp.append(res["imports"][i])
+                        temp.append(f'{iteration}.{rep}')
+                        data.append(temp)
+                    workers = []
+                    print("Testing...")
+                    for i in range(len(args)):
+                        process = Process(target=self.__worker_function, args=args[i])
+                        process.start()
+                        workers.append(process)
+                    for i, worker in enumerate(workers):
+                        try:
+                            worker.join(timeout=self.__iteration_timeout)
+                            if worker.is_alive():
+                                worker.terminate()
+                                raise Exception("Process timed out")
+                            print(f"Result obtained for iteration {i + 1}.{rep + 1}")
+                            task_res, data_not_passed = args[i][-1].get()
+                            if isinstance(task_res, Exception):
+                                data[i].append({"passed": 0, "error": str(task_res)})
+                            else:
+                                data[i].append(task_res)
+                        except Exception as e:
+                            print(f"Exception for iteration {i + 1}.{rep + 1}")
+                            data[i].append({"passed": 0, "error": str(e)})
+                    to_save.extend(data)
+                print('\n')
+            self.__create_and_save_json(to_save, n_prob, prob_name)
+            print(f"\nProblem '{prob_name}' completed.")
+            print(f"{'=' * 80}")
+        dir_name: str = get_results_dir_path()
+        print(f"Results saved in {dir_name}")
+        print(f"{'=' * 80}")
+        return dir_name
+
+    def __ask_model_and_process(self, prompt: str) -> Dict[str, Any]:
+        iterations: int = 1 if self.__reask else self.__iterations
         responses: List[str] = []
         code: List[str] = []
         f_imports: List[List[str]] = []
         f_names: List[str] = []
-        for iteration in range(self.__iterations):
-            print(f"Iteration {iteration + 1}")
-            description: str = self.__problems["Description"][n_prob]
-            responses.append(self.__model.ask(description))
-            try:  # TODO check if this management is ok
+        for iteration in range(iterations):
+            if not self.__reask:
+                print(f"Iteration {iteration + 1}")
+            responses.append(self.__model.ask(prompt))
+            try:
                 code.append(extract_function(responses[-1]))
             except:
                 code.append("")
@@ -132,18 +203,21 @@ class ModelTester():
             passed: int = 0
             not_passed: int = 0
             with_exception: int = 0
+            data_not_passed: List[Any] = []
             for i in range(len(data)):
-                args: List[str] = [v for k, v in data[i].items() if "input" in k]
-                expected: List[str] = [v for k, v in data[i].items() if "output" in k]
+                args: List[Any] = [v for k, v in data[i].items() if "input" in k]
+                expected: List[Any] = [v for k, v in data[i].items() if "output" in k]
                 try:
                     result: Any = [f(*args)]
                     if result == expected:
                         passed += 1
                     else:
                         not_passed += 1
+                        data_not_passed.append((args, expected))
                 except Exception as e:
                     with_exception += 1
-            return {"passed": passed, "not_passed": not_passed, "with_exception(s)": with_exception}
+                    data_not_passed.append((args, expected))
+            return {"passed": passed, "not_passed": not_passed, "with_exception(s)": with_exception}, data_not_passed
 
     def __create_and_save_json(self, data: List[List[Any]], n_prob: int, prob_name: str) -> None:
         json_data: List[Dict[str, Any]] = []
@@ -153,14 +227,23 @@ class ModelTester():
             imports: List[str] = list(set(e.strip() for e in element[4]))
             code_with_imports: str = insert_strings_after_signature(formatted_code, imports)
             code_no_imports_predefined, used_names = replace_variables_with_names(code_with_imports, imports)
-            code_no_imports_predefined = remove_imports_and_comments_and_format_tabs(code_no_imports_predefined)
+            code_no_imports_predefined: str = remove_imports_and_comments_and_format_tabs(code_no_imports_predefined)
             pony_individual: str = substitute_tabs_and_newlines_with_pony_encode(formatted_code)
-            temp = ""
+            temp: str = ""
             for i in imports:
                 temp += i + '#'
-            ind = temp + substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined)
+            ind: str = temp + substitute_tabs_and_newlines_with_pony_encode(code_no_imports_predefined)
+            it: int = 0
+            rep: int = 0
+            if "." in str(element[5]):
+                it = int(element[5].split('.')[0]) + 1
+                rep = int(element[5].split('.')[1]) + 1
+            else:
+                it = element[5] + 1
+                rep = 1
             json_element = {
-                "iteration": element[5] + 1,
+                "iteration": it,
+                "repetition": rep,
                 "model_response": element[3],
                 "imports": imports,
                 "variables_names": used_names,
