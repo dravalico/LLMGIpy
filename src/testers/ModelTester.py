@@ -138,9 +138,11 @@ class ModelTester():
                             else:
                                 data[i].append(task_res)
                         except Exception as e:
-                            print(f"Exception for iteration {i + 1}.{rep + 1}")
+                            print(f"Exception for repetition {rep + 1}")
                             data[i].append({"passed": 0, "error": str(e)})
                     to_save.extend(data)
+                    if data_not_passed == []:
+                        break
                 print('\n')
             self.__create_and_save_json(to_save, n_prob, prob_name)
             print(f"\nProblem '{prob_name}' completed.")
