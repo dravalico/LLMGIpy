@@ -84,7 +84,7 @@ class ModelTester():
     def run_with_reask(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(22, 23):
+        for n_prob in range(len(self.__problems)):
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
