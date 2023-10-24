@@ -84,7 +84,7 @@ class ModelTester():
     def run_with_reask(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(1, len(self.__problems)):
+        for n_prob in range(len(self.__problems)):
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
@@ -100,7 +100,7 @@ class ModelTester():
                             temp_prompt: List[str] = ["Below are pairs of values specified as input -> output for which given those input values, "
                                                       "the result obtained from the function you generated is different from the specified "
                                                       "output. If there are multiple input or output values, they are separated by commas. "
-                                                      "Correct the previous function according to these specified values in order to pass also this test cases.\n"]
+                                                      "Correct the previous function according to these specified values in order to pass also these test cases.\n"]
                             for i in range(len(data_not_passed[:20])):
                                 temp_prompt.append(str(data_not_passed[i][0]).replace('[', '').replace(']', '') + " -> "
                                                    + str(data_not_passed[i][1]).replace('[', '').replace(']', '') + '\n')
