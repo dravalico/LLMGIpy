@@ -16,8 +16,7 @@ class ChatGPT(AbstractLanguageModel):
                 {"role": "user", "content": self._INTRODUCTION_TO_QUESTION + prompt}
             ]
         )
-        res = completion.choices[0].message.content
-        return res
+        return completion.choices[0].message.content
 
     def _load_model(self) -> None:
         openai.api_key = os.getenv("OPENAI_API_KEY")
