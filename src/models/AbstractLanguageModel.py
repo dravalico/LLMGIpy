@@ -12,7 +12,7 @@ class AbstractLanguageModel(ABC):
         self._load_model()
 
     @abstractmethod
-    def ask(self, question: str) -> str:
+    def ask(self, question: str, reask: bool) -> str:
         pass
 
     @property

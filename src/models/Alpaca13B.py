@@ -11,13 +11,20 @@ class Alpaca13B(AbstractLanguageModel):
     def __init__(self) -> None:
         super().__init__("Alpaca13B")
 
-    def ask(self, question: str) -> str:
-        question: str = (
-            self.__ALPACA_QUESTION_FIRST_PART
-            + self._INTRODUCTION_TO_QUESTION
-            + question
-            + self.__ALPACA_QUESTION_SECOND_PART
-        )
+    def ask(self, question: str, reask: bool) -> str:
+        if not reask:
+            question: str = (
+                self.__ALPACA_QUESTION_FIRST_PART
+                + self._INTRODUCTION_TO_QUESTION
+                + question
+                + self.__ALPACA_QUESTION_SECOND_PART
+            )
+        else:
+            question: str = (
+                self.__ALPACA_QUESTION_FIRST_PART
+                + question
+                + self.__ALPACA_QUESTION_SECOND_PART
+            )
         inputs = self.__tokenizer(
             question,
             return_tensors="pt",

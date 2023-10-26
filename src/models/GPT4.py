@@ -7,11 +7,13 @@ class GPT4(AbstractLanguageModel):
     def __init__(self) -> None:
         super().__init__("GPT4")
 
-    def ask(self, question: str) -> str:
+    def ask(self, question: str, reask: bool) -> str:
+        if not reask:
+            question = self._INTRODUCTION_TO_QUESTION + question
         completion = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[
-                {"role": "user", "content": self._INTRODUCTION_TO_QUESTION + question}
+                {"role": "user", "content": question}
             ]
         )
         return completion.choices[0].message.content

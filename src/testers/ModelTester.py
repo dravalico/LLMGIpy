@@ -84,40 +84,49 @@ class ModelTester():
     def run_with_reask(self) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(len(self.__problems)):
+        for n_prob in range(5, 6):
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
                 print(f"Iteration {iteration + 1}")
                 data_not_passed: List[Any] = []
-                for rep in range(10):
+                for rep in range(5):
                     print(f"Repetition {rep + 1}")
                     prompt: str = ""
                     if data_not_passed == []:
                         prompt = self.__problems["Description"][n_prob]
                     else:
                         if data_not_passed != []:
-                            temp_prompt: List[str] = ["Below are pairs of values specified as input -> output for which given those input values, "
-                                                      "the result obtained from the function you generated is different from the specified "
-                                                      "output. If there are multiple input or output values, they are separated by commas. "
-                                                      "Correct the previous function according to these specified values in order to pass also these test cases.\n"]
+                            temp_prompt: List[str] = ["Make sure that\n"]
                             for i in range(len(data_not_passed[:20])):
-                                temp_prompt.append(str(data_not_passed[i][0]).replace('[', '').replace(']', '') + " -> "
-                                                   + str(data_not_passed[i][1]).replace('[', '').replace(']', '') + '\n')
-                            prompt = ''.join(temp_prompt)
-                    res: Dict[str, List[str]] = self.__ask_model_and_process(prompt)
-                    prob_name: str = self.__problems\
-                        .get("Problem Name")[n_prob]\
-                        .replace(' ', '-')\
+                                temp_prompt.append(
+                                    str(data_not_passed[i][0])
+                                    .replace("[", "")
+                                    .replace("]", "")
+                                    + " -> "
+                                    + str(data_not_passed[i][1])
+                                    .replace("[", "")
+                                    .replace("]", "")
+                                    + "\n"
+                                )
+                            prompt = "".join(temp_prompt)
+                    isFirst: bool = True if rep == 0 else False
+                    res: Dict[str, List[str]] = self.__ask_model_and_process(prompt, isFirst)
+                    prob_name: str = (
+                        self.__problems.get("Problem Name")[n_prob]
+                        .replace(" ", "-")
                         .lower()
-                    args: List[Tuple] = self.__create_task_input(prob_name, res["code"], res["f_names"])
+                    )
+                    args: List[Tuple] = self.__create_task_input(
+                        prob_name, res["code"], res["f_names"]
+                    )
                     data: List[List[Any]] = []
                     for i, arg in enumerate(args):
                         temp = list(arg)
                         temp.pop()
                         temp.append(res["responses"][i])
                         temp.append(res["imports"][i])
-                        temp.append(f'{iteration}.{rep}')
+                        temp.append(f"{iteration}.{rep}")
                         data.append(temp)
                     workers = []
                     print("Testing...")
@@ -126,6 +135,7 @@ class ModelTester():
                         process.start()
                         workers.append(process)
                     for i, worker in enumerate(workers):
+                        exc: bool = False
                         try:
                             worker.join(timeout=self.__iteration_timeout)
                             if worker.is_alive():
@@ -140,10 +150,11 @@ class ModelTester():
                         except Exception as e:
                             print(f"Exception for repetition {rep + 1}")
                             data[i].append({"passed": 0, "error": str(e)})
+                            exc = True
                     to_save.extend(data)
-                    if data_not_passed == []:
+                    if data_not_passed == [] and not exc:
                         break
-                print('\n')
+                print("\n")
             self.__create_and_save_json(to_save, n_prob, prob_name)
             print(f"Problem '{prob_name}' completed.")
             print(f"{'=' * 80}")
@@ -152,23 +163,32 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, prompt: str) -> Dict[str, Any]:
+    def __ask_model_and_process(self, prompt: str, isFirst=None) -> Dict[str, Any]:
         iterations: int = 1 if self.__reask else self.__iterations
         responses: List[str] = []
         code: List[str] = []
         f_imports: List[List[str]] = []
         f_names: List[str] = []
+        reask: bool = True if self.__reask else False
+        if isFirst:
+            reask = False
         for iteration in range(iterations):
             if not self.__reask:
                 print(f"Iteration {iteration + 1}")
-            responses.append(self.__model.ask(prompt))
+            responses.append(self.__model.ask(prompt, reask))
             try:
                 code.append(extract_function(responses[-1]))
             except:
                 code.append("")
             try:
-                f_imports.append(list(set(extract_external_imports(responses[-1]) +
-                                          extract_internal_imports(code[-1]))))
+                f_imports.append(
+                    list(
+                        set(
+                            extract_external_imports(responses[-1])
+                            + extract_internal_imports(code[-1])
+                        )
+                    )
+                )
             except:
                 f_imports.append([])
             try:
@@ -179,10 +199,12 @@ class ModelTester():
                 for imp in f_imports[-1]:
                     if imp not in code[-1]:
                         code[-1] = insert_strings_after_signature(code[-1], [imp])
-        return {"responses": responses,
-                "code": code,
-                "imports": f_imports,
-                "f_names": f_names}
+        return {
+            "responses": responses,
+            "code": code,
+            "imports": f_imports,
+            "f_names": f_names,
+        }
 
     def __create_task_input(self, prob_name: str, f_bodies: List[str], f_names: List[str]) -> List[Tuple]:
         return [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]

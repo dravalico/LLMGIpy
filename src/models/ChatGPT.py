@@ -7,7 +7,9 @@ class ChatGPT(AbstractLanguageModel):
     def __init__(self) -> None:
         super().__init__("ChatGPT")
 
-    def ask(self, question: str) -> str:
+    def ask(self, question: str, reask: bool) -> str:
+        if not reask:
+            question = self._INTRODUCTION_TO_QUESTION + question
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
