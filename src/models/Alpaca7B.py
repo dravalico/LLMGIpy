@@ -11,22 +11,22 @@ class Alpaca7B(AbstractLanguageModel):
     def __init__(self) -> None:
         super().__init__("Alpaca7B")
 
-    def ask(self, question: str, reask: bool) -> str:
+    def ask(self, prompt: str, reask: bool) -> str:
         if not reask:
-            question: str = (
+            prompt: str = (
                 self.__ALPACA_QUESTION_FIRST_PART
                 + self._INTRODUCTION_TO_QUESTION
-                + question
+                + prompt
                 + self.__ALPACA_QUESTION_SECOND_PART
             )
         else:
-            question: str = (
+            prompt: str = (
                 self.__ALPACA_QUESTION_FIRST_PART
-                + question
+                + prompt
                 + self.__ALPACA_QUESTION_SECOND_PART
             )
         inputs = self.__tokenizer(
-            question,
+            prompt,
             return_tensors="pt",
         )
         input_ids = inputs["input_ids"].cuda()
