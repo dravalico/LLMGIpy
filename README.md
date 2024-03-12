@@ -9,7 +9,7 @@ Large Language Model Genetic Improvement Python (LLMGIpy) is a software that all
 To clone this repository, you need to have `git` installed. After that you can open a terminal window and run
 
 ```
-git clone https://github.com/lurovi/LLMGIpy
+git clone https://github.com/lurovi/LLMGIpy.git
 ```
 
 Move to the project folder
