@@ -5,6 +5,8 @@ __pycache__
 .env
 /processed_results
 src/prova.py
+PonyGE2/results/
+PonyGE2/src/python_log.txt
 .gitignore
 
 # dummy scripts
