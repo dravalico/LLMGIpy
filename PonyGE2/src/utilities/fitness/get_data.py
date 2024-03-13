@@ -43,9 +43,9 @@ def read_dataset_input_output_from_txt_with_inval_outval_as_str_list(datasets_su
                 d['out'] = l
         if len(d['in']) != len(d['out']):
             raise ValueError(f'Length of input ({len(d["in"])}) and length of output ({len(d["out"])}) do not match.')
-    if dataset_type == 'TRAIN':
-        d['in'] = d['in'][:params['NUM_TRAIN_EXAMPLES']]
-        d['out'] = d['out'][:params['NUM_TRAIN_EXAMPLES']]
+        if dataset_type == 'TRAIN':
+            d['in'] = d['in'][:params['NUM_TRAIN_EXAMPLES']]
+            d['out'] = d['out'][:params['NUM_TRAIN_EXAMPLES']]
     return d
 
 
