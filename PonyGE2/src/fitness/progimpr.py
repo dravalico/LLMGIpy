@@ -67,6 +67,8 @@ class progimpr(base_ff):
 
         if 'quality' not in result:
             result['quality'] = sys.maxsize
+
+        ind.errors = result['caseQuality'] if 'caseQuality' in result else None
         return result['quality']
 
     @staticmethod
