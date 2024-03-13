@@ -41,6 +41,8 @@ def read_dataset_input_output_from_txt_with_inval_outval_as_str_list(datasets_su
                 d['in'] = l
             if i == 1:
                 d['out'] = l
+        if len(d['in']) != len(d['out']):
+            raise ValueError(f'Length of input ({len(d["in"])}) and length of output ({len(d["out"])}) do not match.')
     return d
 
 
