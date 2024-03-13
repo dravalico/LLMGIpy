@@ -31,6 +31,7 @@ params = {
     'DATASET_TRAIN': "Vladislavleva4/Train.txt",
     'DATASET_TEST': None,
     'DATASET_DELIMITER': None,
+    'NUM_TRAIN_EXAMPLES': None,
 
     # Set grammar file
     'GRAMMAR_FILE': "supervised_learning/Vladislavleva4.bnf",
