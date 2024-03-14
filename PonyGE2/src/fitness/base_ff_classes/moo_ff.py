@@ -21,6 +21,8 @@ class moo_ff:
     multi_objective = True
 
     def __init__(self, fitness_functions):
+        if params['ACTIVATE_FINAL_EVALUATION_ON_TEST_SET']:
+            self.training_test = 'training_test' # ! HACK !!!! for activate evaluation over test set we need this attribute to exist with name training_test
 
         # Set list of individual fitness functions.
         self.fitness_functions = fitness_functions

@@ -32,6 +32,7 @@ params = {
     'DATASET_TEST': None,
     'DATASET_DELIMITER': None,
     'NUM_TRAIN_EXAMPLES': None,
+    'ACTIVATE_FINAL_EVALUATION_ON_TEST_SET': True,
 
     # Set grammar file
     'GRAMMAR_FILE': "supervised_learning/Vladislavleva4.bnf",
