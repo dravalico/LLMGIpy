@@ -1,7 +1,6 @@
 import math
 import re
 import numpy as np
-from algorithm.parameters import params
 # *****************************************************************************
 # Helper Code
 # *****************************************************************************
@@ -19,10 +18,7 @@ from algorithm.parameters import params
 def fitness():
   error = []
   cases = []
-  n_actual_train_samples = params['NUM_TRAIN_EXAMPLES']
-  inval_ = inval[:n_actual_train_samples]
-  outval_ = outval[:n_actual_train_samples]
-  for (i, o) in zip(inval_, outval_):
+  for (i, o) in zip(inval, outval):
     values = fitnessTrainingCase(i, o)
     error.extend(values)
     cases.append(all(v < 0.000000001 for v in values))
