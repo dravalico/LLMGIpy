@@ -10,12 +10,8 @@ from algorithm.parameters import params
 def read_dataset_input_output_from_txt_with_inval_outval_as_str_list(datasets_sub_folder, dataset_type):
     dataset_type = dataset_type.upper().strip()
     datasets_sub_folder = datasets_sub_folder.strip()
-    if dataset_type is None or dataset_type == "":
-        dataset_type = "TRAIN"
     if dataset_type not in ("TRAIN", "TEST"):
         raise ValueError(f'Error for dataset type ({dataset_type}) not being in (TRAIN, TEST).')
-    if datasets_sub_folder is None or datasets_sub_folder == "":
-        datasets_sub_folder = "progsys"
     path_of_actual_dataset = path.join("..", "datasets", datasets_sub_folder, params['DATASET_'+dataset_type])
     with open(path_of_actual_dataset, 'r') as data_file_txt:
         d = {}
