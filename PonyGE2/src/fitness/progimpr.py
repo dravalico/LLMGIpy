@@ -40,12 +40,15 @@ class progimpr(base_ff):
                   "Fitness function only allows sequential evaluation.")
 
     def evaluate(self, ind, **kwargs):
-
-        dist = kwargs.get('dist', 'training')
-
+        dist = kwargs.get('dist', None)
+        if dist is None:
+            raise ValueError(f'dist is None. It must be either training or test to select the correct dataset type.')
+        n_actual_train_examples = params['NUM_TRAIN_EXAMPLES']
         program = self.format_program(ind.phenotype,
                                       self.embed_header, self.embed_footer)
         data = self.training if dist == "training" else self.test
+        if dist == "training":
+           data = '\n'.join([ss_data + f"[:{n_actual_train_examples}]" for ss_data in data.split('\n')])
         program = "{}\n{}\n".format(data, program)
         eval_json = json.dumps({'script': program, 'timeout': 1.0,
                                 'variables': ['cases', 'caseQuality',
@@ -68,7 +71,8 @@ class progimpr(base_ff):
         if 'quality' not in result:
             result['quality'] = sys.maxsize
 
-        ind.errors = result['caseQuality'] if 'caseQuality' in result else None
+        if dist == 'training':
+            ind.levi_errors = result['caseQuality'] if 'caseQuality' in result else None
         return result['quality']
 
     @staticmethod
