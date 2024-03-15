@@ -1,6 +1,7 @@
 from math import isnan
 
 import numpy as np
+from algorithm.parameters import params
 
 np.seterr(all="raise")
 
