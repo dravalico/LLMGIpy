@@ -5,12 +5,21 @@ cache = {}
 # This dict stores the cache for an evolutionary run. The key for each entry
 # is the phenotype of the individual, the value is its fitness.
 
+cache_test_set = {}
+# This dict stores the cache for an evolutionary run. The key for each entry
+# is the phenotype of the individual, the value is its fitness on the test set.
+
+
 runtime_error_cache = []
 # This list stores a list of phenotypes which produce runtime errors over an
 # evolutionary run.
 
 best_fitness_list = []
 # fitness_plot is simply a list of the best fitnesses at each generation.
+# Useful for plotting evolutionary progress.
+
+test_fitness_of_the_best_list = []
+# fitness_plot is simply a list of the test fitnesses of the best for each generation.
 # Useful for plotting evolutionary progress.
 
 first_pareto_list = []
