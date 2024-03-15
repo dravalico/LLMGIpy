@@ -25,17 +25,47 @@ stats = {
     "ave_genome_length": 0,
     "max_genome_length": 0,
     "min_genome_length": 0,
+    "med_genome_length": 0,
+    "std_genome_length": 0,
+    "q1_genome_length": 0,
+    "q3_genome_length": 0,
     "ave_used_codons": 0,
     "max_used_codons": 0,
     "min_used_codons": 0,
+    "med_used_codons": 0,
+    "std_used_codons": 0,
+    "q1_used_codons": 0,
+    "q3_used_codons": 0,
     "ave_tree_depth": 0,
     "max_tree_depth": 0,
     "min_tree_depth": 0,
+    "med_tree_depth": 0,
+    "std_tree_depth": 0,
+    "q1_tree_depth": 0,
+    "q3_tree_depth": 0,
     "ave_tree_nodes": 0,
     "max_tree_nodes": 0,
     "min_tree_nodes": 0,
+    "med_tree_nodes": 0,
+    "std_tree_nodes": 0,
+    "q1_tree_nodes": 0,
+    "q3_tree_nodes": 0,
     "ave_fitness": 0,
+    "max_fitness": 0,
+    "min_fitness": 0,
+    "med_fitness": 0,
+    "std_fitness": 0,
+    "q1_fitness": 0,
+    "q3_fitness": 0,
+    "ave_test_fitness": 0,
+    "max_test_fitness": 0,
+    "min_test_fitness": 0,
+    "med_test_fitness": 0,
+    "std_test_fitness": 0,
+    "q1_test_fitness": 0,
+    "q3_test_fitness": 0,    
     "best_fitness": 0,
+    "test_fitness_of_the_best": 0,
     "time_taken": 0,
     "total_time": 0,
     "time_adjust": 0
@@ -58,8 +88,10 @@ def get_stats(individuals, end=False):
         # Multiple objective optimisation is being used.
 
         # Remove fitness stats from the stats dictionary.
-        stats.pop('best_fitness', None)
-        stats.pop('ave_fitness', None)
+        stats.pop('test_fitness_of_the_best', None)
+        for stats_key in stats.keys():
+            if stats_key.endswith('fitness'):
+                stats.pop(stats_key, None)
 
         # Update stats.
         get_moo_stats(individuals, end)
@@ -88,6 +120,7 @@ def get_soo_stats(individuals, end):
 
     # Get best individual.
     best = max(individuals)
+    test_fitness_of_the_best = best.levi_test_fitness
 
     if not trackers.best_ever or best > trackers.best_ever:
         # Save best individual in trackers.best_ever.
@@ -101,9 +134,11 @@ def get_soo_stats(individuals, end):
     if params['SAVE_PLOTS'] and not params['DEBUG']:
         if not end:
             trackers.best_fitness_list.append(trackers.best_ever.fitness)
+            trackers.test_fitness_of_the_best_list.append(trackers.best_ever.levi_test_fitness)
 
         if params['VERBOSE'] or end:
             save_plot_from_data(trackers.best_fitness_list, "best_fitness")
+            save_plot_from_data(trackers.test_fitness_of_the_best_list, "test_fitness_of_the_best")
 
     # Print statistics
     if params['VERBOSE'] and not end:
@@ -307,33 +342,81 @@ def update_stats(individuals, end):
     stats['max_genome_length'] = np.nanmax(genome_lengths)
     stats['ave_genome_length'] = np.nanmean(genome_lengths)
     stats['min_genome_length'] = np.nanmin(genome_lengths)
+    stats['med_genome_length'] = np.nanmedian(genome_lengths)
+    stats['std_genome_length'] = np.nanstd(genome_lengths)
+    stats['q1_genome_length'] = np.nanpercentile(genome_lengths, 25)
+    stats['q3_genome_length'] = np.nanpercentile(genome_lengths, 75)
 
     # Used Codon Stats
     codons = [i.used_codons for i in individuals]
     stats['max_used_codons'] = np.nanmax(codons)
     stats['ave_used_codons'] = np.nanmean(codons)
     stats['min_used_codons'] = np.nanmin(codons)
+    stats['med_used_codons'] = np.nanmedian(codons)
+    stats['std_used_codons'] = np.nanstd(codons)
+    stats['q1_used_codons'] = np.nanpercentile(codons, 25)
+    stats['q3_used_codons'] = np.nanpercentile(codons, 75)
 
     # Tree Depth Stats
     depths = [i.depth for i in individuals]
     stats['max_tree_depth'] = np.nanmax(depths)
     stats['ave_tree_depth'] = np.nanmean(depths)
     stats['min_tree_depth'] = np.nanmin(depths)
+    stats['med_tree_depth'] = np.nanmedian(depths)
+    stats['std_tree_depth'] = np.nanstd(depths)
+    stats['q1_tree_depth'] = np.nanpercentile(depths, 25)
+    stats['q3_tree_depth'] = np.nanpercentile(depths, 75)
 
     # Tree Node Stats
     nodes = [i.nodes for i in individuals]
     stats['max_tree_nodes'] = np.nanmax(nodes)
     stats['ave_tree_nodes'] = np.nanmean(nodes)
     stats['min_tree_nodes'] = np.nanmin(nodes)
+    stats['med_tree_nodes'] = np.nanmedian(nodes)
+    stats['std_tree_nodes'] = np.nanstd(nodes)
+    stats['q1_tree_nodes'] = np.nanpercentile(nodes, 25)
+    stats['q3_tree_nodes'] = np.nanpercentile(nodes, 75)
 
     if not hasattr(params['FITNESS_FUNCTION'], 'multi_objective'):
         # Fitness Stats
         fitnesses = [i.fitness for i in individuals if not math.isnan(i.fitness) and i.fitness < 9223372036854775807]
+        all_test_fitnesses = [i.levi_test_fitness for i in individuals if not math.isnan(i.levi_test_fitness) and i.levi_test_fitness < 9223372036854775807]
         if (len(fitnesses) != 0):
-            stats['ave_fitness'] = sum(fitnesses) / len(fitnesses)
+            stats['max_fitness'] = np.nanmax(fitnesses)
+            stats['ave_fitness'] = np.nanmean(fitnesses)
+            stats['min_fitness'] = np.nanmin(fitnesses)
+            stats['med_fitness'] = np.nanmedian(fitnesses)
+            stats['std_fitness'] = np.nanstd(fitnesses)
+            stats['q1_fitness'] = np.nanpercentile(fitnesses, 25)
+            stats['q3_fitness'] = np.nanpercentile(fitnesses, 75)
         else:
+            stats['max_fitness'] = 0.0
             stats['ave_fitness'] = 0.0
+            stats['min_fitness'] = 0.0
+            stats['med_fitness'] = 0.0
+            stats['std_fitness'] = 0.0
+            stats['q1_fitness'] = 0.0
+            stats['q3_fitness'] = 0.0
+
+        if (len(all_test_fitnesses) != 0):
+            stats['max_test_fitness'] = np.nanmax(all_test_fitnesses)
+            stats['ave_test_fitness'] = np.nanmean(all_test_fitnesses)
+            stats['min_test_fitness'] = np.nanmin(all_test_fitnesses)
+            stats['med_test_fitness'] = np.nanmedian(all_test_fitnesses)
+            stats['std_test_fitness'] = np.nanstd(all_test_fitnesses)
+            stats['q1_test_fitness'] = np.nanpercentile(all_test_fitnesses, 25)
+            stats['q3_test_fitness'] = np.nanpercentile(all_test_fitnesses, 75)
+        else:
+            stats['max_test_fitness'] = 0.0
+            stats['ave_test_fitness'] = 0.0
+            stats['min_test_fitness'] = 0.0
+            stats['med_test_fitness'] = 0.0
+            stats['std_test_fitness'] = 0.0
+            stats['q1_test_fitness'] = 0.0
+            stats['q3_test_fitness'] = 0.0
+        
         stats['best_fitness'] = trackers.best_ever.fitness
+        stats['test_fitness_of_the_best'] = trackers.best_ever.levi_test_fitness
 
 
 def print_generation_stats():
@@ -345,7 +428,8 @@ def print_generation_stats():
 
     print("______\n")
     for stat in sorted(stats.keys()):
-        print(" ", stat, ": \t", stats[stat])
+        if not (stat.startswith('ave_') or stat.startswith('q1_') or stat.startswith('q3_')):
+            print(" ", stat, ": \t", stats[stat])
     print("\n")
 
 

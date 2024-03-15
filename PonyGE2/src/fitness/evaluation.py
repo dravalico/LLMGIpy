@@ -2,7 +2,7 @@ import numpy as np
 
 from algorithm.parameters import params
 from stats.stats import stats
-from utilities.stats.trackers import cache, runtime_error_cache
+from utilities.stats.trackers import cache, cache_test_set, runtime_error_cache
 
 
 def evaluate_fitness(individuals):
@@ -40,6 +40,7 @@ def evaluate_fitness(individuals):
             # Invalid individuals cannot be evaluated and are given a bad
             # default fitness.
             ind.fitness = params['FITNESS_FUNCTION'].default_fitness
+            ind.levi_test_fitness = params['FITNESS_FUNCTION'].default_fitness
             stats['invalids'] += 1
 
         else:
@@ -54,11 +55,13 @@ def evaluate_fitness(individuals):
                     # Set the fitness as the previous fitness from the
                     # cache.
                     ind.fitness = cache[ind.phenotype]
+                    ind.levi_test_fitness = cache_test_set[ind.phenotype]
                     eval_ind = False
 
                 elif params['LOOKUP_BAD_FITNESS']:
                     # Give the individual a bad default fitness.
                     ind.fitness = params['FITNESS_FUNCTION'].default_fitness
+                    ind.levi_test_fitness = params['FITNESS_FUNCTION'].default_fitness
                     eval_ind = False
 
                 elif params['MUTATE_DUPLICATES']:
@@ -86,6 +89,7 @@ def evaluate_fitness(individuals):
 
             # Add the evaluated individual to the cache.
             cache[ind.phenotype] = ind.fitness
+            cache_test_set[ind.phenotype] = ind.levi_test_fitness
 
             # Check if individual had a runtime error.
             if ind.runtime_error:
@@ -132,3 +136,10 @@ def eval_or_append(ind, results, pool):
                     np.isnan(ind.fitness)):
                 # All fitnesses are valid.
                 cache[ind.phenotype] = ind.fitness
+
+            if (isinstance(ind.levi_test_fitness, list) and not
+            any([np.isnan(i) for i in ind.levi_test_fitness])) or \
+                    (not isinstance(ind.levi_test_fitness, list) and not
+                    np.isnan(ind.levi_test_fitness)):
+                # All fitnesses are valid.
+                cache_test_set[ind.phenotype] = ind.levi_test_fitness

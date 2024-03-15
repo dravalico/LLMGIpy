@@ -5,6 +5,7 @@ VERBOSE:                True
 GRAMMAR_FILE:           dynamic/ChatGPT/ChatGPT_problem8.bnf
 DATASET_TRAIN:          fizz-buzz/Train.txt
 DATASET_TEST:           fizz-buzz/Test.txt
+NUM_TRAIN_EXAMPLES:     1000
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 

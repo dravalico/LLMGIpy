@@ -1,4 +1,5 @@
 import numpy as np
+from algorithm.parameters import params
 
 np.seterr(all="raise")
 
@@ -18,7 +19,8 @@ class base_ff:
     maximise = False
 
     def __init__(self):
-        pass
+        if params['ACTIVATE_FINAL_EVALUATION_ON_TEST_SET']:
+            self.training_test = 'training_test' # ! HACK !!!! for activate evaluation over test set we need this attribute to exist with name training_test
 
     def __call__(self, ind, **kwargs):
         """

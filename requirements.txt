@@ -10,9 +10,9 @@ python-dotenv
 numpy
 scipy
 matplotlib
+seaborn
 pandas
 scikit-learn>=0.23.2
 levenshtein
 keybert
-dotenv
 word2number

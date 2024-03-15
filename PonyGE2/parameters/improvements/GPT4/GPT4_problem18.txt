@@ -5,6 +5,7 @@ VERBOSE:                True
 GRAMMAR_FILE:           dynamic/GPT4/GPT4_problem18.bnf
 DATASET_TRAIN:          snow-day/Train.txt
 DATASET_TEST:           snow-day/Test.txt
+NUM_TRAIN_EXAMPLES:     1000
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
