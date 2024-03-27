@@ -30,6 +30,8 @@ def read_dataset_input_output_from_txt_with_inval_outval_as_str_list(datasets_su
             s = s.replace('outval =', 'outval=')
             s = s.replace('outval= ', 'outval=')
             s = s[s.index('=')+2:-1].strip()
+            s = s.replace('] , [', '], [')
+            s = s.replace('] ,[', '], [')
             s = s.replace('], [', '],[')
             s = s.replace('],[', ']<SPLITSEPARATOR>[')
             l = s.split('<SPLITSEPARATOR>')
