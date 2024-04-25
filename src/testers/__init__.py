@@ -1,1 +1,1 @@
-datasets_list = ["psb2"]
+datasets_list = ['psb2', 'humaneval']
