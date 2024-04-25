@@ -8,14 +8,14 @@ class Alpaca7B(AbstractLanguageModel):
                                         "appropriately completes the request.\n\n### Instruction:\n"
     __ALPACA_QUESTION_SECOND_PART: str = "\n\n### Response:\n"
 
-    def __init__(self) -> None:
-        super().__init__("Alpaca7B")
+    def __init__(self, problem_bench: str) -> None:
+        super().__init__('Alpaca7B', problem_bench)
 
     def ask(self, prompt: str, reask: bool) -> str:
         if not reask:
             prompt: str = (
                 self.__ALPACA_QUESTION_FIRST_PART
-                + self._INTRODUCTION_TO_QUESTION
+                + self._INTRODUCTION_TO_QUESTION[self.problem_bench()]
                 + prompt
                 + self.__ALPACA_QUESTION_SECOND_PART
             )

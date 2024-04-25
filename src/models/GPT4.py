@@ -4,12 +4,12 @@ from models.AbstractLanguageModel import AbstractLanguageModel
 
 
 class GPT4(AbstractLanguageModel):
-    def __init__(self) -> None:
-        super().__init__("GPT4")
+    def __init__(self, problem_bench: str) -> None:
+        super().__init__("GPT4", problem_bench)
 
     def ask(self, prompt: str, reask: bool) -> str:
         if not reask:
-            prompt = self._INTRODUCTION_TO_QUESTION + prompt
+            prompt = self._INTRODUCTION_TO_QUESTION[self.problem_bench()] + prompt
         completion = openai.ChatCompletion.create(
             model="gpt-4",
             messages=[

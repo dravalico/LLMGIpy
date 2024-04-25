@@ -32,9 +32,9 @@ def set_parser() -> ArgumentParser:
     return argparser
 
 
-def create_instance_of_class(module_name: str, class_name: str) -> Any:
+def create_instance_of_class(module_name: str, class_name: str, **kwargs) -> Any:
     mod: ModuleType = sys.modules[module_name]
-    return getattr(mod, class_name)()
+    return getattr(mod, class_name)(**kwargs)
 
 
 def main():
@@ -46,7 +46,7 @@ def main():
             raise Exception(f"Model '{cmd_args.model}' not valid.")
         if (cmd_args.dataset not in testers.datasets_list) or (cmd_args.dataset == None):
             raise Exception(f"Dataset '{cmd_args.dataset}' not valid.")
-        model: AbstractLanguageModel = create_instance_of_class("models." + cmd_args.model, cmd_args.model)
+        model: AbstractLanguageModel = create_instance_of_class("models." + cmd_args.model, cmd_args.model, problem_bench=cmd_args.dataset)
         args: List[Any] = [cmd_args.dataset]
         if cmd_args.data_size != None:
             args.append(cmd_args.data_size)
