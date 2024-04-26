@@ -6,6 +6,7 @@ GRAMMAR_FILE:           dynamic/Alpaca7B/Alpaca7B_problem0.bnf
 DATASET_TRAIN:          basement/Train.txt
 DATASET_TEST:           basement/Test.txt
 NUM_TRAIN_EXAMPLES:     1000
+NUM_TEST_EXAMPLES:      1000
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 

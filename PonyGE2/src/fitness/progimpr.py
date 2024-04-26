@@ -44,11 +44,19 @@ class progimpr(base_ff):
         if dist is None:
             raise ValueError(f'dist is None. It must be either training or test to select the correct dataset type.')
         n_actual_train_examples = params['NUM_TRAIN_EXAMPLES']
+        n_actual_test_examples = params['NUM_TEST_EXAMPLES']
         program = self.format_program(ind.phenotype,
                                       self.embed_header, self.embed_footer)
-        data = self.training if dist == "training" else self.test
+        
         if dist == "training":
-           data = '\n'.join([ss_data + f"[:{n_actual_train_examples}]" for ss_data in data.split('\n')])
+            data = self.training
+            data = '\n'.join([ss_data + f"[:{n_actual_train_examples}]" for ss_data in data.split('\n')])
+        elif dist == "test":
+            data = self.test
+            data = '\n'.join([ss_data + f"[:{n_actual_test_examples}]" for ss_data in data.split('\n')])
+        else:
+            raise ValueError(f'{dist} is not a valid dist. It must be either training or test.')
+        
         program = "{}\n{}\n".format(data, program)
         eval_json = json.dumps({'script': program, 'timeout': 1.0,
                                 'variables': ['cases', 'caseQuality',
