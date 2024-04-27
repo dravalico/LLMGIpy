@@ -93,30 +93,29 @@ def remove_imports_and_functions(l: list[str]) -> list[str]:
 
 def remove_comments(l: list[str]) -> list[str]:
     idx_to_remove: set[int] = set()
+    to_be_removed_1: bool = False
+    to_be_removed_2: bool = False
 
     for i in range(len(l)):
         line: str = l[i]
         if line.strip().startswith('#'):
             idx_to_remove.add(i)
+        elif to_be_removed_1:
+            idx_to_remove.add(i)
+            if line.strip() == "'''":
+                to_be_removed_1 = not to_be_removed_1
+        elif to_be_removed_2:
+            idx_to_remove.add(i)
+            if line.strip() == '"""':
+                to_be_removed_2 = not to_be_removed_2
+        else:
+            if line.strip() == "'''":
+                idx_to_remove.add(i)
+                to_be_removed_1 = not to_be_removed_1
+            elif line.strip() == '"""':
+                idx_to_remove.add(i)
+                to_be_removed_2 = not to_be_removed_2
 
-    to_be_removed: bool = False
-    for i in range(len(l)):
-        line = l[i]
-        if to_be_removed:
-            idx_to_remove.add(i)
-        if line.strip() == "'''":
-            to_be_removed = not to_be_removed
-            idx_to_remove.add(i)
-    
-    to_be_removed = False
-    for i in range(len(l)):
-        line = l[i]
-        if to_be_removed:
-            idx_to_remove.add(i)
-        if line.strip() == '"""':
-            to_be_removed = not to_be_removed
-            idx_to_remove.add(i)
-    
     idx_to_remove_l: list[int] = sorted(list(idx_to_remove), reverse=True)
     l_copy = l[:]
     for i in idx_to_remove_l:
@@ -167,8 +166,12 @@ def properly_arrange_code_with_imports_functions_globals(s: str, include_free_co
 
 def try_main():
     s = 'import numpy as np\nimport math\nimport string\nprint("---")\n#A comment\n# Another comment here\ndef incr(x):\n    # inside a comment\n    return x + 1\nprint("---")\n"""\nmultiline\ncomment\nhere\n"""\n'
+    s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + '"""\n' + "'''\n"
+    s += '"""\n' + "'''\n" + 'comment\n' + 'comment\n' + "'''\n" + '"""\n' 
     s += "def incr2(x) -> int:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            '''\n            another\n            multiline\n            comment\n            here\n            '''\n            return 5\n        return 4 + incr4()\n    return incr(x) + incr3(x) + 1\n\n"
     s += 'print(incr2(5))\nprint(incr(1))\nprint(incr3(3))\nprint(incr4())\nfor _ in range(3):\n    for _ in range(2):\n        print("-")\n\n'
+    s += '"""\n' + "'''\n" + 'comment\n' + '"""\n' 
+    s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + "'''\n"
     print(s)
     print('='*20)
     s, entry_point = properly_arrange_code_with_imports_functions_globals(s, True)
