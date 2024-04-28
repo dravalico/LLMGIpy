@@ -72,8 +72,7 @@ def lexicase(population):
     if params['FITNESS_FUNCTION'].maximise:
         worst_fitness = -sys.maxsize    
 
-    dataset_dict = read_dataset_input_output_from_txt_with_inval_outval_as_str_list('progsys', 'TRAIN')
-    n_samples = len(dataset_dict['out'])
+    n_samples = params['NUM_TRAIN_EXAMPLES']
     data_indices = list(range(n_samples))
     errors_for_each_ind = [i.levi_errors if i.levi_errors is not None else [worst_fitness]*n_samples for i in available]
 

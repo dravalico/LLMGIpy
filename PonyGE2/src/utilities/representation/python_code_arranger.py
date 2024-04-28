@@ -91,7 +91,40 @@ def remove_imports_and_functions(l: list[str]) -> list[str]:
     return l_copy
 
 
-def extract_distinct_functions(s: str) -> str:
+def remove_comments(l: list[str]) -> list[str]:
+    idx_to_remove: set[int] = set()
+    to_be_removed_1: bool = False
+    to_be_removed_2: bool = False
+
+    for i in range(len(l)):
+        line: str = l[i]
+        if line.strip().startswith('#'):
+            idx_to_remove.add(i)
+        elif to_be_removed_1:
+            idx_to_remove.add(i)
+            if line.strip() == "'''":
+                to_be_removed_1 = not to_be_removed_1
+        elif to_be_removed_2:
+            idx_to_remove.add(i)
+            if line.strip() == '"""':
+                to_be_removed_2 = not to_be_removed_2
+        else:
+            if line.strip() == "'''":
+                idx_to_remove.add(i)
+                to_be_removed_1 = not to_be_removed_1
+            elif line.strip() == '"""':
+                idx_to_remove.add(i)
+                to_be_removed_2 = not to_be_removed_2
+
+    idx_to_remove_l: list[int] = sorted(list(idx_to_remove), reverse=True)
+    l_copy = l[:]
+    for i in idx_to_remove_l:
+        del l_copy[i]
+    
+    return l_copy
+
+
+def extract_distinct_functions(s: str) -> tuple[str, str]:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
     l: list[str] = s.split('\n')
     t = [(i, re.findall(r'def (.+)\(', l[i])[0], len(l[i]) - len(l[i].lstrip()), len(l[i]) - len(l[i].lstrip()) != 0) for i in range(len(l)) if p.match(l[i])]
@@ -104,7 +137,8 @@ def extract_distinct_functions(s: str) -> str:
     
     # PUT MAIN FUNCTION CODE AT THE END AS LAST FUNCTION
     main_code_line = l[last_non_nested_function[0]]
-    
+    entry_point = last_non_nested_function[1]
+
     all_funcs: list[list[str]] = [remove_nested_functions(extract_single_function(l[t[i][0]:])) for i in range(len(t))]
     main_func_idx: int = None
     
@@ -115,25 +149,34 @@ def extract_distinct_functions(s: str) -> str:
 
     all_funcs = all_funcs[:main_func_idx] + all_funcs[main_func_idx + 1:] + [all_funcs[main_func_idx]]
     
-    return '\n\n'.join(['\n'.join(all_funcs[i]) for i in range(len(all_funcs))])
+    return '\n\n'.join(['\n'.join(all_funcs[i]) for i in range(len(all_funcs))]), entry_point
     
 
-def properly_arrange_code_with_imports_functions_globals(s: str) -> str:
-    l: list[str] = s.split('\n')
+def properly_arrange_code_with_imports_functions_globals(s: str, include_free_code: bool) -> tuple[str, str]:
+    l: list[str] = remove_comments(s.split('\n'))
     i: str = extract_imports(l)
-    f: str = add_global_declarations_before_function_definitions(extract_distinct_functions('\n'.join(remove_nested_imports(l))))
-    c: str = '\n'.join(remove_imports_and_functions(l))
-    return i + '\n\n' + f + '\n\n' + c + '\n'
+    distinct_funcs, entry_point = extract_distinct_functions('\n'.join(remove_nested_imports(l)))
+    f: str = add_global_declarations_before_function_definitions(distinct_funcs)
+    if include_free_code:
+        c: str = '\n'.join(remove_imports_and_functions(l))
+        return i + '\n\n' + f + '\n\n' + c + '\n', entry_point
+    else:
+        return i + '\n\n' + f + '\n\n', entry_point
     
 
 def try_main():
-    s = 'import numpy as np\nimport math\nimport string\nprint("---")\ndef incr(x):\n    return x + 1\nprint("---")\n'
-    s += 'def incr2(x) -> int:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            return 5\n        return 4 + incr4()\n    return incr(x) + incr3(x) + 1\n\n'
+    s = 'import numpy as np\nimport math\nimport string\nprint("---")\n#A comment\n# Another comment here\ndef incr(x):\n    # inside a comment\n    return x + 1\nprint("---")\n"""\nmultiline\ncomment\nhere\n"""\n'
+    s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + '"""\n' + "'''\n"
+    s += '"""\n' + "'''\n" + 'comment\n' + 'comment\n' + "'''\n" + '"""\n' 
+    s += "def incr2(x) -> int:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            '''\n            another\n            multiline\n            comment\n            here\n            '''\n            return 5\n        return 4 + incr4()\n    return incr(x) + incr3(x) + 1\n\n"
     s += 'print(incr2(5))\nprint(incr(1))\nprint(incr3(3))\nprint(incr4())\nfor _ in range(3):\n    for _ in range(2):\n        print("-")\n\n'
+    s += '"""\n' + "'''\n" + 'comment\n' + '"""\n' 
+    s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + "'''\n"
     print(s)
     print('='*20)
-    s = properly_arrange_code_with_imports_functions_globals(s)
+    s, entry_point = properly_arrange_code_with_imports_functions_globals(s, True)
     print(s)
+    print('ENTRY POINT: ', entry_point)
     print('='*20)
     exec(s)
     
