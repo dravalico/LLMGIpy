@@ -184,10 +184,14 @@ def extract_distinct_functions(s: str) -> tuple[str, str]:
         func[0] = remove_typing_from_header_func(func[0])
 
     return '\n\n'.join(['\n'.join(all_funcs[i]) for i in range(len(all_funcs))]), entry_point
-    
+
+
+def tabs_as_symbols(f: str) -> str:
+    return f.replace('    ', '\t').replace('  ', '\t')
+
 
 def properly_arrange_code_with_imports_functions_globals(s: str, include_free_code: bool) -> tuple[str, str]:
-    l: list[str] = remove_comments(s.split('\n'))
+    l: list[str] = [tabs_as_symbols(elem) for elem in remove_comments(s.split('\n')) if elem.strip() != '']
     i: str = extract_imports(l)
     distinct_funcs, entry_point = extract_distinct_functions('\n'.join(remove_internal_code_typing(remove_nested_imports(l))))
     f: str = add_global_declarations_before_function_definitions(distinct_funcs)
@@ -213,6 +217,8 @@ def try_main():
     print('ENTRY POINT: ', entry_point)
     print('='*100)
     exec(s)
+    #with open('file1.txt', 'w') as f:
+    #    f.write(s)
     
 
 if __name__ == '__main__':
