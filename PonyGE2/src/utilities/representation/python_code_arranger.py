@@ -78,7 +78,22 @@ def remove_typing_from_header_func(s: str) -> str:
             ll.append(e[:e.index(':')].strip())
         else:
             ll.append(e.strip())
-    return s[:open_paren_index + 1] + ','.join(ll) + s[closed_paren_index:]
+    return s[:open_paren_index + 1] + ', '.join(ll) + s[closed_paren_index:]
+
+
+def remove_internal_code_typing(l: list[str]) -> list[str]:
+    p = re.compile('^(\s*)(_|[A-Z]|[a-z])[A-Za-z0-9_]*(\s*):(\s*)[A-Za-z](.*)(\s*)=(\s*)(.+)(\s*)$')
+
+    l0 = []
+
+    for i in range(len(l)):
+        if p.match(l[i]):
+            var_name = l[i][:l[i].index(':')]
+            l0.append(var_name + ' ' + l[i][l[i].index('='):])
+        else:
+            l0.append(l[i])
+
+    return l0
 
 
 def remove_imports_and_functions(l: list[str]) -> list[str]:
@@ -174,7 +189,7 @@ def extract_distinct_functions(s: str) -> tuple[str, str]:
 def properly_arrange_code_with_imports_functions_globals(s: str, include_free_code: bool) -> tuple[str, str]:
     l: list[str] = remove_comments(s.split('\n'))
     i: str = extract_imports(l)
-    distinct_funcs, entry_point = extract_distinct_functions('\n'.join(remove_nested_imports(l)))
+    distinct_funcs, entry_point = extract_distinct_functions('\n'.join(remove_internal_code_typing(remove_nested_imports(l))))
     f: str = add_global_declarations_before_function_definitions(distinct_funcs)
     if include_free_code:
         c: str = '\n'.join(remove_imports_and_functions(l))
@@ -187,8 +202,8 @@ def try_main():
     s = 'import numpy as np\nimport math\nimport string\nprint("---")\n#A comment\n# Another comment here\ndef incr(x):\n    # inside a comment\n    return x + 1\nprint("---")\n"""\nmultiline\ncomment\nhere\n"""\n'
     s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + '"""\n' + "'''\n"
     s += '"""\n' + "'''\n" + 'comment\n' + 'comment\n' + "'''\n" + '"""\n' 
-    s += "def incr2(x: int, y:float) -> float:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            '''\n            another\n            multiline\n            comment\n            here\n            '''\n            return 5\n        return 4 + incr4()\n    return incr(x) + incr3(x) + y\n\n"
-    s += 'print(incr2(5,1.0))\nprint(incr(1))\nprint(incr3(3))\nprint(incr4())\nfor _ in range(3):\n    for _ in range(2):\n        print("-")\n\n'
+    s += "def incr2(x: int, y:float) -> float:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            '''\n            another\n            multiline\n            comment\n            here\n            '''\n            return 5\n        h: str = str([1, 2, 3, 4, 5][:2]) + str({k: k + 1 for k in [1, 2, 3]}) \n        return 4 + incr4()\n    return incr(x) + incr3(x) + y\n\n"
+    s += 'print(incr2(5, 1.0))\nprint(incr(1))\nprint(incr3(3))\nprint(incr4())\nfor _ in range(3):\n    for _ in range(2):\n        print("-")\n\n'
     s += '"""\n' + "'''\n" + 'comment\n' + '"""\n' 
     s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + "'''\n"
     print(s)
