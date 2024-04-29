@@ -8,6 +8,10 @@ src/prova.py
 PonyGE2/results/
 PonyGE2/src/python_log.txt
 .gitignore
+PonyGE2/grammars/dynamic/
+PonyGE2/grammars/progsys/
+PonyGE2/parameters/improvements/*/*
+PonyGE2/seeds/
 
 # dummy scripts
 dummyscripts/
