@@ -30,18 +30,18 @@ class Gemma2B(AbstractLanguageModel):
         outputs = self.__model.generate(**input_ids)
         result = self.__tokenizer.decode(outputs[0])
         return self.__extract_response(result)
-    
+
     def _load_model(self) -> Any:
         super()._load_model()
         quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 
-        self.__tokenizer = AutoTokenizer.from_pretrained("google/gemma-1.1-2b-it")
+        self.__tokenizer = AutoTokenizer.from_pretrained("google/gemma-1.1-2b-it", token=os.getenv('HUGGING_TOKEN'))
         self.__model = AutoModelForCausalLM.from_pretrained(
             "google/gemma-1.1-2b-it",
             token=os.getenv('HUGGING_TOKEN'),
             quantization_config=quantization_config
         )
-    
+
     @staticmethod
     def __extract_response(response: str) -> str:
         return response[response.index(Gemma2B.__SECOND_PART) + len(Gemma2B.__SECOND_PART): len(response):]
