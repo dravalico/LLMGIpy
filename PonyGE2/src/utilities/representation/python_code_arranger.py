@@ -202,7 +202,7 @@ def try_main():
     s = 'import numpy as np\nimport math\nimport string\nprint("---")\n#A comment\n# Another comment here\ndef incr(x):\n    # inside a comment\n    return x + 1\nprint("---")\n"""\nmultiline\ncomment\nhere\n"""\n'
     s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + '"""\n' + "'''\n"
     s += '"""\n' + "'''\n" + 'comment\n' + 'comment\n' + "'''\n" + '"""\n' 
-    s += "def incr2(x: int, y:float) -> float:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            '''\n            another\n            multiline\n            comment\n            here\n            '''\n            return 5\n        h: str = str([1, 2, 3, 4, 5][:2]) + str({k: k + 1 for k in [1, 2, 3]}) \n        return 4 + incr4()\n    return incr(x) + incr3(x) + y\n\n"
+    s += "def incr2(x: int, y:float) -> float:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            '''\n            another\n            multiline\n            comment\n            here\n            '''\n            return 5\n        h: str = str([1, 2, 3, 4, 5][:2]) + str({k: k + 1 for k in [1, 2, 3]}) + str(5 == 6) \n        return 4 + incr4()\n    return incr(x) + incr3(x) + y\n\n"
     s += 'print(incr2(5, 1.0))\nprint(incr(1))\nprint(incr3(3))\nprint(incr4())\nfor _ in range(3):\n    for _ in range(2):\n        print("-")\n\n'
     s += '"""\n' + "'''\n" + 'comment\n' + '"""\n' 
     s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + "'''\n"
