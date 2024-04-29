@@ -792,7 +792,7 @@ def generate_outvals(idx: int, is_train: bool, inval: list[list[Any]]) -> None:
         print(Counter([str(oo) for oo in outv])) # type: ignore
         quit()
 
-    with open('humaneval-bench/HumanEval' + str(idx) + '/' + ('Train.txt' if is_train else 'Test.txt'), 'w') as f:
+    with open('humaneval-bench/humaneval' + str(idx) + '/' + ('Train.txt' if is_train else 'Test.txt'), 'w') as f:
         f.write(inval_str + '\n' + outval_str)
 
 
