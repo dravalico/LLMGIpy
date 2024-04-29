@@ -27,7 +27,7 @@ class Gemma2B(AbstractLanguageModel):
             )
         input_ids = self.__tokenizer(prompt, return_tensors="pt").to("cuda")
 
-        outputs = self.__model.generate(**input_ids)
+        outputs = self.__model.generate(**input_ids, max_new_tokens=1000)
         result = self.__tokenizer.decode(outputs[0])
         return self.__extract_response(result)
 
