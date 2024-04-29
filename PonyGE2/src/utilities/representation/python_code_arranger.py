@@ -89,7 +89,7 @@ def remove_internal_code_typing(l: list[str]) -> list[str]:
     for i in range(len(l)):
         if p.match(l[i]):
             var_name = l[i][:l[i].index(':')]
-            l0.append(var_name + ' ' + l[i][l[i].index('='):])
+            l0.append(var_name.rstrip() + ' ' + l[i][l[i].index('='):])
         else:
             l0.append(l[i])
 
