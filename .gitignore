@@ -3,6 +3,7 @@
 /results
 __pycache__
 .env
+src/.env
 /processed_results
 src/prova.py
 PonyGE2/results/
