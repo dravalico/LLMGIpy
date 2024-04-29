@@ -1,32 +1,40 @@
-import pandas
-import psb2
-from pandas import DataFrame
-from typing import List, Tuple
+import pandas as pd
+from typing import List, Tuple, Any
 
 
-class DatasetLoader():  # TODO Is a good abstraction?
-    def __init__(self, dataset: str, data_size: int = 1000) -> None:
-        self.__data_size: int = data_size
-        self.__problems: DataFrame = None
-        self.__dataset = dataset
-        if dataset == "psb2":
-            self.__set_problems_to_psb2()
+class DatasetLoader():
+    def __init__(self, dataset: str, train_size: int, test_size: int = 1000) -> None:
+        self.__train_size: int = train_size
+        self.__test_size: int = test_size
+        self.__dataset: str = dataset
+        self.__dataset_folder: str = f"../PonyGE2/datasets/progsys/{dataset}-bench/"
+        self.__problems: pd.DataFrame = pd.read_json(self.__dataset_folder + 'descr.json', orient='records')
 
-    def load(self, prob_name: str) -> List[Tuple[List, List]]:
-        if self.__dataset == "psb2":
-            try:
-                (_, test_data) = psb2.fetch_examples("", prob_name, 0, self.__data_size)
-                return test_data
-            except:
-                raise Exception("Cannot load data for test")
-
-    def __set_problems_to_psb2(self) -> None:
-        self.__problems = pandas.read_csv("../resources/pbs2_problems_description_from_paper.csv", sep=";")
-
+    def load(self, prob_name: str) -> Tuple[Tuple[List[Any], List[Any]]]:
+        with open(self.__dataset_folder + prob_name + '/' + 'Train.txt', 'r') as f:
+            c = f.read()
+            exec(c)
+            train_data = (inval, outval) # type: ignore
+        
+        with open(self.__dataset_folder + prob_name + '/' + 'Test.txt', 'r') as f:
+            c = f.read()
+            exec(c)
+            test_data = (inval, outval) # type: ignore
+        
+        return train_data, test_data
+            
     @property
-    def problems(self) -> DataFrame:
+    def dataset(self) -> str:
+        return self.__dataset
+    
+    @property
+    def problems(self) -> pd.DataFrame:
         return self.__problems
 
     @property
-    def data_size(self) -> int:
-        return self.__data_size
+    def train_size(self) -> int:
+        return self.__train_size
+    
+    @property
+    def test_size(self) -> int:
+        return self.__test_size

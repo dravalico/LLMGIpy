@@ -223,24 +223,23 @@ class ModelTester():
             raise Exception("Cannot define function") from e
         else:
             f: Callable = eval(f_name)
-            data: Any = self.__dataset_loader.load(prob_name)
+            train_data, _ = self.__dataset_loader.load(prob_name)
+            X, y = train_data[0], train_data[1]
             passed: int = 0
             not_passed: int = 0
             with_exception: int = 0
             data_not_passed: List[Any] = []
-            for i in range(len(data)):
-                args: List[Any] = [v for k, v in data[i].items() if "input" in k]
-                expected: List[Any] = [v for k, v in data[i].items() if "output" in k]
+            for i in range(len(X)):
                 try:
-                    result: Any = [f(*args)]
-                    if result == expected:
+                    result: Any = [f(*X[i])]
+                    if result == y[i]:
                         passed += 1
                     else:
                         not_passed += 1
-                        data_not_passed.append((args, expected))
+                        data_not_passed.append((X[i], y[i]))
                 except Exception as e:
                     with_exception += 1
-                    data_not_passed.append((args, expected))
+                    data_not_passed.append((X[i], y[i]))
             return {"passed": passed, "not_passed": not_passed, "with_exception(s)": with_exception}, data_not_passed
 
     def __create_and_save_json(self, data: List[List[Any]], n_prob: int, prob_name: str) -> None:
@@ -287,7 +286,7 @@ class ModelTester():
                 "problem_name": prob_name,
                 "prompt": self.__problems["Description"][n_prob],
                 "problem_index": n_prob,
-                "data_test_size": self.__dataset_loader.data_size,
+                "data_train_size": self.__dataset_loader.train_size,
                 "data": json_data
             }
         )
