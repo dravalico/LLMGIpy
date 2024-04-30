@@ -155,7 +155,7 @@ def remove_comments(l: list[str]) -> list[str]:
     return l_copy
 
 
-def extract_distinct_functions(s: str) -> tuple[str, str]:
+def extract_distinct_functions(s: str) -> tuple[str, str, str, int]:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
     l: list[str] = s.split('\n')
     t = [(i, re.findall(r'def (.+)\(', l[i])[0], len(l[i]) - len(l[i].lstrip()), len(l[i]) - len(l[i].lstrip()) != 0) for i in range(len(l)) if p.match(l[i])]
@@ -183,23 +183,37 @@ def extract_distinct_functions(s: str) -> tuple[str, str]:
     for func in all_funcs:
         func[0] = remove_typing_from_header_func(func[0])
 
-    return '\n\n'.join(['\n'.join(all_funcs[i]) for i in range(len(all_funcs))]), entry_point
+    indent_size: int = len(all_funcs[-1][1]) - len(all_funcs[-1][1].lstrip())
+
+    return '\n\n'.join(['\n'.join(all_funcs[i]) for i in range(len(all_funcs))]), entry_point, '\n'.join(all_funcs[-1]), indent_size
 
 
-def tabs_as_symbols(f: str) -> str:
-    return f.replace('    ', '\t').replace('  ', '\t')
+def tabs_as_symbols(s: str, indent_size: int) -> str:
+    l: list[str] = s.split('\n')
+    l0: list[str] = []
+
+    for i in range(len(l)):
+        line = l[i]
+        num_lead_spaces: int = len(line) - len(line.lstrip())
+        if num_lead_spaces == 0:
+            l0.append(line)
+        else:
+            l0.append('\t' * (num_lead_spaces // indent_size) + line.lstrip())
+
+    return '\n'.join(l0)
 
 
-def properly_arrange_code_with_imports_functions_globals(s: str, include_free_code: bool) -> tuple[str, str]:
-    l: list[str] = [tabs_as_symbols(elem) for elem in remove_comments(s.split('\n')) if elem.strip() != '']
+def properly_arrange_code_with_imports_functions_globals(s: str, include_free_code: bool) -> tuple[str, str, list[str], str]:
+    l: list[str] = [elem for elem in remove_comments(s.split('\n')) if elem.strip() != '']
     i: str = extract_imports(l)
-    distinct_funcs, entry_point = extract_distinct_functions('\n'.join(remove_internal_code_typing(remove_nested_imports(l))))
-    f: str = add_global_declarations_before_function_definitions(distinct_funcs)
+    distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions('\n'.join(remove_internal_code_typing(remove_nested_imports(l))))
+    f: str = tabs_as_symbols(distinct_funcs, indent_size)
+    main_func = tabs_as_symbols(main_func, indent_size)
     if include_free_code:
-        c: str = '\n'.join(remove_imports_and_functions(l))
-        return i + '\n\n' + f + '\n\n' + c + '\n', entry_point
+        c: str = tabs_as_symbols('\n'.join(remove_imports_and_functions(l)), indent_size)
+        return i + '\n\n' + f + '\n\n' + c + '\n', entry_point, i.split('\n'), main_func
     else:
-        return i + '\n\n' + f + '\n\n', entry_point
+        return i + '\n\n' + f + '\n\n', entry_point, i.split('\n'), main_func
     
 
 def try_main():
@@ -207,16 +221,19 @@ def try_main():
     s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + '"""\n' + "'''\n"
     s += '"""\n' + "'''\n" + 'comment\n' + 'comment\n' + "'''\n" + '"""\n' 
     s += "def incr2(x: int, y:float) -> float:\n    def incr3(x):\n        def incr4() -> int:\n            import os\n            '''\n            another\n            multiline\n            comment\n            here\n            '''\n            return 5\n        h: str = str([1, 2, 3, 4, 5][:2]) + str({k: k + 1 for k in [1, 2, 3]}) + str(5 == 6) \n        return 4 + incr4()\n    return incr(x) + incr3(x) + y\n\n"
-    s += 'print(incr2(5, 1.0))\nprint(incr(1))\nprint(incr3(3))\nprint(incr4())\nfor _ in range(3):\n    for _ in range(2):\n        print("-")\n\n'
+    s += 'print(incr2(5, 1.0))\nprint(incr(1))\nprint(incr3(3))\nprint(incr4())\nfor _ in range(3):\n    for _ in range(2):\n        print("-" + "    ")\n\n'
     s += '"""\n' + "'''\n" + 'comment\n' + '"""\n' 
     s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + "'''\n"
     print(s)
     print('='*100)
-    s, entry_point = properly_arrange_code_with_imports_functions_globals(s, True)
+    s, entry_point, all_import, main_func = properly_arrange_code_with_imports_functions_globals(s, True)
     print(s)
     print('ENTRY POINT: ', entry_point)
+    print('IMPORTS ', all_import)
+    print('MAIN FUNC')
+    print(main_func)
     print('='*100)
-    exec(s)
+    exec(s, locals())
     #with open('file1.txt', 'w') as f:
     #    f.write(s)
     
