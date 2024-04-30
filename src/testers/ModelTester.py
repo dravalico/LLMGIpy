@@ -1,7 +1,7 @@
 from typing import List, Any, Dict, Callable, Tuple
 from multiprocessing import Process, Queue
 from pandas import DataFrame
-from scripts.python_code_arranger import properly_arrange_code_with_imports_functions_globals
+from scripts.python_code_arranger import properly_arrange_code_with_imports_functions_globals, remove_imports_only
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json, get_results_dir_path
@@ -246,8 +246,9 @@ class ModelTester():
             imports_pony: str = ''
             for i in imports:
                 imports_pony += i + '#'
-            ind: str = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['f_mains']) # Pass main_func
-            _, used_names = replace_variables_with_names('\n'.join(element['imports']) + '\n' + element['f_mains'], imports)
+            ind, used_names = replace_variables_with_names('\n'.join(element['imports']) + '\n' + element['f_mains'], imports)
+            ind = '\n'.join([line_code for line_code in remove_imports_only(ind.split('\n')) if line_code.strip() != ''])
+            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(ind) # Pass main func with variables renamed and no imports
             it: int = 0
             rep: int = 0
             if '.' in str(element['problem_index']):

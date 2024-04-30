@@ -122,6 +122,23 @@ def remove_imports_and_functions(l: list[str]) -> list[str]:
     return l_copy
 
 
+def remove_imports_only(l: list[str]) -> list[str]:
+    idx_to_remove: set[int] = set()
+    
+    p_imp = re.compile('^(\s*)(import (.+)|import (.+) as (.+)|from (.+) import (.+))(\s*)$')
+    
+    for i in range(len(l)):
+        if p_imp.match(l[i]):
+            idx_to_remove.add(i)    
+    
+    idx_to_remove_l: list[int] = sorted(list(idx_to_remove), reverse=True)
+    l_copy = l[:]
+    for i in idx_to_remove_l:
+        del l_copy[i]
+    
+    return l_copy
+
+
 def remove_comments(l: list[str]) -> list[str]:
     idx_to_remove: set[int] = set()
     to_be_removed_1: bool = False
