@@ -28,10 +28,10 @@ class ModelTester():
         self.__iteration_timeout: int = 60
 
     def run(self) -> str:
-        print(f'\n{'=' * 80}')
+        print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
         for n_prob in range(len(self.__problems)):
-            print(f'{'=' * 35}Problem {(n_prob):02d}{'=' * 35}')
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(self.__problems['Description'][n_prob])
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
             # Body, Name, ProbName, Queue
@@ -70,17 +70,17 @@ class ModelTester():
                     data[i]['test_results'] = {'passed': 0, 'error': str(e)}
             self.__create_and_save_json(data, n_prob, prob_name)
             print(f"\nProblem '{prob_name}' completed.")
-            print(f'{'=' * 80}')
+            print(f"{'=' * 80}")
         dir_name: str = get_results_dir_path()
         print(f'Results saved in {dir_name}')
-        print(f'{'=' * 80}')
+        print(f"{'=' * 80}")
         return dir_name
 
     def run_with_reask(self) -> str:
-        print(f'\n{'=' * 80}')
+        print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
         for n_prob in range(len(self.__problems)):
-            print(f'{'=' * 35}Problem {(n_prob):02d}{'=' * 35}')
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
@@ -152,10 +152,10 @@ class ModelTester():
                 print('\n')
             self.__create_and_save_json(to_save, n_prob, prob_name)
             print(f"Problem '{prob_name}' completed.")
-            print(f'{'=' * 80}')
+            print(f"{'=' * 80}")
         dir_name: str = get_results_dir_path()
         print(f'Results saved in {dir_name}')
-        print(f'{'=' * 80}')
+        print(f"{'=' * 80}")
         return dir_name
 
     def __ask_model_and_process(self, prompt: str, isFirst=None) -> Dict[str, Any]:
@@ -269,7 +269,7 @@ class ModelTester():
             }
             json_data.append(json_element)
         create_and_save_json(
-            f'{self.__model.name}{'_problem'}{n_prob}',
+            f"{self.__model.name}{'_problem'}{n_prob}",
             {
                 'model_name': self.__model.name,
                 'problem_name': prob_name,
