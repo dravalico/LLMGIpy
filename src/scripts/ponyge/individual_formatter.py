@@ -1,6 +1,6 @@
 from typing import List, Any
 import ast
-from scripts.function_util import insert_strings_after_signature
+import re
 
 
 def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
@@ -38,11 +38,22 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     return ''.join(res).replace('\n', newline)
 
 
-def import_manipulation1(imports):
+def import_manipulation(imports):
     final = []
     for imp in imports:
-        imp_splitted = imp.split()
-        final.append(imp_splitted[-1])
+        i = imp.replace(',', ' ')
+        i = re.sub(r'\s+', ' ', i)
+        l = [elem.strip() for elem in i.split()]
+        if l[0] == 'from':
+            for elem in l[3:]:
+                final.append(elem)
+        else:
+            if 'as' in l:
+                final.append(l[-1])
+            else:
+                for elem in l[1:]:
+                    final.append(elem)
+
     return final
 
 
@@ -79,9 +90,4 @@ def replace_variables_with_names(code: str, imports):
     replace_var_names(tree)
     modified_code = ast.unparse(tree)
     used_variables = [var_mapping[var] for var in variables if var in var_mapping]
-    return modified_code, list(set(used_variables + import_manipulation1(imports)))
-
-
-def to_pony_individual_with_imports(code: str, imports: str) -> str:
-    code = insert_strings_after_signature(code, imports)
-    return substitute_tabs_and_newlines_with_pony_encode(code)
+    return modified_code, list(set(used_variables + import_manipulation(imports)))
