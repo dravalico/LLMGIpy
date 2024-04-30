@@ -211,9 +211,9 @@ def properly_arrange_code_with_imports_functions_globals(s: str, include_free_co
     main_func = tabs_as_symbols(main_func, indent_size)
     if include_free_code:
         c: str = tabs_as_symbols('\n'.join(remove_imports_and_functions(l)), indent_size)
-        return i + '\n\n' + f + '\n\n' + c + '\n', entry_point, i.split('\n'), main_func
+        return i + '\n' + f + '\n' + c, entry_point, i.split('\n'), main_func
     else:
-        return i + '\n\n' + f + '\n\n', entry_point, i.split('\n'), main_func
+        return i + '\n' + f, entry_point, i.split('\n'), main_func
     
 
 def try_main():
