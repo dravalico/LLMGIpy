@@ -47,8 +47,9 @@ def create_grammar_from(json_path: str) -> str:
     imports: List[List[str]] = []
     nums = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
     for e in data:
-        extracted_functions_from_individuals.append(
-            extract_functions_and_methods(e["code_no_imports_and_comments"]))
+        #extracted_functions_from_individuals.append(
+        #    extract_functions_and_methods(e["code_no_imports_and_comments"]))
+        extracted_functions_from_individuals.append(extract_methods(e['code_no_imports_and_comments'])) # FIXME migliorato la funzione per estrarre funcioni e metodi ma forse non è anoora perfetta
         res_strings = extract_strings(e["code_no_imports_and_comments"])
         prompt_info_strings = extract_prompt_info_with_keybert(json_file["prompt"])
         extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
@@ -58,7 +59,7 @@ def create_grammar_from(json_path: str) -> str:
     temp0: str = ""
     temp: str = ""
     flat_list = [item for sublist in extracted_functions_from_individuals for item in sublist]
-    for i in flat_list:
+    for i in list(set(flat_list)):
         if "." in i and i not in temp0:
             temp0 += f'"{i}" | '
         elif "." not in i and i not in temp:
@@ -74,15 +75,16 @@ def create_grammar_from(json_path: str) -> str:
     temp1 = temp1[:-1]
     temp2: str = ""
     flat_list2 = [item for sublist in variables for item in sublist]
-    for i in flat_list2:
-        if i not in temp2:
-            temp2 += f'"{i}" | '
+    for i in list(set(flat_list2)): # HACK fix
+        temp2 += f'"{i}" | '
     temp2 = temp2[:-2]
     temp2 += '| "a0" | "a1" | "a2"'
     temp3: str = ""
+    single_import: str = ""
     flat_list3 = [item for sublist in imports for item in sublist]
     for i in flat_list3:
         if i not in temp3:
+            single_import += f'"{i + "#"}" | ' # HACK fix for imports
             temp3 += i + '#'
     temp4: str = ""
     flat_list4 = [item for sublist in nums for item in sublist]
@@ -110,7 +112,7 @@ def create_grammar_from(json_path: str) -> str:
         else:
             bnf.write("<var> ::= " + '""' + '\n')
         bnf.write("<num> ::= " + temp4 + '\n')
-        bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
+        bnf.write('<IMPORTS> ::= ' + (('"' + temp3 + '"' + ' | ') * 3 + '"" | ' + single_import + '\n')[:-4]) # HACK trick for probability
     chdir(cwd)
     return json_path.split('/')[-2] + '/' + json_path.split('/')[-1].replace(".json", ".bnf")
 
@@ -134,6 +136,25 @@ def extract_functions_and_methods(code: str) -> List[str]:
                         method_name = node.func.attr
                         function_and_method_names.append(f".{method_name}")
     return function_and_method_names
+
+def extract_methods(code: str) -> List[str]:
+    method_names = []
+    tree = ast.parse(code)
+    
+    def get_attribute_name(node):
+        if isinstance(node, ast.Name):
+            return node.id
+        elif isinstance(node, ast.Attribute):
+            return '.' + str(node.attr)
+        elif isinstance(node, ast.Subscript):
+            return  '.'
+    
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call) and isinstance(node.func, (ast.Name, ast.Attribute)):
+            method_name = get_attribute_name(node.func)
+            method_names.append(method_name)
+                
+    return method_names
 
 
 def extract_strings(code: str) -> List[str]:

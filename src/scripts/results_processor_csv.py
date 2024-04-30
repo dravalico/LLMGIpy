@@ -26,7 +26,7 @@ def calculate_statistics(values, size) -> Tuple[float]:
     except:
         mean = 0.0
     try:
-        median: float = round(statistics.median(values) * 100 / size, 3)
+        median: float = round(statistics.median(values) / size, 2) # TODO modified
     except:
         median = 0.0
     try:
@@ -115,7 +115,7 @@ def create_csv_table_fig(csv_path: str) -> None:
 
 
 def main():  # TODO remove it
-    path: str = create_csv_statistics([""])
+    path: str = create_csv_statistics(["/mnt/data/gpinna/damiano_pony/LLMGIpy/json_data/jsons_results_psb2/results_psb2/ChG", "/mnt/data/gpinna/damiano_pony/LLMGIpy/json_data/jsons_results_psb2/results_psb2/G4"])
     create_csv_table_fig(path)
 
 

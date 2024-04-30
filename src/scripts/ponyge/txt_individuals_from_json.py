@@ -3,6 +3,7 @@ import json
 import subprocess
 from typing import Any, List, Dict, Tuple
 import multiprocessing
+import time
 
 
 def load_phenotypes_from_json(json_path: str) -> List[str]:
@@ -14,6 +15,7 @@ def load_phenotypes_from_json(json_path: str) -> List[str]:
     for i in range(0, len(data)):
         if data[i]["tests_results"]["passed"] != test_cases:
             phenotypes.append(data[i]["final_individual"])
+
     return phenotypes
 
 

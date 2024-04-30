@@ -1,4 +1,5 @@
 from sys import path
+import os
 
 path.append("../src")
 
@@ -15,6 +16,10 @@ from representation.tree import Tree
 from utilities.representation.check_methods import generate_codon, \
     check_ind_from_parser
 from utilities.stats import trackers
+
+from representation import grammar
+
+from dynamic_tags_grammar import create_tag_dynamic_bnf
 
 
 def parse_terminals(target):
@@ -343,10 +348,28 @@ def main():
 
     # Iterate over the solution list until the target string is parsed.
     solution = parse_target_string()
+    if params['DYNAMIC_BNF'] is True:
+        my_bnf_tag_list = extract_dynamic_bnf(trackers.snippets[f"[0, {len(params['REVERSE_MAPPING_TARGET'])}] <predefined>"].get_node_labels({"<predefined>"}))
+        create_tag_dynamic_bnf(params['GRAMMAR_FILE'], my_bnf_tag_list, "aaa.bnf", False)
+        params['BNF_GRAMMAR'] = grammar.Grammar(os.path.join("..", "grammars", "aaa.bnf"))
+        parse_terminals(params['REVERSE_MAPPING_TARGET'])
+        # Iterate over the solution list until the target string is parsed.
+        solution = parse_target_string()
 
     # Check the mapping of the solution and all aspects to ensure it is valid.
     check_ind_from_parser(solution, params['REVERSE_MAPPING_TARGET'])
     return solution
+
+def create_complte_dynamic_bnf(list_of_tags, original_file_name, new_file_name = "bbb.bnf"):
+    pass
+
+def extract_dynamic_bnf(tag_tree_set):
+    extracted_elements = []
+    for element in tag_tree_set:
+        if element.startswith('<') and element.endswith('>'):
+            extracted_elements.append(element)
+    return extracted_elements
+    
 
 
 if __name__ == '__main__':
@@ -355,3 +378,9 @@ if __name__ == '__main__':
 
     # Print parsed GE genome.
     print("\nGenome:\n", params['SEED_INDIVIDUALS'][0].genome)
+
+
+
+"""
+{'', '<num>', '<NEWLINE>', '):{:', '<var>', '#', 'v0', '<DECORATORS>', '<stmt_list>', '<code>', 'return ', 'def evolve(', ':}', '1', '<return>', '<nums>', '<IMPORTS>', '<vars>', '<predefined>', '<statement>'}
+"""

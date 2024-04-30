@@ -7,6 +7,7 @@ machine_name = hostname[0]
 
 """Algorithm parameters"""
 params = {
+    'DYNAMIC_BNF': False,
     # Set default step and search loop functions
     'SEARCH_LOOP': 'search_loop',
     'STEP': 'step',

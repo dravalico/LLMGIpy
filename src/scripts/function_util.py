@@ -41,9 +41,16 @@ def extract_function(text: str) -> str:  # NOTE starts from def, imports should 
     return try_to_remove_extra_strings(code)
 
 
+
 def try_extract_code_inside_python_tag(text: str) -> str:
     pattern: str = r'```python\s*([\s\S]*?)\s*```'
     match: Match[str] = re.search(pattern, text)
+    if match:
+        return try_to_remove_extra_strings(match.group(1))
+    pattern = r'```\s*([\s\S]*?)\s*```'
+    if match:
+        return try_to_remove_extra_strings(match.group(1))
+    pattern = r'\begin{code}\s*([\s\S]*?)\s*\end{code}'
     if match:
         return try_to_remove_extra_strings(match.group(1))
     return None
@@ -114,7 +121,10 @@ def remove_empty_lines(code: str) -> str:
     for line in code.split('\n'):
         if not re.match(r'^\s*$', line):
             res.append(line + '\n')
-    res[-1] = res[-1].replace('\n', '')
+    try:
+        res[-1] = res[-1].replace('\n', '')
+    except:
+        pass
     return ''.join(res)
 
 
