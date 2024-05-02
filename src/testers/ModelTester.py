@@ -1,12 +1,11 @@
 from typing import List, Any, Dict, Callable, Tuple, Optional
 from multiprocessing import Process, Queue
 from pandas import DataFrame
-from scripts.python_code_arranger import properly_arrange_code_with_imports_functions_globals, remove_imports_only
+from scripts.python_code_arranger import properly_arrange_code_with_imports_functions
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_saver import create_and_save_json, get_results_dir_path
-from scripts.ponyge.individual_formatter import (substitute_tabs_and_newlines_with_pony_encode,
-                                                 replace_variables_with_names)
+from scripts.ponyge.individual_formatter import substitute_tabs_and_newlines_with_pony_encode
 
 
 class ModelTester():
@@ -32,21 +31,18 @@ class ModelTester():
         print(f"Model '{self.__model.name}'")
         all_problem_indexes: List[int] = list(range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
-            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
-            res: Dict[str, List[str]] = self.__ask_model_and_process(self.__problems['Description'][n_prob])
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
-            # Body, Name, ProbName, Queue
-            args: List[Tuple] = self.__create_task_input(prob_name, res['code'], res['f_names'])
+            print(f"{'=' * 35}Problem {(n_prob):02d} {prob_name} {'=' * 35}")
+            responses: List[Dict[str, Any]] = self.__ask_model_and_process(self.__problems['Description'][n_prob])
+            f_bodies: List[str] = [res['full_code'] for res in responses]
+            f_names: List[str] = [res['new_entry_point'] for res in responses]
+            args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
             data: List[Dict[str, Any]] = []
             for i, arg in enumerate(args):
-                di = {}
-                di['f_body'] = arg[0]
-                di['f_name'] = arg[1]
-                di['problem_name'] = arg[2]
-                di['problem_index'] = i
-                di['f_mains'] = res['f_mains'][i]
-                di['responses'] = res['responses'][i]
-                di['imports'] = res['imports'][i]
+                di = {key: responses[i][key] for key in responses[i]}
+                di['problem_name'] = prob_name
+                di['problem_index'] = n_prob
+                di['iteration'] = i
                 data.append(di)
             workers = []
             print('\nTesting...')
@@ -82,7 +78,8 @@ class ModelTester():
         print(f"Model '{self.__model.name}'")
         all_problem_indexes: List[int] = list(range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
-            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
+            prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
+            print(f"{'=' * 35}Problem {(n_prob):02d} {prob_name} {'=' * 35}")
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
@@ -108,23 +105,17 @@ class ModelTester():
                                 )
                             prompt = ''.join(temp_prompt)
                     isFirst: bool = True if rep == 0 else False
-                    res: Dict[str, List[str]] = self.__ask_model_and_process(prompt, isFirst)
-                    prob_name: str = (
-                        self.__problems.get('Problem Name')[n_prob]
-                        .replace(' ', '-')
-                        .lower()
-                    )
-                    args: List[Tuple] = self.__create_task_input(
-                        prob_name, res['code'], res['f_names']
-                    )
-                    data: List[List[Any]] = []
+                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt, isFirst)
+                    f_bodies: List[str] = [res['full_code'] for res in responses]
+                    f_names: List[str] = [res['new_entry_point'] for res in responses]
+                    args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
+                    data: List[Dict[str, Any]] = []
                     for i, arg in enumerate(args):
-                        temp = list(arg)
-                        temp.pop()
-                        temp.append(res['responses'][i])
-                        temp.append(res['imports'][i])
-                        temp.append(f'{iteration}.{rep}')
-                        data.append(temp)
+                        di = {key: responses[i][key] for key in responses[i]}
+                        di['problem_name'] = prob_name
+                        di['problem_index'] = n_prob
+                        di['iteration'] = f'{iteration}.{rep}'
+                        data.append(di)
                     workers = []
                     print('Testing...')
                     for i in range(len(args)):
@@ -141,12 +132,12 @@ class ModelTester():
                             print(f'Result obtained for repetition {rep + 1}')
                             task_res, data_not_passed = args[i][-1].get()
                             if isinstance(task_res, Exception):
-                                data[i].append({'passed': 0, 'error': str(task_res)})
+                                data[i]['test_results'] = {'passed': 0, 'error': str(task_res)}
                             else:
-                                data[i].append(task_res)
+                                data[i]['test_results'] = task_res
                         except Exception as e:
                             print(f'Exception for repetition {rep + 1}')
-                            data[i].append({'passed': 0, 'error': str(e)})
+                            data[i]['test_results'] = {'passed': 0, 'error': str(e)}
                             exc = True
                     to_save.extend(data)
                     if data_not_passed == [] and not exc:
@@ -160,35 +151,20 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, prompt: str, isFirst=None) -> Dict[str, Any]:
+    def __ask_model_and_process(self, prompt: str, isFirst: Optional[bool] = None) -> List[Dict[str, Any]]:
         iterations: int = 1 if self.__reask else self.__iterations
-        responses: List[str] = []
-        code: List[str] = []
-        f_imports: List[List[str]] = []
-        f_names: List[str] = []
-        f_mains: List[str] = []
-        reask: bool = True if self.__reask else False
+        responses: List[Dict[str, Any]] = []
+        reask: bool = self.__reask
         if isFirst:
             reask = False
         for iteration in range(iterations):
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
-            responses.append(self.__model.ask(prompt, reask))
-            formatted_code, entry_point, all_imports, main_func = properly_arrange_code_with_imports_functions_globals(responses[-1], False)
-            code.append(formatted_code)
-            f_names.append(entry_point)
-            f_imports.append(all_imports)
-            f_mains.append(main_func)
-        return {
-            'responses': responses,
-            'code': code,
-            'imports': f_imports,
-            'f_names': f_names,
-            'f_mains': f_mains
-        }
-
-    def __create_task_input(self, prob_name: str, f_bodies: List[str], f_names: List[str]) -> List[Tuple]:
-        return [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
+            llm_answer: str = self.__model.ask(prompt, reask)
+            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(llm_answer, False, 'evolve', True)
+            res['llm_answer'] = llm_answer
+            responses.append(res)
+        return responses
 
     def __worker_function(self, *args_with_queue):
         result_queue = args_with_queue[-1]
@@ -244,30 +220,31 @@ class ModelTester():
         json_element: Dict[str, any] = {}
 
         for element in data:
-            imports: List[str] = list(set(e.strip() for e in element['imports']))
+            imports: List[str] = element['imports']
             imports_pony: str = ''
             for i in imports:
                 imports_pony += i + '#'
-            ind, used_names = replace_variables_with_names('\n'.join(element['imports']) + '\n' + element['f_mains'], imports)
-            ind = '\n'.join([line_code for line_code in remove_imports_only(ind.split('\n')) if line_code.strip() != ''])
-            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(ind) # Pass main func with variables renamed and no imports
+            used_names = element['possible_vars']
+            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['main_func']) # imports_pony ??
             it: int = 0
             rep: int = 0
-            if '.' in str(element['problem_index']):
-                it = int(element['problem_index'].split('.')[0]) + 1
-                rep = int(element['problem_index'].split('.')[1]) + 1
+            if '.' in str(element['iteration']):
+                it = int(element['iteration'].split('.')[0]) + 1
+                rep = int(element['iteration'].split('.')[1]) + 1
             else:
-                it = element['problem_index'] + 1
+                it = element['iteration'] + 1
                 rep = 1
             json_element = {
                 'iteration': it,
                 'repetition': rep,
-                'model_response': element['responses'],
+                'model_response': element['llm_answer'],
                 'imports': imports,
+                'imports_and_supports': element['imports_and_supports'],
+                'main_func': element['main_func'],
                 'variables_names': used_names,
-                'function_name': element['f_name'],
-                'code': element['f_body'],
-                'final_individual': ind.replace(element['f_name'] + '(', 'evolve('),
+                'function_name': element['entry_point'],
+                'code': element['full_code'],
+                'final_individual': ind,
                 'tests_results': element['test_results']
             }
             json_data.append(json_element)
@@ -279,6 +256,7 @@ class ModelTester():
                 'prompt': self.__problems['Description'][n_prob],
                 'problem_index': n_prob,
                 'data_train_size': self.__dataset_loader.train_size,
+                'data_test_size': self.__dataset_loader.test_size,
                 'data': json_data
             }
         )
