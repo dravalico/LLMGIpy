@@ -19,20 +19,20 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--train_size", type=int, help="Length of the test dataset")
     argparser.add_argument("--iterations",
                            type=int,
-                           help="Number of times to repete question and test for the same problem")
+                           help="Number of times to repete question and test for the same problem.")
     argparser.add_argument("--impr_files",
                            action=BooleanOptionalAction,
-                           help="Boolean flag to generate also the files necessary for the improvement part")
+                           help="Boolean flag to generate also the files necessary for the improvement part.")
     argparser.add_argument("--jsons_dir",
                            type=str,
-                           help="Generate only improvement files; needs the path of jsons directory")
+                           help="Generate only improvement files; needs the path of jsons directory.")
     argparser.add_argument("--reask",
                            action=BooleanOptionalAction,
-                           help="Boolean flag to ask the model to correct the answer if wrong")
+                           help="Boolean flag to ask the model to correct the answer if wrong.")
     argparser.add_argument("--problems_indexes",
                            action=str,
                            default='',
-                           help="Boolean flag to ask the model to correct the answer if wrong")
+                           help="Put the indexes of the problems to execute separated by comma, if it is not provided then all problems are executed.")
     return argparser
 
 
