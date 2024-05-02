@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Callable, Tuple
+from typing import List, Any, Dict, Callable, Tuple, Optional
 from multiprocessing import Process, Queue
 from pandas import DataFrame
 from scripts.python_code_arranger import properly_arrange_code_with_imports_functions_globals, remove_imports_only
@@ -27,10 +27,11 @@ class ModelTester():
         self.__reask: bool = reask
         self.__iteration_timeout: int = 60
 
-    def run(self) -> str:
+    def run(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(len(self.__problems)):
+        all_problem_indexes: List[int] = list(range(len(self.__problems))) if problems_indexes is None else problems_indexes
+        for n_prob in all_problem_indexes:
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(self.__problems['Description'][n_prob])
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
@@ -76,10 +77,11 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def run_with_reask(self) -> str:
+    def run_with_reask(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(len(self.__problems)):
+        all_problem_indexes: List[int] = list(range(len(self.__problems))) if problems_indexes is None else problems_indexes
+        for n_prob in all_problem_indexes:
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
