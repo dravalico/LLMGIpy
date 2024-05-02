@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from ponyge.individual_formatter import replace_variables_with_names 
+from scripts.ponyge.individual_formatter import replace_variables_with_names 
 
 
 def add_global_declarations_before_function_definitions(s: str) -> str:
@@ -242,7 +242,7 @@ def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool
     }
     if replace_vars:
         modified_code, possible_vars = replace_variables_with_names(res['main_func'], res['imports'])
-        res['main_func'] = tabs_as_symbols(modified_code, indent_size)
+        res['renamed_main_func'] = tabs_as_symbols(modified_code, indent_size)
         res['possible_vars'] = sorted(possible_vars)
     res['full_code'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
     res['full_code_but_no_imports'] = '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'

@@ -29,7 +29,8 @@ class ModelTester():
     def run(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        all_problem_indexes: List[int] = list(range(len(self.__problems))) if problems_indexes is None else problems_indexes
+        all_problem_indexes: List[int] = list(
+            range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
             print(f"{'=' * 35}Problem {(n_prob):02d} {prob_name} {'=' * 35}")
@@ -57,11 +58,12 @@ class ModelTester():
                         worker.terminate()
                         raise Exception('Process timed out')
                     print(f'Result obtained for iteration {i + 1}')
-                    task_res, _ = args[i][-1].get()
-                    if isinstance(task_res, Exception):
-                        data[i]['test_results'] = {'passed': 0, 'error': str(task_res)}
+                    worker_res = args[i][-1].get()
+                    if isinstance(worker_res, str):
+                        print('task res instance str')
+                        data[i]['test_results'] = {'passed': 0, 'error': worker_res}
                     else:
-                        data[i]['test_results'] = task_res
+                        data[i]['test_results'] = worker_res[0]
                 except Exception as e:
                     print(f'Exception for iteration {i + 1}')
                     data[i]['test_results'] = {'passed': 0, 'error': str(e)}
@@ -76,7 +78,8 @@ class ModelTester():
     def run_with_reask(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        all_problem_indexes: List[int] = list(range(len(self.__problems))) if problems_indexes is None else problems_indexes
+        all_problem_indexes: List[int] = list(
+            range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
             print(f"{'=' * 35}Problem {(n_prob):02d} {prob_name} {'=' * 35}")
@@ -110,7 +113,7 @@ class ModelTester():
                     f_names: List[str] = [res['new_entry_point'] for res in responses]
                     args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
                     data: List[Dict[str, Any]] = []
-                    for i, arg in enumerate(args):
+                    for i, _ in enumerate(args):
                         di = {key: responses[i][key] for key in responses[i]}
                         di['problem_name'] = prob_name
                         di['problem_index'] = n_prob
@@ -130,17 +133,17 @@ class ModelTester():
                                 worker.terminate()
                                 raise Exception('Process timed out')
                             print(f'Result obtained for repetition {rep + 1}')
-                            task_res, data_not_passed = args[i][-1].get()
-                            if isinstance(task_res, Exception):
-                                data[i]['test_results'] = {'passed': 0, 'error': str(task_res)}
+                            worker_res = args[i][-1].get()
+                            if isinstance(worker_res, str):
+                                data[i]['test_results'] = {'passed': 0, 'error': worker_res}
                             else:
-                                data[i]['test_results'] = task_res
+                                data[i]['test_results'] = worker_res[0]
                         except Exception as e:
                             print(f'Exception for repetition {rep + 1}')
                             data[i]['test_results'] = {'passed': 0, 'error': str(e)}
                             exc = True
                     to_save.extend(data)
-                    if data_not_passed == [] and not exc:
+                    if worker_res[1] == [] and not exc:
                         break
                 print('\n')
             self.__create_and_save_json(to_save, n_prob, prob_name)
@@ -171,49 +174,51 @@ class ModelTester():
         try:
             result_queue.put(self.__test_function(*args_with_queue[:-1]))
         except Exception as e:
-            result_queue.put(e)
+            result_queue.put(str(e))
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
         try:
             exec(f_body, locals())
         except Exception as e:
-            raise Exception('Cannot define function') from e
-        else:
-            f: Callable = eval(f_name)
-            train_data, test_data = self.__dataset_loader.load(prob_name)
-            
-            X_train, y_train = train_data[0], train_data[1]
-            passed: int = 0
-            not_passed: int = 0
-            with_exception: int = 0
-            data_not_passed: List[Tuple[Any, Any]] = []
-            for i in range(len(X_train)):
-                try:
-                    result = [f(*X_train[i])]
-                    if result == y_train[i]:
-                        passed += 1
-                    else:
-                        not_passed += 1
-                        data_not_passed.append((X_train[i], y_train[i]))
-                except Exception as e:
-                    with_exception += 1
-                    data_not_passed.append((X_train[i], y_train[i]))
-            
-            X_test, y_test = test_data[0], test_data[1]
-            passed_test: int = 0
-            not_passed_test: int = 0
-            with_exception_test: int = 0
-            for i in range(len(X_test)):
-                try:
-                    result = [f(*X_test[i])]
-                    if result == y_test[i]:
-                        passed_test += 1
-                    else:
-                        not_passed_test += 1
-                except Exception as e:
-                    with_exception_test += 1
+            print(str(e))
+            return str(e)
+        f: Callable = eval(f_name)
+        train_data, test_data = self.__dataset_loader.load(prob_name)
 
-            return {'passed': passed, 'not_passed': not_passed, 'with_exception(s)': with_exception, 'passed_test': passed_test, 'not_passed_test': not_passed_test, 'with_exception(s)_test': with_exception_test}, data_not_passed
+        X_train, y_train = train_data[0], train_data[1]
+        passed: int = 0
+        not_passed: int = 0
+        with_exception: int = 0
+        data_not_passed: List[Tuple[Any, Any]] = []
+        for i in range(len(X_train)):
+            try:
+                result = [f(*X_train[i])]
+                if i == 0:
+                    print(result)
+                if result == y_train[i]:
+                    passed += 1
+                else:
+                    not_passed += 1
+                    data_not_passed.append((X_train[i], y_train[i]))
+            except Exception as e:
+                with_exception += 1
+                data_not_passed.append((X_train[i], y_train[i]))
+
+        X_test, y_test = test_data[0], test_data[1]
+        passed_test: int = 0
+        not_passed_test: int = 0
+        with_exception_test: int = 0
+        for i in range(len(X_test)):
+            try:
+                result = [f(*X_test[i])]
+                if result == y_test[i]:
+                    passed_test += 1
+                else:
+                    not_passed_test += 1
+            except Exception as e:
+                with_exception_test += 1
+
+        return {'passed': passed, 'not_passed': not_passed, 'with_exception(s)': with_exception, 'passed_test': passed_test, 'not_passed_test': not_passed_test, 'with_exception(s)_test': with_exception_test}, data_not_passed
 
     def __create_and_save_json(self, data: List[Dict[str, Any]], n_prob: int, prob_name: str) -> None:
         json_data: List[Dict[str, Any]] = []
@@ -225,7 +230,7 @@ class ModelTester():
             for i in imports:
                 imports_pony += i + '#'
             used_names = element['possible_vars']
-            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['main_func']) # imports_pony ??
+            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['main_func'])  # imports_pony ??
             it: int = 0
             rep: int = 0
             if '.' in str(element['iteration']):
@@ -238,12 +243,11 @@ class ModelTester():
                 'iteration': it,
                 'repetition': rep,
                 'model_response': element['llm_answer'],
-                'imports': imports,
-                'imports_and_supports': element['imports_and_supports'],
-                'main_func': element['main_func'],
-                'variables_names': used_names,
                 'function_name': element['entry_point'],
                 'code': element['full_code'],
+                'imports': imports,
+                'imports_and_supports': element['imports_and_supports'],
+                'variables_names': used_names,
                 'final_individual': ind,
                 'tests_results': element['test_results']
             }

@@ -30,7 +30,7 @@ def set_parser() -> ArgumentParser:
                            action=BooleanOptionalAction,
                            help="Boolean flag to ask the model to correct the answer if wrong.")
     argparser.add_argument("--problems_indexes",
-                           action=str,
+                           type=str,
                            default='',
                            help="Put the indexes of the problems to execute separated by comma, if it is not provided then all problems are executed.")
     return argparser
