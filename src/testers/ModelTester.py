@@ -33,7 +33,8 @@ class ModelTester():
             range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
-            print(f"{'=' * 35}Problem {(n_prob):02d} {prob_name} {'=' * 35}")
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
+            print(f'{prob_name}\n')
             responses: List[Dict[str, Any]] = self.__ask_model_and_process(self.__problems['Description'][n_prob])
             f_bodies: List[str] = [res['full_code'] for res in responses]
             f_names: List[str] = [res['new_entry_point'] for res in responses]
@@ -60,7 +61,6 @@ class ModelTester():
                     print(f'Result obtained for iteration {i + 1}')
                     worker_res = args[i][-1].get()
                     if isinstance(worker_res, str):
-                        print('task res instance str')
                         data[i]['test_results'] = {'passed': 0, 'error': worker_res}
                     else:
                         data[i]['test_results'] = worker_res[0]
@@ -82,7 +82,8 @@ class ModelTester():
             range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
-            print(f"{'=' * 35}Problem {(n_prob):02d} {prob_name} {'=' * 35}")
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
+            print(f'{prob_name}\n')
             to_save: List[List[Any]] = []
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
@@ -180,7 +181,6 @@ class ModelTester():
         try:
             exec(f_body, locals())
         except Exception as e:
-            print(str(e))
             return str(e)
         f: Callable = eval(f_name)
         train_data, test_data = self.__dataset_loader.load(prob_name)
@@ -193,8 +193,6 @@ class ModelTester():
         for i in range(len(X_train)):
             try:
                 result = [f(*X_train[i])]
-                if i == 0:
-                    print(result)
                 if result == y_train[i]:
                     passed += 1
                 else:

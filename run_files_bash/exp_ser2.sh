@@ -3,8 +3,8 @@
 cd /mnt/data/gpinna/damiano_pony/LLMGIpy/PonyGE2/src
 
 python_script="ponyge.py"
-arg1="--parameters improvements/G4/GPT4_problem6.txt"
-output_file1="/mnt/data/gpinna/damiano_pony/LLMGIpy/times_G4_problem6.txt"
+arg1="--parameters improvements/"
+output_file1=""
 iterations=10
 
 for ((i=1; i<=$iterations; i++)); do

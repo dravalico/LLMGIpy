@@ -13,13 +13,13 @@ class DatasetLoader():
     def load(self, prob_name: str) -> Tuple[Tuple[List[Any], List[Any]]]:
         with open(self.__dataset_folder + prob_name + '/' + 'Train.txt', 'r') as f:
             c = f.read()
-            exec(c, locals())
-            train_data = (inval, outval) # type: ignore
+            exec(c, globals())
+            train_data = (inval[:self.__train_size], outval[:self.__train_size]) # type: ignore
         
         with open(self.__dataset_folder + prob_name + '/' + 'Test.txt', 'r') as f:
             c = f.read()
-            exec(c, locals())
-            test_data = (inval, outval) # type: ignore
+            exec(c, globals())
+            test_data = (inval[:self.__test_size], outval[:self.__test_size]) # type: ignore
         
         return train_data, test_data
             

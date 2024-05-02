@@ -3,8 +3,8 @@
 cd LLMGIpy/PonyGE2/src/
 
 python_script="ponyge.py"
-arg="--parameters improvements/GPT4/GPT4_problem18.txt"
-output_file="/mnt/data/dravalico/workspace/times_GPT4_problem18.txt"
+arg="--parameters improvements/"
+output_file=""
 iterations=5
 
 run_python_script() {
