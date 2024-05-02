@@ -75,8 +75,7 @@ def extract_variables_names(code: str):
 
 def replace_variables_with_names(code: str, imports):
     variables = extract_variables_names(code)
-    var_names = ["v0", "v1", "v2", "v3", "v4", "v5", "v6", "v7", "v8", "v9",
-                 "v10", "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18", "v19"]
+    var_names = [f"v{i}" for i in range(20)]
     var_mapping = {var: new_name for var, new_name in zip(variables, var_names)}
 
     def replace_var_names(node):
