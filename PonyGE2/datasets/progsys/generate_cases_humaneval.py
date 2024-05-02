@@ -783,7 +783,7 @@ def generate_outvals(idx: int, is_train: bool, inval: list[list[Any]]) -> None:
     
     correct_code += 'for i in inval:\n    outv.append([' + he['entry_point'] + '(*i)])\n\n'
     
-    exec(correct_code)
+    exec(correct_code, locals())
     
     outval_str: str = 'outval=' + str(outv) # type: ignore
 
