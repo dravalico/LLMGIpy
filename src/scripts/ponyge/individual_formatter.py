@@ -45,8 +45,11 @@ def import_manipulation(imports):
         i = re.sub(r'\s+', ' ', i)
         l = [elem.strip() for elem in i.split()]
         if l[0] == 'from':
-            for elem in l[3:]:
-                final.append(elem)
+            if 'as' in l:
+                final.append(l[-1])
+            else:
+                for elem in l[3:]:
+                    final.append(elem)
         else:
             if 'as' in l:
                 final.append(l[-1])
