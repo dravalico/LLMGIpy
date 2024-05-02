@@ -10,6 +10,7 @@ params = {
     # Set default step and search loop functions
     'SEARCH_LOOP': 'search_loop',
     'STEP': 'step',
+    'DYNAMIC_BNF': True,
 
     # Evolutionary Parameters
     'POPULATION_SIZE': 500,
