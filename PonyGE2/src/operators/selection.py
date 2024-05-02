@@ -1,6 +1,9 @@
 from random import sample
-
+from random import shuffle
+import random
+import sys
 from algorithm.parameters import params
+from utilities.fitness.get_data import read_dataset_input_output_from_txt_with_inval_outval_as_str_list
 from utilities.algorithm.NSGA2 import compute_pareto_metrics, \
     crowded_comparison_operator
 
@@ -44,6 +47,52 @@ def tournament(population):
         winners.append(max(competitors))
 
     # Return the population of tournament winners.
+    return winners
+
+
+def lexicase(population):
+    """
+    Given an entire population, return the best individuals from the population according to a lexicase selection.
+    Only valid individuals can be selected for selections.
+
+    :param population: A population from which to select individuals.
+    :return: A population of the winners from selections.
+    """
+
+    # Initialise list of selection winners.
+    winners = []
+
+    # The flag "INVALID_SELECTION" allows for selection of invalid individuals.
+    if params['INVALID_SELECTION']:
+        available = population
+    else:
+        available = [i for i in population if not i.invalid]
+
+    worst_fitness = sys.maxsize
+    if params['FITNESS_FUNCTION'].maximise:
+        worst_fitness = -sys.maxsize    
+
+    n_samples = params['NUM_TRAIN_EXAMPLES']
+    data_indices = list(range(n_samples))
+    errors_for_each_ind = [i.levi_errors if i.levi_errors is not None else [worst_fitness]*n_samples for i in available]
+
+    if params['FITNESS_FUNCTION'].maximise:
+        errors_for_each_ind = [[-aaa for aaa in er_] for er_ in errors_for_each_ind]
+    
+    for _ in range(params['GENERATION_SIZE']):
+        curr_data_indices = [data_ind for data_ind in data_indices]
+        shuffle(curr_data_indices)
+        competitors = {i: available[i] for i in range(len(available))}
+        for i in range(n_samples):
+            idx = curr_data_indices[i]
+            comp_error = {key: errors_for_each_ind[key][idx] for key in competitors.keys()}
+            best_val = min(comp_error.items(), key=lambda x: x[1])[1]
+            competitors = {key: competitors[key] for key in competitors.keys() if comp_error[key] == best_val}
+            if len(competitors) == 1:
+                break
+        final_competitors = sorted(list(competitors.keys()))
+        winners.append( available[ final_competitors[ int(random.random()*len(final_competitors)) ] ] )
+    # Return the population of selection winners.
     return winners
 
 

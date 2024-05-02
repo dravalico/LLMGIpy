@@ -1,5 +1,5 @@
 from peft import PeftModel
-from transformers import LLaMATokenizer, LLaMAForCausalLM, GenerationConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, GenerationConfig
 from models.AbstractLanguageModel import AbstractLanguageModel
 
 
@@ -8,18 +8,25 @@ class Alpaca13B(AbstractLanguageModel):
                                         "appropriately completes the request.\n\n### Instruction:\n"
     __ALPACA_QUESTION_SECOND_PART: str = "\n\n### Response:\n"
 
-    def __init__(self) -> None:
-        super().__init__("Alpaca13B")
+    def __init__(self, problem_bench: str) -> None:
+        super().__init__("Alpaca13B", problem_bench)
 
-    def ask(self, question: str) -> str:
-        question: str = (
-            self.__ALPACA_QUESTION_FIRST_PART
-            + self._INTRODUCTION_TO_QUESTION
-            + question
-            + self.__ALPACA_QUESTION_SECOND_PART
-        )
+    def ask(self, prompt: str, reask: bool) -> str:
+        if not reask:
+            prompt: str = (
+                self.__ALPACA_QUESTION_FIRST_PART
+                + self._INTRODUCTION_TO_QUESTION[self.problem_bench()]
+                + prompt
+                + self.__ALPACA_QUESTION_SECOND_PART
+            )
+        else:
+            prompt: str = (
+                self.__ALPACA_QUESTION_FIRST_PART
+                + prompt
+                + self.__ALPACA_QUESTION_SECOND_PART
+            )
         inputs = self.__tokenizer(
-            question,
+            prompt,
             return_tensors="pt",
         )
         input_ids = inputs["input_ids"].cuda()
@@ -42,10 +49,10 @@ class Alpaca13B(AbstractLanguageModel):
 
     def _load_model(self) -> None:
         super()._load_model()
-        self.__tokenizer = LLaMATokenizer.from_pretrained(
+        self.__tokenizer = AutoTokenizer.from_pretrained(
             "decapoda-research/llama-13b-hf"
         )
-        self.__model = LLaMAForCausalLM.from_pretrained(
+        self.__model = AutoModelForCausalLM.from_pretrained(
             "decapoda-research/llama-13b-hf",
             load_in_8bit=True,
             device_map="auto",

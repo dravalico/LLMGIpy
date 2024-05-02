@@ -11,7 +11,7 @@ def load_phenotypes_from_json(json_path: str) -> List[str]:
         json_file: Any = json.load(json_file)
     data: List[Dict[str, Any]] = json_file["data"]
     phenotypes: List[str] = []
-    test_cases: str = json_file["data_test_size"]
+    test_cases: str = json_file["data_train_size"]
     for i in range(0, len(data)):
         if data[i]["tests_results"]["passed"] != test_cases:
             phenotypes.append(data[i]["final_individual"])

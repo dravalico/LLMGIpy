@@ -32,6 +32,7 @@ class Individual(object):
             self.genome, self.tree = genome, ind_tree
 
         self.fitness = params['FITNESS_FUNCTION'].default_fitness
+        self.levi_test_fitness = params['FITNESS_FUNCTION'].default_fitness
         self.runtime_error = False
         self.name = None
 
@@ -127,7 +128,8 @@ class Individual(object):
         """
 
         # Evaluate fitness using specified fitness function.
-        self.fitness = params['FITNESS_FUNCTION'](self)
+        self.fitness = params['FITNESS_FUNCTION'](self, dist='training')
+        self.levi_test_fitness = params['FITNESS_FUNCTION'](self, dist='test')
 
         if params['MULTICORE']:
             return self

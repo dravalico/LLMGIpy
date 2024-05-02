@@ -3,16 +3,22 @@ from typing import Any
 
 
 class AbstractLanguageModel(ABC):
-    _INTRODUCTION_TO_QUESTION: str = "Write a single Python function to solve the following problem inserting the "\
-                                      "necessary modules: "
+    _INTRODUCTION_TO_QUESTION: dict[str, str] = {
+        'psb2': 'Write a single Python function to solve the following problem inserting the necessary modules: ',
+        'humaneval': 'Complete the following Python function based on the provided comment: '
+    }
     
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, problem_bench: str) -> None:
         super().__init__()
         self.__NAME = model_name
         self._load_model()
+        self._problem_bench = problem_bench
+
+    def problem_bench(self) -> str:
+        return self._problem_bench
 
     @abstractmethod
-    def ask(self, question: str) -> str:
+    def ask(self, prompt: str, reask: bool) -> str:
         pass
 
     @property

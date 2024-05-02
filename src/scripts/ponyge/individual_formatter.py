@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Any
 import ast
 from scripts.function_util import insert_strings_after_signature
 
@@ -9,7 +9,7 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     newline: str = '#'
     tab_counter: int = 0
     tmp_tab_counter: int = 0
-    res: List[res] = []
+    res: List[Any] = []
     index: int = 0
     for line in code.split('\n'):
         tmp_tab_counter = line.count('\t')

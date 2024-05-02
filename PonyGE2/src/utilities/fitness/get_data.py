@@ -1,7 +1,55 @@
+import sys
+import os
+import re
 from os import path
 
 import numpy as np
 from algorithm.parameters import params
+
+
+def read_dataset_input_output_from_txt_with_inval_outval_as_str_list(datasets_sub_folder, dataset_type):
+    dataset_type = dataset_type.upper().strip()
+    datasets_sub_folder = datasets_sub_folder.strip()
+    if dataset_type not in ("TRAIN", "TEST"):
+        raise ValueError(f'Error for dataset type ({dataset_type}) not being in (TRAIN, TEST).')
+    path_of_actual_dataset = path.join("..", "datasets", datasets_sub_folder, params['DATASET_'+dataset_type])
+    with open(path_of_actual_dataset, 'r') as data_file_txt:
+        d = {}
+        all_lines = data_file_txt.readlines()
+        if len(all_lines) != 2:
+            raise ValueError(f'File {path_of_actual_dataset} contains {len(all_lines)}, it must contain exactly 2 lines.')
+        for i in range(2):
+            s = all_lines[i].strip()
+            s = re.sub(r'\s+', ' ', s.replace('\t', ' ').replace('\n', ' ').replace('\r', ' ').strip()).strip()
+            s = s.replace('invals', 'inval')
+            s = s.replace('outvals', 'outval')
+            s = s.replace('inval = ', 'inval=')
+            s = s.replace('inval =', 'inval=')
+            s = s.replace('inval= ', 'inval=')
+            s = s.replace('outval = ', 'outval=')
+            s = s.replace('outval =', 'outval=')
+            s = s.replace('outval= ', 'outval=')
+            s = s[s.index('=')+2:-1].strip()
+            s = s.replace('] , [', '], [')
+            s = s.replace('] ,[', '], [')
+            s = s.replace('], [', '],[')
+            s = s.replace('],[', ']<SPLITSEPARATOR>[')
+            l = s.split('<SPLITSEPARATOR>')
+            if i == 0:
+                d['in'] = l
+            if i == 1:
+                d['out'] = l
+        if len(d['in']) != len(d['out']):
+            raise ValueError(f'Length of input ({len(d["in"])}) and length of output ({len(d["out"])}) do not match.')
+        
+        if dataset_type == 'TRAIN':
+            d['in'] = d['in'][:params['NUM_TRAIN_EXAMPLES']]
+            d['out'] = d['out'][:params['NUM_TRAIN_EXAMPLES']]
+        elif dataset_type == 'TEST':
+            d['in'] = d['in'][:params['NUM_TEST_EXAMPLES']]
+            d['out'] = d['out'][:params['NUM_TEST_EXAMPLES']]
+    
+    return d
 
 
 def get_Xy_train_test_separate(train_filename, test_filename, skip_header=0):
