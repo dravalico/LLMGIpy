@@ -1,0 +1,147 @@
+<predefined> ::= <IMPORTS><DECORATORS>"def evolve("<vars>"):{:"<NEWLINE><code>":}"
+<NEWLINE> ::= "#"
+
+<all_vars> ::= <vars> | <vars> | <vars> | <vars> | <vars> |
+                <STRINGS> | <STRINGS> | <STRINGS> | <STRINGS> | <STRINGS> |
+                "f"<f_string> # TODO come viene estratta la stringa f-string ? stringa{ e }stringa?  oppure stringa e stringa? oppure f stringa{ e }stringa?
+                <nums> | <nums> | <nums> | <nums> | <nums> |
+                <var_list> | <var_list> | <var_list> | <var_dict> |
+                <var_fuction> | <var_fuction> | <var_fuction> |
+                <var_expr> | <var_expr> | <var_expr> |
+                "None" | "None" | "True" | "True" | "False" | "False" |
+                "["<all_vars>" "<inline_for>"]" | "["<all_vars>" "<inline_for>"]" |
+                "("<all_vars>")" | "("<all_vars>" "<inline_for>")" | "{"<var_dict>" "<inline_for>"}" |
+                <lambda> | <inline_if>
+
+<f_string> ::= <STRINGS><all_vars><STRINGS> | <STRINGS><all_vars><STRINGS> | <STRINGS><all_vars><STRINGS> | <STRINGS><all_vars><STRINGS> |
+                <STRINGS><all_vars><f_string> 
+
+<vars> ::= <var> | <var> | <var> | <var> | <var> | <var> | <var> | <var> | <var>
+            <var>", "<vars> | <var>", "<vars> |
+            <var>", "<all_vars> | <all_vars>", "<all_vars>
+
+<var_list> ::= <var><index_list> | <var><index_list> |
+                <var>"["<STRINGS>"]" | <var>"["<STRINGS>"]"<method> |
+                <var><index_list><method> | <var><index_list><method> |
+                <all_vars><index_list> | <all_vars><index_list> |
+                "["<all_vars>"]" | "["<all_vars>"]" | "["<all_vars>"]"
+
+<var_dict> ::= "{"<STRINGS>": "<all_vars>"}" |  "{"<STRINGS>": "<all_vars>", "<var_dict>"}" | <STRINGS>": "<all_vars> | <STRINGS>": "<all_vars>", "<var_dict> |
+                <all_vars>": "<all_vars> | "{"<all_vars>": "<all_vars>"}" # TODO questo ultimo ci va?
+
+<index_list> ::= "["<all_vars>"]" | "["<all_vars>"]" | "["<all_vars>"]" |
+                 "["<all_vars>":]" | "["<all_vars>":"<all_vars>"]" | "[:"<all_vars>"]" | "[::"<all_vars>"]" 
+
+<var_fuction> ::= <FUNC>"("<all_vars>")" | <all_vars><method> | <var_fuction><method> | <FUNC>"("<assign>")" | <FUNC>"("<all_vars>", "<assign>")" # TODO for kwargs and args
+
+<var_expr> ::= <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<math_op>" "<all_vars> |
+                <all_vars>" "<op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> |
+                "("<var_expr>")" | "("<var_expr>")"
+
+<code> ::= <statement> | <statement> | <statement> | <statement> | <code><statement> |
+            <OTHER_DEF><statement> | <statement><OTHER_DEF> | <OTHER_DEF>
+
+<statement> ::= <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> |
+                <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> | <stmt_list><NEWLINE> |
+                <compound_stmt>
+
+<compound_stmt> ::= <if> | <for> | <while>
+
+<stmt_list> ::= <assign> | <assign> | <assign> | <assign> |
+                <return> | <return> | <return> | <return> |
+                <var><method> | <var><method> |
+                "break" | "continue" | "pass" | "break" | "continue" | "pass" |
+                "raise "<FUNC>"("<STRINGS>")" | <print>
+
+<if> ::= "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}" |
+         "if "<condition>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" |
+         "if "<condition>":{:"<NEWLINE><code>":}" |
+         "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>
+
+<if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" |
+                <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
+
+<condition> ::= <all_vars>" "<math_op>" "<num>" "<op>" "<num> | <all_vars>" "<math_op>" "<num>" "<op>" "<num> |
+                <condition>" "<cond_op>" "<condition> |
+                <all_vars>" "<op>" "<num> | <all_vars>" "<op>" "<num> |
+                <all_vars>" "<op>" "<funcss> |
+                <all_vars>" "<op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> |
+                <all_vars>" "<op>" "<all_vars>" "<op>" "<all_vars> |
+                <all_vars>" "<math_op>" "<all_vars> |
+                <all_vars> | <all_vars> |
+                "not "<condition> |
+                "("<condition>")"
+
+<op> ::= "<" | "<=" | ">" | ">=" | "!=" | "=="
+
+<cond_op> ::= "or" | "or" | "and" | "and" | "not" | "in" | "is"
+
+<assign> ::= <var>" "<ass_op>" ''" |
+             <var>" "<ass_op>" "<all_vars> | <var>" "<ass_op>" "<all_vars> | <var>" "<ass_op>" "<all_vars> |
+             <var>" "<ass_op>" []" | <var>" "<ass_op>" []" | 
+             <var>" "<ass_op>" {}" | 
+             <vars>" "<ass_op>" "<all_vars> |
+             <vars>" "<ass_op>" "<var_expr> | <vars>" "<ass_op>" "<var_expr> | <vars>" "<ass_op>" "<var_expr> |
+             <var>" "<ass_op>" ["<list>"]" | <var>" "<ass_op>" ["<list>"]" | <var>" "<ass_op>" ["<list>"]" | 
+             <all_vars>" "<ass_op>" "<all_vars> | <all_vars>" "<ass_op>" "<all_vars> | <all_vars>" "<ass_op>" "<all_vars> |
+             #<var>" "<ass_op>" {"<all_vars>"}" | <var>" "<ass_op>" "<var_dict> # TODO ultimo messo io per dict, ma serve?
+             <var>"["<var>"] = "<all_vars> | # TODO assegnazione di valore in dizionario
+             <var>" "<ass_op>" "<all_vars>", "<assign> # TODO per kwarg
+
+<method> ::= <METHOD>"()" | <METHOD>"()" | <METHOD>"("<all_vars>")" | <METHOD>"("<all_vars>")" | <METHOD>
+
+<nums> ::=  <num> | <num> | <num> | <num> | <num><nums> | "-"<nums>
+
+<return> ::= "return "<var> | "return "<var> |
+             "return "<STRINGS> | "return "<STRINGS> |
+             "return str("<var>")" |
+             "return "<nums> | "return "<nums> |
+             "return "<all_vars> | "return "<all_vars> |
+             "return str("<all_vars>")" |
+             "return "<funcss>
+
+<print> ::= "print("<STRINGS>")" | "print("<STRINGS>")" | "print("<var>")" | "print("<var>")" | "print("<all_vars>")"
+
+<for> ::= "for "<var>" in "<var>":{:"<NEWLINE><code>":}" | 
+          "for "<var>" in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
+          "for "<var>" in "<FUNC>"("<FUNC>"("<all_vars>")):{:"<NEWLINE><code>":}" |
+          "for "<var>", "<var>" in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
+          "for ("<var>", "<var>") in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
+          "for "<var>" in "<var_list>":{:"<NEWLINE><code>":}" |
+          "for "<var>" in "<all_vars>":{:"<NEWLINE><code>":}" |
+          "for "<vars>" in "<all_vars>":{:"<NEWLINE><code>":}"
+
+<while> ::= "while "<var>":{:"<NEWLINE><code>":}" |
+            "while "<var>" "<op>" "<all_vars>":{:"<NEWLINE><code>":}" |
+            "while "<all_vars>":{:"<NEWLINE><code>":}"
+
+<inline_for> ::= "for "<var>" in "<all_vars> | "for "<var>" in "<all_vars> |
+                 "for "<all_vars>" in "<all_vars> | "for "<all_vars>" in "<all_vars> |
+                 "for "<all_vars>" in "<all_vars>" if "<condition>" else "<all_vars> |
+                 "for "<all_vars>" in "<all_vars>" if "<condition> |
+                 "for "<all_vars>" in "<all_vars>" for "<all_vars>" in "<all_vars> |
+                 "if "<condition>" else "<all_vars>" for "<all_vars>" in "<all_vars>
+
+<inline_if> ::= <all_vars>" if "<condition>" else "<all_vars> | <all_vars>" if "<condition>" else "<all_vars> | <all_vars>" if "<condition>" else "<all_vars> | 
+                <all_vars>" if "<condition>" else ("<inline_if>")" #TODO
+
+<list> ::= <all_vars> | <inline_for> | <var><index_list> | <all_vars>" "<inline_for>
+
+<math_op> ::= "+" | "-" | "%" | "//" | "*" | "/" | "**" | "^"
+<ass_op> ::= "=" | "=" | "=" | "+=" | "-=" | "*=" # TODO aggiungere operatori?
+
+<funcss> ::= <FUNC>"(["<all_vars>"])" |
+             <FUNC>"("<var>") "<math_op>" "<num> |
+             <FUNC>"("<var><index_list>")"
+
+<lambda> ::= "lambda "<vars>" : "<all_vars> # TODO
+
+<FUNC> ::= "str" 
+<METHOD> ::= ".prova"
+<STRINGS> ::= "'FizzBuzz'" | "'Fizz'" | "'Buzz'" | "'integer'" | "'divisible'" | '"ciao{"' | '"}bella{"' | '"}mondo"'
+<var> ::= "v0" | "a0" | "a1" | "a2" | "pd"
+<num> ::= "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" 
+<IMPORTS> ::= "import random#" | "" | "" | ""
+<DECORATORS> ::= "@ciao#" | "" # TODO dobbiamo modellizzare il vuoto
+<OTHER_DEF> ::= "def test():{:#return 1#:}#"
+
