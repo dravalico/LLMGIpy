@@ -41,8 +41,7 @@ def extract_function(text: str) -> str:  # NOTE starts from def, imports should 
     return try_to_remove_extra_strings(code)
 
 
-
-def try_extract_code_inside_tags(text: str) -> str:
+def try_extract_code_inside_python_tag(text: str) -> str:
     pattern: str = r'```python\s*([\s\S]*?)\s*```'
     match: Match[str] = re.search(pattern, text)
     if match:

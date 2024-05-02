@@ -1,6 +1,6 @@
 import sys
 from argparse import ArgumentParser, Namespace, BooleanOptionalAction
-from typing import List, Any
+from typing import List, Any, Optional
 from types import ModuleType
 from dotenv import load_dotenv
 from models.AbstractLanguageModel import AbstractLanguageModel
@@ -26,9 +26,6 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--jsons_dir",
                            type=str,
                            help="Generate only improvement files; needs the path of jsons directory")
-    argparser.add_argument("--reask",
-                           action=BooleanOptionalAction,
-                           help="Boolean flag to ask the model to correct the answer if wrong")
     return argparser
 
 
@@ -61,11 +58,7 @@ def main():
         if cmd_args.reask:
             args.append("reask = True")
         tester: ModelTester = ModelTester(*args)
-        if cmd_args.reask:
-            tester.run_with_reask()
-            return
-        else:
-            results_path: str = tester.run()
+        results_path: str = tester.run()
 
     if cmd_args.jsons_dir != None:
         results_path: str = cmd_args.jsons_dir

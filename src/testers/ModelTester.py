@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Callable, Tuple
+from typing import List, Any, Dict, Callable, Tuple, Optional
 from multiprocessing import Process, Queue
 from pandas import DataFrame
 from scripts.python_code_arranger import properly_arrange_code_with_imports_functions_globals, remove_imports_only
@@ -27,10 +27,11 @@ class ModelTester():
         self.__reask: bool = reask
         self.__iteration_timeout: int = 60
 
-    def run(self) -> str:
+    def run(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
-        for n_prob in range(len(self.__problems)):
+        all_problem_indexes: List[int] = list(range(len(self.__problems))) if problems_indexes is None else problems_indexes
+        for n_prob in all_problem_indexes:
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             res: Dict[str, List[str]] = self.__ask_model_and_process(self.__problems['Description'][n_prob])
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
@@ -72,89 +73,7 @@ class ModelTester():
             print(f"\nProblem '{prob_name}' completed.")
             print(f"{'=' * 80}")
         dir_name: str = get_results_dir_path()
-        print(f'Results saved in {dir_name}')
-        print(f"{'=' * 80}")
-        return dir_name
-
-    def run_with_reask(self) -> str:
-        print(f"\n{'=' * 80}")
-        print(f"Model '{self.__model.name}'")
-        for n_prob in range(len(self.__problems)):
-            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
-            to_save: List[List[Any]] = []
-            for iteration in range(self.__iterations):
-                print(f'Iteration {iteration + 1}')
-                data_not_passed: List[Any] = []
-                for rep in range(5):
-                    print(f'Repetition {rep + 1}')
-                    prompt: str = ''
-                    if data_not_passed == []:
-                        prompt = self.__problems['Description'][n_prob]
-                    else:
-                        if data_not_passed != []:
-                            temp_prompt: List[str] = ['Make sure that\n']
-                            for i in range(len(data_not_passed[:20])):
-                                temp_prompt.append(
-                                    str(data_not_passed[i][0])
-                                    .replace('[', '')
-                                    .replace(']', '')
-                                    + ' -> '
-                                    + str(data_not_passed[i][1])
-                                    .replace('[', '')
-                                    .replace(']', '')
-                                    + '\n'
-                                )
-                            prompt = ''.join(temp_prompt)
-                    isFirst: bool = True if rep == 0 else False
-                    res: Dict[str, List[str]] = self.__ask_model_and_process(prompt, isFirst)
-                    prob_name: str = (
-                        self.__problems.get('Problem Name')[n_prob]
-                        .replace(' ', '-')
-                        .lower()
-                    )
-                    args: List[Tuple] = self.__create_task_input(
-                        prob_name, res['code'], res['f_names']
-                    )
-                    data: List[List[Any]] = []
-                    for i, arg in enumerate(args):
-                        temp = list(arg)
-                        temp.pop()
-                        temp.append(res['responses'][i])
-                        temp.append(res['imports'][i])
-                        temp.append(f'{iteration}.{rep}')
-                        data.append(temp)
-                    workers = []
-                    print('Testing...')
-                    for i in range(len(args)):
-                        process = Process(target=self.__worker_function, args=args[i])
-                        process.start()
-                        workers.append(process)
-                    for i, worker in enumerate(workers):
-                        exc: bool = False
-                        try:
-                            worker.join(timeout=self.__iteration_timeout)
-                            if worker.is_alive():
-                                worker.terminate()
-                                raise Exception('Process timed out')
-                            print(f'Result obtained for repetition {rep + 1}')
-                            task_res, data_not_passed = args[i][-1].get()
-                            if isinstance(task_res, Exception):
-                                data[i].append({'passed': 0, 'error': str(task_res)})
-                            else:
-                                data[i].append(task_res)
-                        except Exception as e:
-                            print(f'Exception for repetition {rep + 1}')
-                            data[i].append({'passed': 0, 'error': str(e)})
-                            exc = True
-                    to_save.extend(data)
-                    if data_not_passed == [] and not exc:
-                        break
-                print('\n')
-            self.__create_and_save_json(to_save, n_prob, prob_name)
-            print(f"Problem '{prob_name}' completed.")
-            print(f"{'=' * 80}")
-        dir_name: str = get_results_dir_path()
-        print(f'Results saved in {dir_name}')
+        print(f"Results saved in {dir_name}")
         print(f"{'=' * 80}")
         return dir_name
 

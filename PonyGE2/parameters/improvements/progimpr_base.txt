@@ -5,6 +5,8 @@ VERBOSE:                True
 GRAMMAR_FILE:           dynamic/<bnf>
 DATASET_TRAIN:          <train>/Train.txt
 DATASET_TEST:           <test>/Test.txt
+NUM_TRAIN_EXAMPLES:     <numTrainExamples>
+NUM_TEST_EXAMPLES:      <numTestExamples>
 FITNESS_FILE:           fitness_cases.txt
 FITNESS_FUNCTION:       progimpr
 
