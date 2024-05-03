@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from ponyge.individual_formatter import replace_variables_with_names 
+from scripts.ponyge.individual_formatter import replace_variables_with_names 
 
 
 def add_global_declarations_before_function_definitions(s: str) -> str:
