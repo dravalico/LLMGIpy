@@ -14,7 +14,8 @@ class ModelTester():
             model: AbstractLanguageModel,
             dataset_loader: DatasetLoader,
             iterations: int = 5,
-            reask: bool = False
+            reask: bool = False,
+            repeatitions: int = 10
     ) -> None:
         if (not isinstance(model, AbstractLanguageModel)) or (model == None):
             e: str = 'You must provide an AbstractLanguageModel instance.'
@@ -25,6 +26,7 @@ class ModelTester():
         self.__iterations: int = iterations
         self.__reask: bool = reask
         self.__iteration_timeout: int = 60
+        self.__repeatitions: int = repeatitions
 
     def run(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
@@ -88,7 +90,7 @@ class ModelTester():
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
                 data_not_passed: List[Any] = []
-                for rep in range(5):
+                for rep in range(self.__repeatitions):
                     print(f'Repetition {rep + 1}')
                     prompt: str = ''
                     if data_not_passed == []:

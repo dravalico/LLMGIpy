@@ -19,7 +19,10 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--train_size", type=int, help="Length of the test dataset")
     argparser.add_argument("--iterations",
                            type=int,
-                           help="Number of times to repete question and test for the same problem.")
+                           help="Number of times to repeat question and test for the same problem.")
+    argparser.add_argument("--repeatitions",
+                           type=int,
+                           help="Number of repeatitions in the reask method. Ignored if reask is False.")
     argparser.add_argument("--impr_files",
                            action=BooleanOptionalAction,
                            help="Boolean flag to generate also the files necessary for the improvement part.")
@@ -65,7 +68,8 @@ def main():
         if cmd_args.iterations != None:
             args.append(cmd_args.iterations)
         if cmd_args.reask:
-            args.append("reask = True")
+            args.append(cmd_args.reask)
+            args.append(cmd_args.repeatitions)
         tester: ModelTester = ModelTester(*args)
         problems_indexes: Optional[List[int]] = [int(i) for i in cmd_args.problems_indexes.strip().split(
             ',')] if cmd_args.problems_indexes.strip() != '' else None
