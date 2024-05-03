@@ -1,7 +1,7 @@
 import re
 from typing import Any
 
-from scripts.ponyge.individual_formatter import replace_variables_with_names 
+from ponyge.individual_formatter import replace_variables_with_names 
 
 
 def add_global_declarations_before_function_definitions(s: str) -> str:
@@ -164,17 +164,17 @@ def remove_comments(l: list[str]) -> list[str]:
             idx_to_remove.add(i)
         elif to_be_removed_1:
             idx_to_remove.add(i)
-            if line.strip() == "'''":
+            if line.strip().endswith("'''"):
                 to_be_removed_1 = not to_be_removed_1
         elif to_be_removed_2:
             idx_to_remove.add(i)
-            if line.strip() == '"""':
+            if line.strip().endswith('"""'):
                 to_be_removed_2 = not to_be_removed_2
         else:
-            if line.strip() == "'''":
+            if line.strip().startswith("'''"):
                 idx_to_remove.add(i)
                 to_be_removed_1 = not to_be_removed_1
-            elif line.strip() == '"""':
+            elif line.strip().startswith('"""'):
                 idx_to_remove.add(i)
                 to_be_removed_2 = not to_be_removed_2
 
@@ -287,9 +287,14 @@ def try_main():
         print('POSSIBLE VARS ', res['possible_vars'])
     print('='*100)
     exec(ss, locals())
+    print('='*100)
     #with open('file1.txt', 'w') as f:
     #    f.write(s)
-    
+    #with open('g7.txt', 'r') as f:
+    #    ccc = f.read()
+    #    ccc_res = properly_arrange_code_with_imports_functions(ccc, False, '', False, False)
+    #    print(ccc_res['full_code'])
+    #    exec(ccc_res['full_code'])
 
 if __name__ == '__main__':
     try_main()
