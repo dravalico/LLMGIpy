@@ -2,7 +2,16 @@
 
 # LLMGIpy
 
-Large Language Model Genetic Improvement Python (LLMGIpy) is a software that allows you to evaluate the Python code generation of some LLMs (for now Alpaca, LLaMA2, ChatGPT and GPT4) and test the improvements of the code after applying Genetic Improvement.
+Large Language Model Genetic Improvement Python (LLMGIpy) is a software that allows you to evaluate the Python code generation of some LLMs and test the improvements of the code after applying Genetic Improvement.
+
+## Included LLMs
+
+- Gemma1.1 2B and 7B
+- LLaMA2 7B and 13B
+- LLaMA3 8B
+- CodeLLaMA 7B and 13B
+- CodeGemma 7B
+- Mistal 7B
 
 ## Setup
 
