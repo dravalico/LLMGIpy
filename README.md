@@ -12,34 +12,13 @@ Large Language Model Genetic Improvement Python (LLMGIpy) is a software that all
 - CodeLLaMA 7B and 13B
 - CodeGemma 7B
 - Mistal 7B
+- ChatGPT and GPT4
 
-## Setup
+Note that for Hugging Face models you need a (free) token and for OpenAI models you need to pay.
 
-To clone this repository, you need to have `git` installed. After that you can open a terminal window and run
+## Example
 
-```
-git clone https://github.com/dravalico/LLMGIpy.git
-```
-
-Move to the project folder
-
-```
-cd LLMGIpy
-```
-
-Now you need to install the dependencies. Make sure you have `pip` installed and then run
-
-```
-pip3 install -r requirements.txt
-```
-
-To run the program, do the following
-
-```
-cd src
-```
-
-and finally, you can run the helper to know the parameters you can use
+Clone this repository and run
 
 ```
 python3 main.py --help
