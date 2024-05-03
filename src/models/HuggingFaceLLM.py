@@ -6,22 +6,7 @@ import os
 
 class HuggingFaceLLM(AbstractLanguageModel):
     def __init__(self, model_name: str, problem_bench: str) -> None:
-        super().__init__(model_name.strip(), problem_bench.strip())
-        self.__llm_name: str = model_name.strip()
-
-        all_llms: dict[str, str] = {
-            'Gemma2B': 'google/gemma-1.1-2b-it',
-            'Gemma7B': 'google/gemma-1.1-7b-it',
-            'LLaMA38B': 'meta-llama/Meta-Llama-3-8B-Instruct',
-            'CodeLLaMA7B': 'meta-llama/CodeLlama-7b-Instruct-hf',
-            'CodeLLaMA13B': 'meta-llama/CodeLlama-13b-Instruct-hf',
-        }
-
-        if self.__llm_name not in all_llms:
-            raise AttributeError(f'Cannot recognize llm {self.__llm_name}. It is not in the dictionary of known llms, which are: {str(sorted([key for key in all_llms]))}.')
-        self.__llm_id: str = all_llms[self.__llm_name]
-        self._load_model()
-
+        super().__init__(model_name, problem_bench)
 
     def ask(self, prompt: str, reask: bool) -> str:
         if not reask:
@@ -58,7 +43,7 @@ class HuggingFaceLLM(AbstractLanguageModel):
         super()._load_model()
         quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 
-        model_id = self.__llm_id
+        model_id = self.llm_id()
 
         self.__tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.getenv('HUGGING_TOKEN'))
         self.__model = AutoModelForCausalLM.from_pretrained(

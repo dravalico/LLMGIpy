@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
+from models import ALL_LLMs
 
 
 class AbstractLanguageModel(ABC):
@@ -10,11 +11,22 @@ class AbstractLanguageModel(ABC):
     
     def __init__(self, model_name: str, problem_bench: str) -> None:
         super().__init__()
-        self.__NAME = model_name
-        self._problem_bench = problem_bench
+        self.__NAME = model_name.strip()
+        self._problem_bench = problem_bench.strip()
+
+        allowed_models: list[str] = [key for key in ALL_LLMs if ALL_LLMs[key][0] == self.__class__.__name__]
+        
+        if self.name not in allowed_models:
+            raise AttributeError(f'Cannot recognize llm {self.name} for category {self.__class__.__name__}. It is not in the dictionary of known llms, which are: {str(allowed_models)}.')
+        
+        self.__llm_id: str = ALL_LLMs[self.name][1]
+        self._load_model()
 
     def problem_bench(self) -> str:
         return self._problem_bench
+
+    def llm_id(self) -> str:
+        return self.__llm_id
 
     @abstractmethod
     def ask(self, prompt: str, reask: bool) -> str:

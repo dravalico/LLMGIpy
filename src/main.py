@@ -36,11 +36,10 @@ def set_parser() -> ArgumentParser:
     return argparser
 
 
-def create_instance_of_class(module_name: str, class_name: str, **kwargs) -> Any:
-    #mod: ModuleType = sys.modules[module_name]
-    #return getattr(mod, class_name)(**kwargs)
-    mod: ModuleType = sys.modules['models.HuggingFaceLLM']
-    return getattr(mod, 'HuggingFaceLLM')(model_name=class_name, **kwargs)
+def create_instance_of_class(model_name: str, problem_bench: str, **kwargs) -> Any:
+    category_llm, _ = models.ALL_LLMs[model_name]
+    mod: ModuleType = sys.modules[f'models.{category_llm}']
+    return getattr(mod, category_llm)(model_name=model_name, problem_bench=problem_bench, **kwargs)
 
 
 def main():
@@ -56,7 +55,7 @@ def main():
             raise Exception(f"Train Size '{cmd_args.train_size}' must be inserted.")
         if cmd_args.train_size is not None and cmd_args.train_size > 1000:
             raise Exception(f"Train Size '{cmd_args.train_size}' is greater than 1000, It is too large!")
-        model: AbstractLanguageModel = create_instance_of_class("models." + cmd_args.model, cmd_args.model, problem_bench=cmd_args.dataset)
+        model: AbstractLanguageModel = create_instance_of_class(model_name=cmd_args.model, problem_bench=cmd_args.dataset)
         args: List[Any] = [cmd_args.dataset]
         args.append(cmd_args.train_size)
         loader: DatasetLoader = DatasetLoader(*args)
