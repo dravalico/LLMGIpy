@@ -37,8 +37,10 @@ def set_parser() -> ArgumentParser:
 
 
 def create_instance_of_class(module_name: str, class_name: str, **kwargs) -> Any:
-    mod: ModuleType = sys.modules[module_name]
-    return getattr(mod, class_name)(**kwargs)
+    #mod: ModuleType = sys.modules[module_name]
+    #return getattr(mod, class_name)(**kwargs)
+    mod: ModuleType = sys.modules['models.HuggingFaceLLM']
+    return getattr(mod, 'HuggingFaceLLM')(model_name=class_name, **kwargs)
 
 
 def main():
