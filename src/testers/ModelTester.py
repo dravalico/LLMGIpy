@@ -256,6 +256,7 @@ class ModelTester():
             f"{self.__model.name}{'_problem'}{n_prob}",
             {
                 'model_name': self.__model.name,
+                'problem_benchmark': self.__dataset_loader.dataset,
                 'problem_name': prob_name,
                 'prompt': self.__problems['Description'][n_prob],
                 'problem_index': n_prob,

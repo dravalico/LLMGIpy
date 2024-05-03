@@ -16,6 +16,7 @@ def add_global_declarations_before_function_definitions(s: str) -> str:
 def extract_imports(l: list[str], remove_non_existing_import: bool) -> list[str]:
     p = re.compile('^(\s*)(import (.+)|import (.+) as (.+)|from (.+) import (.+))(\s*)$')
     actual_imports: list[str] = list(set([line.strip() for line in l if p.match(line.strip()) and line.strip() != '']))
+    actual_imports = [imp for imp in actual_imports if ' typing ' not in imp]
     if remove_non_existing_import:
         existing_imports: list[str] = []
         for imp in actual_imports:
