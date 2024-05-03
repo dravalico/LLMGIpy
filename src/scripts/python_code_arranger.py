@@ -13,10 +13,20 @@ def add_global_declarations_before_function_definitions(s: str) -> str:
     return '\n'.join(l)
 
 
-def extract_imports(l: list[str]) -> list[str]:
+def extract_imports(l: list[str], remove_non_existing_import: bool) -> list[str]:
     p = re.compile('^(\s*)(import (.+)|import (.+) as (.+)|from (.+) import (.+))(\s*)$')
     actual_imports: list[str] = list(set([line.strip() for line in l if p.match(line.strip()) and line.strip() != '']))
-    return actual_imports
+    if remove_non_existing_import:
+        existing_imports: list[str] = []
+        for imp in actual_imports:
+            try:
+                exec(imp)
+                existing_imports.append(imp)
+            except:
+                pass
+        return existing_imports
+    else:
+        return actual_imports
     
     
 def remove_nested_imports(l: list[str]) -> list[str]:
@@ -224,9 +234,9 @@ def tabs_as_symbols(s: str, indent_size: int) -> str:
     return '\n'.join(l0)
 
 
-def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool, replace_entry_point_with_this_name: str, replace_vars: bool) -> dict[str, Any]:
+def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool, replace_entry_point_with_this_name: str, replace_vars: bool, remove_non_existing_import: bool) -> dict[str, Any]:
     l: list[str] = [elem for elem in remove_comments(s.split('\n')) if elem.strip() != '']
-    actual_imports: list[str] = extract_imports(l)
+    actual_imports: list[str] = extract_imports(l, remove_non_existing_import=remove_non_existing_import)
     distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions(remove_internal_code_typing(remove_imports_only(l)))
     distinct_funcs = [tabs_as_symbols(single_func, indent_size) for single_func in distinct_funcs]
     main_func = tabs_as_symbols(main_func, indent_size)
@@ -264,7 +274,7 @@ def try_main():
     print(s)
     ss = ''
     print('='*100)
-    res = properly_arrange_code_with_imports_functions(s, True, 'evolve', True)
+    res = properly_arrange_code_with_imports_functions(s, True, 'evolve', True, True)
     ss += res['full_code']
     if 'free_code' in res:
         ss += res['free_code']

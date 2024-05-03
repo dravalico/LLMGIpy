@@ -165,7 +165,7 @@ class ModelTester():
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
             llm_answer: str = self.__model.ask(prompt, reask)
-            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(llm_answer, False, 'evolve', True)
+            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(llm_answer, False, 'evolve', True, False)
             res['llm_answer'] = llm_answer
             responses.append(res)
         return responses
@@ -228,7 +228,7 @@ class ModelTester():
             for i in imports:
                 imports_pony += i + '#'
             used_names = element['possible_vars']
-            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['main_func'])  # imports_pony ??
+            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])  # imports_pony ??
             it: int = 0
             rep: int = 0
             if '.' in str(element['iteration']):
@@ -242,8 +242,10 @@ class ModelTester():
                 'repetition': rep,
                 'model_response': element['llm_answer'],
                 'function_name': element['entry_point'],
-                'code': element['full_code'],
+                'main_func': element['main_func'],
+                'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
                 'imports': imports,
+                'supports': element['sup_funcs'],
                 'imports_and_supports': element['imports_and_supports'],
                 'variables_names': used_names,
                 'final_individual': ind,
