@@ -11,7 +11,6 @@ class AbstractLanguageModel(ABC):
     def __init__(self, model_name: str, problem_bench: str) -> None:
         super().__init__()
         self.__NAME = model_name
-        self._load_model()
         self._problem_bench = problem_bench
 
     def problem_bench(self) -> str:

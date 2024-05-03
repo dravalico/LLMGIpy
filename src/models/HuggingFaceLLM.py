@@ -19,8 +19,8 @@ class HuggingFaceLLM(AbstractLanguageModel):
 
         if self.__llm_name not in all_llms:
             raise AttributeError(f'Cannot recognize llm {self.__llm_name}. It is not in the dictionary of known llms, which are: {str(sorted([key for key in all_llms]))}.')
-
         self.__llm_id: str = all_llms[self.__llm_name]
+        self._load_model()
 
 
     def ask(self, prompt: str, reask: bool) -> str:
