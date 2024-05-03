@@ -7,8 +7,6 @@ ALL_LLMs: dict[str, tuple[str, str]] = {
     'LLaMA38B': ('HuggingFaceLLM', 'meta-llama/Meta-Llama-3-8B-Instruct'),
     'CodeLLaMA7B': ('HuggingFaceLLM', 'meta-llama/CodeLlama-7b-Instruct-hf'),
     'CodeLLaMA13B': ('HuggingFaceLLM', 'meta-llama/CodeLlama-13b-Instruct-hf'),
-    'StarCoder23B': ('HuggingFaceLLM', 'bigcode/starcoder2-3b'),
-    'StarCoder27B': ('HuggingFaceLLM', 'bigcode/starcoder2-7b'),
     'Mistral7B': ('HuggingFaceLLM', 'mistralai/Mistral-7B-Instruct-v0.2'),
     'ChatGPT': ('OpenAILLM', 'gpt-3.5-turbo'),
     'GPT4': ('OpenAILLM', 'gpt-4'),
