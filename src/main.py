@@ -4,7 +4,7 @@ from typing import List, Any, Optional
 from types import ModuleType
 from dotenv import load_dotenv
 from models.AbstractLanguageModel import AbstractLanguageModel
-from models import *
+from models import HuggingFaceLLM, OpenAILLM
 import models
 from testers.ModelTester import ModelTester
 from testers.DatasetLoader import DatasetLoader
@@ -55,7 +55,8 @@ def main():
             raise Exception(f"Train Size '{cmd_args.train_size}' must be inserted.")
         if cmd_args.train_size is not None and cmd_args.train_size > 1000:
             raise Exception(f"Train Size '{cmd_args.train_size}' is greater than 1000, It is too large!")
-        model: AbstractLanguageModel = create_instance_of_class(model_name=cmd_args.model, problem_bench=cmd_args.dataset)
+        model: AbstractLanguageModel = create_instance_of_class(
+            model_name=cmd_args.model, problem_bench=cmd_args.dataset)
         args: List[Any] = [cmd_args.dataset]
         args.append(cmd_args.train_size)
         loader: DatasetLoader = DatasetLoader(*args)
@@ -66,7 +67,8 @@ def main():
         if cmd_args.reask:
             args.append("reask = True")
         tester: ModelTester = ModelTester(*args)
-        problems_indexes: Optional[List[int]] = [int(i) for i in cmd_args.problems_indexes.strip().split(',')] if cmd_args.problems_indexes.strip() != '' else None
+        problems_indexes: Optional[List[int]] = [int(i) for i in cmd_args.problems_indexes.strip().split(
+            ',')] if cmd_args.problems_indexes.strip() != '' else None
         if cmd_args.reask:
             tester.run_with_reask(problems_indexes=problems_indexes)
             return

@@ -10,11 +10,8 @@ class HuggingFaceLLM(AbstractLanguageModel):
 
     def ask(self, prompt: str, reask: bool) -> str:
         if not reask:
-            prompt = (
-                self._INTRODUCTION_TO_QUESTION[self.problem_bench()]
-                + prompt
-            )
-        
+            prompt = self._INTRODUCTION_TO_QUESTION[self.problem_bench()] + prompt
+
         messages = [
             {"role": "user", "content": prompt}
         ]
