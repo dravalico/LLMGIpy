@@ -242,7 +242,7 @@ class ModelTester():
                 'repetition': rep,
                 'model_response': element['llm_answer'],
                 'function_name': element['entry_point'],
-                'main_func': element['main_func'],
+                'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
                 'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
                 'imports': imports,
                 'supports': element['sup_funcs'],

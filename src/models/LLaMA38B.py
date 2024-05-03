@@ -49,7 +49,6 @@ class LLaMA38B(AbstractLanguageModel):
         self.__tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.getenv('HUGGING_TOKEN'))
         self.__model = AutoModelForCausalLM.from_pretrained(
             model_id,
-            torch_dtype=torch.bfloat16,
             device_map="auto",
             token=os.getenv('HUGGING_TOKEN'),
             quantization_config=quantization_config
