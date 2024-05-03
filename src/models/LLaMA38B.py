@@ -1,0 +1,56 @@
+from typing import Any
+from models.AbstractLanguageModel import AbstractLanguageModel
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+import os
+import torch
+
+
+class LLaMA38B(AbstractLanguageModel):
+    def __init__(self, problem_bench: str) -> None:
+        super().__init__("LLaMA38B", problem_bench)
+
+    def ask(self, prompt: str, reask: bool) -> str:
+        if not reask:
+            prompt: str = (
+                self._INTRODUCTION_TO_QUESTION[self.problem_bench()]
+                + prompt
+            )
+        
+        messages = [
+            {"role": "user", "content": prompt}
+        ]
+
+        input_ids = self.__tokenizer.apply_chat_template(
+            messages,
+            add_generation_prompt=True,
+            return_tensors="pt"
+        ).to(self.__model.device)
+
+        terminators = [
+            self.__tokenizer.eos_token_id,
+            self.__tokenizer.convert_tokens_to_ids("<|eot_id|>")
+        ]
+
+        outputs = self.__model.generate(
+            input_ids,
+            max_new_tokens=1000,
+            eos_token_id=terminators
+        )
+
+        response = outputs[0][input_ids.shape[-1]:]
+        return self.__tokenizer.decode(response, skip_special_tokens=True)
+
+    def _load_model(self) -> Any:
+        super()._load_model()
+        quantization_config = BitsAndBytesConfig(load_in_8bit=True)
+
+        model_id = "meta-llama/Meta-Llama-3-8B-Instruct"
+
+        self.__tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.getenv('HUGGING_TOKEN'))
+        self.__model = AutoModelForCausalLM.from_pretrained(
+            model_id,
+            torch_dtype=torch.bfloat16,
+            device_map="auto",
+            token=os.getenv('HUGGING_TOKEN'),
+            quantization_config=quantization_config
+        )
