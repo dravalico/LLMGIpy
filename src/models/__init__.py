@@ -13,3 +13,4 @@ ALL_LLMs: dict[str, tuple[str, str]] = {
 }
 
 models_list = sorted([key for key in ALL_LLMs])
+all_llms_macro_categories = sorted(list(set([ALL_LLMs[key][0] for key in ALL_LLMs])))

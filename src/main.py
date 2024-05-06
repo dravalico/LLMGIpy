@@ -1,16 +1,15 @@
-import sys
 from argparse import ArgumentParser, Namespace, BooleanOptionalAction
 from typing import List, Any, Optional
-from types import ModuleType
 from dotenv import load_dotenv
 from models.AbstractLanguageModel import AbstractLanguageModel
-from models import HuggingFaceLLM, OpenAILLM
 import models
 from testers.ModelTester import ModelTester
 from testers.DatasetLoader import DatasetLoader
 import testers
 from scripts.ponyge.improvement_files_generator import create_txt_population_foreach_json, create_params_file
 
+for llm_macro_category in models.all_llms_macro_categories:
+    exec(f'from models.{llm_macro_category} import {llm_macro_category}')
 
 def set_parser() -> ArgumentParser:
     argparser: ArgumentParser = ArgumentParser(description="GI improvement from LLM response")
@@ -41,8 +40,7 @@ def set_parser() -> ArgumentParser:
 
 def create_instance_of_class(model_name: str, problem_bench: str, **kwargs) -> Any:
     category_llm, _ = models.ALL_LLMs[model_name]
-    mod: ModuleType = sys.modules[f'models.{category_llm}']
-    return getattr(mod, category_llm)(model_name=model_name, problem_bench=problem_bench, **kwargs)
+    return eval(category_llm)(model_name=model_name, problem_bench=problem_bench, **kwargs)
 
 
 def main():
