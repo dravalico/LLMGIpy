@@ -1,4 +1,5 @@
 import pandas as pd
+import json
 from typing import List, Tuple, Any
 
 
@@ -9,6 +10,9 @@ class DatasetLoader():
         self.__dataset: str = dataset
         self.__dataset_folder: str = f"../PonyGE2/datasets/progsys/{dataset}-bench/"
         self.__problems: pd.DataFrame = pd.read_json(self.__dataset_folder + 'descr.json', orient='records')
+        with open(self.__dataset_folder + 'n_inputs.json', 'r') as json_file:
+            n_inputs = json.load(json_file)
+        self.__n_inputs: dict[str, int] = {key: int(n_inputs[key]) for key in n_inputs}
 
     def load(self, prob_name: str) -> Tuple[Tuple[List[Any], List[Any]]]:
         with open(self.__dataset_folder + prob_name + '/' + 'Train.txt', 'r') as f:
@@ -22,7 +26,10 @@ class DatasetLoader():
             test_data = (inval[:self.__test_size], outval[:self.__test_size]) # type: ignore
         
         return train_data, test_data
-            
+
+    def get_n_inputs(self, problem_name: str) -> int:
+        return self.__n_inputs[problem_name.strip().replace(' ', '-').lower()]
+
     @property
     def dataset(self) -> str:
         return self.__dataset

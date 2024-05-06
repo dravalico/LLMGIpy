@@ -35,9 +35,10 @@ class ModelTester():
             range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
+            n_inputs: int = self.__dataset_loader.get_n_inputs(prob_name)
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             print(f'{prob_name}\n')
-            responses: List[Dict[str, Any]] = self.__ask_model_and_process(self.__problems['Description'][n_prob])
+            responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None)
             f_bodies: List[str] = [res['full_code'] for res in responses]
             f_names: List[str] = [res['new_entry_point'] for res in responses]
             args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
@@ -84,6 +85,7 @@ class ModelTester():
             range(len(self.__problems))) if problems_indexes is None else problems_indexes
         for n_prob in all_problem_indexes:
             prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
+            n_inputs: int = self.__dataset_loader.get_n_inputs(prob_name)
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             print(f'{prob_name}\n')
             to_save: List[List[Any]] = []
@@ -111,7 +113,7 @@ class ModelTester():
                                 )
                             prompt = ''.join(temp_prompt)
                     isFirst: bool = True if rep == 0 else False
-                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt, isFirst)
+                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst)
                     f_bodies: List[str] = [res['full_code'] for res in responses]
                     f_names: List[str] = [res['new_entry_point'] for res in responses]
                     args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
@@ -157,7 +159,7 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, prompt: str, isFirst: Optional[bool] = None) -> List[Dict[str, Any]]:
+    def __ask_model_and_process(self, prompt: str, n_inputs: int, isFirst: Optional[bool] = None) -> List[Dict[str, Any]]:
         iterations: int = 1 if self.__reask else self.__iterations
         responses: List[Dict[str, Any]] = []
         reask: bool = self.__reask
@@ -167,7 +169,15 @@ class ModelTester():
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
             llm_answer: str = self.__model.ask(prompt, reask)
-            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(llm_answer, False, 'evolve', True, False)
+            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(
+                s=llm_answer,
+                include_free_code=False,
+                replace_entry_point_with_this_name='evolve',
+                replace_vars=True,
+                remove_non_existing_import=False,
+                n_inputs=n_inputs,
+                remove_syntax_errors=False
+            )
             res['llm_answer'] = llm_answer
             responses.append(res)
         return responses
@@ -260,6 +270,7 @@ class ModelTester():
                 'model_name': self.__model.name,
                 'problem_benchmark': self.__dataset_loader.dataset,
                 'problem_name': prob_name,
+                'n_inputs': self.__dataset_loader.get_n_inputs(prob_name),
                 'prompt': self.__problems['Description'][n_prob],
                 'problem_index': n_prob,
                 'data_train_size': self.__dataset_loader.train_size,

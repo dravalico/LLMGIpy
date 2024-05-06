@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, Optional
 
 from scripts.ponyge.individual_formatter import replace_variables_with_names 
 
@@ -13,6 +13,32 @@ def add_global_declarations_before_function_definitions(s: str) -> str:
     return '\n'.join(l)
 
 
+def enforce_syntactically_valid_function(s: str, potentially_new_name: str, n_inputs: Optional[int] = None) -> str:
+    l: list[str] = s.split('\n')
+    keep_removing_lines: bool = True
+    while keep_removing_lines:
+        try:
+            exec('\n'.join(l), locals())
+            keep_removing_lines = False
+        except SyntaxError as e:
+            del l[e.lineno - 1]
+            if len(l) == 1:
+                l.append('\tpass')
+                keep_removing_lines = False
+
+    if len(l) == 2 and l[1] == '\tpass':
+        try:
+            exec('\n'.join(l), locals())
+        except SyntaxError:
+            if n_inputs is None:
+                raise ValueError(f'Required n_inputs different from None if function definition line has syntax errors.')
+            if potentially_new_name.strip() == '':
+                raise ValueError(f'Required potentially_new_name different from empty string if function definition line has syntax errors.')
+            l = [f'def {potentially_new_name.strip()}({", ".join(f"v{i}" for i in range(n_inputs))}):', '\tpass']
+    
+    return '\n'.join(l)
+
+
 def extract_imports(l: list[str], remove_non_existing_import: bool) -> list[str]:
     p = re.compile('^(\s*)(import (.+)|import (.+) as (.+)|from (.+) import (.+))(\s*)$')
     actual_imports: list[str] = list(set([line.strip() for line in l if p.match(line.strip()) and line.strip() != '']))
@@ -23,7 +49,7 @@ def extract_imports(l: list[str], remove_non_existing_import: bool) -> list[str]
             try:
                 exec(imp)
                 existing_imports.append(imp)
-            except:
+            except ImportError:
                 pass
         return existing_imports
     else:
@@ -187,7 +213,7 @@ def remove_comments(l: list[str]) -> list[str]:
     return l_copy
 
 
-def extract_distinct_functions(l: list[str]) -> tuple[list[str], str, str, int]:
+def extract_distinct_functions(l: list[str], remove_syntax_errors: bool, potentially_new_name: str, n_inputs: Optional[int] = None) -> tuple[list[str], str, str, int]:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
     t = [(i, re.findall(r'def (.+)\(', l[i])[0], len(l[i]) - len(l[i].lstrip()), len(l[i]) - len(l[i].lstrip()) != 0) for i in range(len(l)) if p.match(l[i])]
     
@@ -215,9 +241,22 @@ def extract_distinct_functions(l: list[str]) -> tuple[list[str], str, str, int]:
     for func in all_funcs:
         func[0] = remove_typing_from_header_func(func[0])
 
-    indent_size: int = len(all_funcs[-1][1]) - len(all_funcs[-1][1].lstrip())
+    sup_funcs: list[list[str]] = []
+    for func in all_funcs[:-1]:
+        try:
+            exec('\n'.join(func), locals())
+            sup_funcs.append(func)
+        except SyntaxError:
+            pass
 
-    return ['\n'.join(all_funcs[i]) for i in range(len(all_funcs[:-1]))], entry_point, '\n'.join(all_funcs[-1]), indent_size
+    main_code_func: list[str] = all_funcs[-1]
+
+    if remove_syntax_errors:
+        main_code_func = enforce_syntactically_valid_function('\n'.join(main_code_func), potentially_new_name=potentially_new_name, n_inputs=n_inputs).split('\n')
+
+    indent_size: int = len(main_code_func[1]) - len(main_code_func[1].lstrip())
+
+    return ['\n'.join(sup_funcs[i]) for i in range(len(sup_funcs))], entry_point, '\n'.join(main_code_func), indent_size
 
 
 def tabs_as_symbols(s: str, indent_size: int) -> str:
@@ -235,10 +274,10 @@ def tabs_as_symbols(s: str, indent_size: int) -> str:
     return '\n'.join(l0)
 
 
-def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool, replace_entry_point_with_this_name: str, replace_vars: bool, remove_non_existing_import: bool) -> dict[str, Any]:
+def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool, replace_entry_point_with_this_name: str, replace_vars: bool, remove_non_existing_import: bool, n_inputs: Optional[int] = None, remove_syntax_errors: bool = False) -> dict[str, Any]:
     l: list[str] = [elem for elem in remove_comments(s.split('\n')) if elem.strip() != '']
     actual_imports: list[str] = extract_imports(l, remove_non_existing_import=remove_non_existing_import)
-    distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions(remove_internal_code_typing(remove_imports_only(l)))
+    distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions(remove_internal_code_typing(remove_imports_only(l)), remove_syntax_errors=remove_syntax_errors, potentially_new_name=replace_entry_point_with_this_name, n_inputs=n_inputs)
     distinct_funcs = [tabs_as_symbols(single_func, indent_size) for single_func in distinct_funcs]
     main_func = tabs_as_symbols(main_func, indent_size)
     if replace_entry_point_with_this_name.strip() != '':
@@ -275,7 +314,7 @@ def try_main():
     print(s)
     ss = ''
     print('='*100)
-    res = properly_arrange_code_with_imports_functions(s, True, 'evolve', True, True)
+    res = properly_arrange_code_with_imports_functions(s, True, 'evolve', True, True, None, True)
     ss += res['full_code']
     if 'free_code' in res:
         ss += res['free_code']
@@ -293,7 +332,7 @@ def try_main():
     #    f.write(s)
     #with open('g7.txt', 'r') as f:
     #    ccc = f.read()
-    #    ccc_res = properly_arrange_code_with_imports_functions(ccc, False, '', False, False)
+    #    ccc_res = properly_arrange_code_with_imports_functions(ccc, False, '', False, False, None, False)
     #    print(ccc_res['full_code'])
     #    exec(ccc_res['full_code'])
 
