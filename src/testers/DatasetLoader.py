@@ -14,7 +14,7 @@ class DatasetLoader():
             n_inputs = json.load(json_file)
         self.__n_inputs: dict[str, int] = {key: int(n_inputs[key]) for key in n_inputs}
 
-    def load(self, prob_name: str) -> Tuple[Tuple[List[Any], List[Any]]]:
+    def load(self, prob_name: str) -> Tuple[Tuple[List[Any], List[Any]], Tuple[List[Any], List[Any]]]:
         with open(self.__dataset_folder + prob_name + '/' + 'Train.txt', 'r') as f:
             c = f.read()
             exec(c, globals())
