@@ -1,3 +1,4 @@
+import traceback
 from typing import List, Any, Dict, Callable, Tuple, Optional
 from multiprocessing import Process, Queue
 from pandas import DataFrame
@@ -86,7 +87,7 @@ class ModelTester():
                     responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst)
                     exc, worker_res, data = self.__run_all_workers_and_collect_results(responses=responses, prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
                     to_save.extend(data)
-                    if worker_res[1] == [] and not exc:
+                    if worker_res is not None and worker_res[1] == [] and not exc:
                         break
                 print('\n')
             self.__create_and_save_json(to_save, n_prob, prob_name)
@@ -107,15 +108,19 @@ class ModelTester():
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
             llm_answer: str = self.__model.ask(prompt, reask)
-            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(
-                s=llm_answer,
-                include_free_code=False,
-                replace_entry_point_with_this_name='evolve',
-                replace_vars=True,
-                remove_non_existing_import=False,
-                n_inputs=n_inputs,
-                remove_syntax_errors=False
-            )
+            try:
+                res: Dict[str, Any] = properly_arrange_code_with_imports_functions(
+                    s=llm_answer,
+                    include_free_code=False,
+                    replace_entry_point_with_this_name='evolve',
+                    replace_vars=True,
+                    remove_non_existing_import=False,
+                    n_inputs=n_inputs,
+                    remove_syntax_errors=False
+                )
+            except Exception as e:
+                res: Dict[str, Any] = {}
+                res['exception'] = str(traceback.format_exc())
             res['llm_answer'] = llm_answer
             responses.append(res)
         return responses
@@ -128,24 +133,26 @@ class ModelTester():
             result_queue.put(str(e))
 
     def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int) -> Tuple[bool, Any, List[Dict[str, Any]]]:
-        f_bodies: List[str] = [res['full_code'] for res in responses]
-        f_names: List[str] = [res['new_entry_point'] for res in responses]
+        responses_copy = [res for res in responses if 'exception' not in res]
+        f_bodies: List[str] = [res['full_code'] for res in responses_copy]
+        f_names: List[str] = [res['new_entry_point'] for res in responses_copy]
         args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
         data: List[Dict[str, Any]] = []
         for i, _ in enumerate(args):
-            di = {key: responses[i][key] for key in responses[i]}
+            di = {key: responses_copy[i][key] for key in responses_copy[i]}
             di['problem_name'] = prob_name
             di['problem_index'] = n_prob
             di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
             data.append(di)
         workers = []
         print('Testing...')
+        exc: bool = False
+        worker_res: Any = None
         for i in range(len(args)):
             process = Process(target=self.__worker_function, args=args[i])
             process.start()
             workers.append(process)
         for i, worker in enumerate(workers):
-            exc: bool = False
             try:
                 worker.join(timeout=self.__iteration_timeout)
                 if worker.is_alive():
@@ -165,6 +172,7 @@ class ModelTester():
                 else:
                     print(f'Exception for iteration {i + 1}')
                     data[i]['test_results'] = {'passed': 0, 'error': str(e)}
+        data.extend([res for res in responses if 'exception' in res])
         return exc, worker_res, data
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
@@ -213,34 +221,40 @@ class ModelTester():
         json_element: Dict[str, any] = {}
 
         for element in data:
-            imports: List[str] = element['imports']
-            imports_pony: str = ''
-            for i in imports:
-                imports_pony += i + '#'
-            used_names = element['possible_vars']
-            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])  # imports_pony ??
-            it: int = 0
-            rep: int = 0
-            if '.' in str(element['iteration']):
-                it = int(element['iteration'].split('.')[0]) + 1
-                rep = int(element['iteration'].split('.')[1]) + 1
+            if 'exception' in element:
+                json_element = {
+                    'model_response': element['llm_answer'],
+                    'exception': element['exception'],
+                }
             else:
-                it = element['iteration'] + 1
-                rep = 1
-            json_element = {
-                'iteration': it,
-                'repetition': rep,
-                'model_response': element['llm_answer'],
-                'function_name': element['entry_point'],
-                'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
-                'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
-                'imports': imports,
-                'supports': element['sup_funcs'],
-                'imports_and_supports': element['imports_and_supports'],
-                'variables_names': used_names,
-                'final_individual': ind,
-                'tests_results': element['test_results']
-            }
+                imports: List[str] = element['imports']
+                imports_pony: str = ''
+                for i in imports:
+                    imports_pony += i + '#'
+                used_names = element['possible_vars']
+                ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])  # imports_pony ??
+                it: int = 0
+                rep: int = 0
+                if '.' in str(element['iteration']):
+                    it = int(element['iteration'].split('.')[0]) + 1
+                    rep = int(element['iteration'].split('.')[1]) + 1
+                else:
+                    it = element['iteration'] + 1
+                    rep = 1
+                json_element = {
+                    'iteration': it,
+                    'repetition': rep,
+                    'model_response': element['llm_answer'],
+                    'function_name': element['entry_point'],
+                    'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
+                    'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
+                    'imports': imports,
+                    'supports': element['sup_funcs'],
+                    'imports_and_supports': element['imports_and_supports'],
+                    'variables_names': used_names,
+                    'final_individual': ind,
+                    'tests_results': element['test_results']
+                }
             json_data.append(json_element)
         create_and_save_json(
             f"{self.__model.name}{'_problem'}{n_prob}",
