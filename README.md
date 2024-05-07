@@ -11,7 +11,7 @@ Large Language Model Genetic Improvement Python (LLMGIpy) is a software that all
 - LLaMA3 8B
 - CodeLLaMA 7B and 13B
 - CodeGemma 7B
-- Mistal 7B
+- Mistral 7B
 - ChatGPT and GPT4
 
 Note that for Hugging Face models you need a (free) token and for OpenAI models you need to pay.
