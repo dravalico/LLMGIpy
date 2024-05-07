@@ -1,6 +1,6 @@
 import re
 from typing import Any, Optional
-
+import json
 from scripts.ponyge.individual_formatter import replace_variables_with_names 
 
 
@@ -16,6 +16,11 @@ def add_global_declarations_before_function_definitions(s: str) -> str:
 def enforce_syntactically_valid_function(s: str, potentially_new_name: str, n_inputs: Optional[int] = None) -> str:
     l: list[str] = s.split('\n')
     keep_removing_lines: bool = True
+
+    if len(l) == 1:
+        l.append('\tpass')
+        keep_removing_lines = False
+
     while keep_removing_lines:
         try:
             exec('\n'.join(l), locals())
@@ -200,6 +205,10 @@ def remove_comments(l: list[str]) -> list[str]:
         line: str = l[i]
         if line.strip().startswith('#'):
             idx_to_remove.add(i)
+        elif line.strip().startswith("'''") and line.strip().endswith("'''") and len(line.strip()) > 3:
+            idx_to_remove.add(i)
+        elif line.strip().startswith('"""') and line.strip().endswith('"""') and len(line.strip()) > 3:
+            idx_to_remove.add(i)
         elif to_be_removed_1:
             idx_to_remove.add(i)
             if line.strip().endswith("'''"):
@@ -341,10 +350,14 @@ def try_main():
     print('='*100)
     #with open('file1.txt', 'w') as f:
     #    f.write(s)
-    #with open('g7.txt', 'r') as f:
-    #    ccc = f.read()
-    #    ccc_res = properly_arrange_code_with_imports_functions(ccc, False, '', False, False, None, False)
+    #with open('CodeLLaMA13B_problem31.json', 'r') as f:
+    #    ccc = json.load(f)
+    #    example_code = ccc['data'][0]['model_response']
+    #    print(ccc['data'][0]['model_response'])
+    #    print('='*100)
+    #    ccc_res = properly_arrange_code_with_imports_functions(example_code, False, '', False, False, None, False)
     #    print(ccc_res['full_code'])
+    #    print('='*100)
     #    exec(ccc_res['full_code'])
 
 if __name__ == '__main__':
