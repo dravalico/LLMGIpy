@@ -21,6 +21,15 @@ def enforce_syntactically_valid_function(s: str, potentially_new_name: str, n_in
         l.append('\tpass')
         keep_removing_lines = False
 
+    try:
+        exec('\n'.join([l[0], '\tpass']), locals())
+    except SyntaxError:
+        if n_inputs is None:
+            raise ValueError(f'Required n_inputs different from None if function definition line has syntax errors.')
+        if potentially_new_name.strip() == '':
+            raise ValueError(f'Required potentially_new_name different from empty string if function definition line has syntax errors.')
+        l[0] = f'def {potentially_new_name.strip()}({", ".join(f"v{i}" for i in range(n_inputs))}):'
+
     while keep_removing_lines:
         try:
             exec('\n'.join(l), locals())
