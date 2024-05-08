@@ -205,10 +205,8 @@ def remove_internal_code_typing(l: list[str]) -> list[str]:
     return l0
 
 
-def remove_comments(l: list[str]) -> list[str]:
+def remove_single_comments(l: list[str]) -> list[str]:
     idx_to_remove: set[int] = set()
-    to_be_removed_1: bool = False
-    to_be_removed_2: bool = False
 
     for i in range(len(l)):
         line: str = l[i]
@@ -218,21 +216,6 @@ def remove_comments(l: list[str]) -> list[str]:
             idx_to_remove.add(i)
         elif line.strip().startswith('"""') and line.strip().endswith('"""') and len(line.strip()) > 3:
             idx_to_remove.add(i)
-        elif to_be_removed_1:
-            idx_to_remove.add(i)
-            if line.strip().endswith("'''"):
-                to_be_removed_1 = not to_be_removed_1
-        elif to_be_removed_2:
-            idx_to_remove.add(i)
-            if line.strip().endswith('"""'):
-                to_be_removed_2 = not to_be_removed_2
-        else:
-            if line.strip().startswith("'''"):
-                idx_to_remove.add(i)
-                to_be_removed_1 = not to_be_removed_1
-            elif line.strip().startswith('"""'):
-                idx_to_remove.add(i)
-                to_be_removed_2 = not to_be_removed_2
 
     idx_to_remove_l: list[int] = sorted(list(idx_to_remove), reverse=True)
     l_copy = l[:]
@@ -240,6 +223,57 @@ def remove_comments(l: list[str]) -> list[str]:
         del l_copy[i]
     
     return l_copy
+
+
+def remove_multi_comments(l: list[str]) -> list[str]:
+    idx_to_remove: set[int] = set()
+    to_be_removed_1: bool = False
+    to_be_removed_2: bool = False
+    pairs_of_multiline_comments_1_start: Optional[int] = None 
+    pairs_of_multiline_comments_2_start: Optional[int] = None
+
+    for i in range(len(l)):
+        line: str = l[i]
+        if to_be_removed_1:
+            idx_to_remove.add(i)
+            if line.strip().endswith("'''"):
+                to_be_removed_1 = not to_be_removed_1
+                pairs_of_multiline_comments_1_start = None
+        elif to_be_removed_2:
+            idx_to_remove.add(i)
+            if line.strip().endswith('"""'):
+                to_be_removed_2 = not to_be_removed_2
+                pairs_of_multiline_comments_2_start = None
+        else:
+            if line.strip().startswith("'''"):
+                idx_to_remove.add(i)
+                to_be_removed_1 = not to_be_removed_1
+                pairs_of_multiline_comments_1_start = i
+            elif line.strip().startswith('"""'):
+                idx_to_remove.add(i)
+                to_be_removed_2 = not to_be_removed_2
+                pairs_of_multiline_comments_2_start = i
+
+    idx_to_remove_l: list[int] = sorted(list(idx_to_remove), reverse=True)
+    l_copy = l[:]
+    
+    #if not (pairs_of_multiline_comments_1_start is None and pairs_of_multiline_comments_2_start is None):
+    #    single_inds: list[int] = []
+    #    if pairs_of_multiline_comments_1_start is not None:
+    #        single_inds.append(pairs_of_multiline_comments_1_start)
+    #    if pairs_of_multiline_comments_2_start is not None:
+    #        single_inds.append(pairs_of_multiline_comments_2_start)
+    #    stop_ind = min(single_inds)
+    #    idx_to_remove_l = [i for i in idx_to_remove_l if i <= stop_ind]
+
+    for i in idx_to_remove_l:
+        del l_copy[i]
+
+    return l_copy
+
+
+def remove_comments(l: list[str]) -> list[str]:
+    return remove_multi_comments(remove_single_comments(l))
 
 
 def extract_distinct_functions(l: list[str], remove_syntax_errors: bool, potentially_new_name: str, n_inputs: Optional[int] = None) -> tuple[list[str], str, str, int]:
@@ -361,17 +395,18 @@ def try_main():
     print('='*100)
     exec(ss, locals())
     print('='*100)
-    #with open('file1.txt', 'w') as f:
-    #    f.write(s)
-    #with open('CodeLLaMA13B_problem83.json', 'r') as f:
-    #    ccc = json.load(f)
-    #    example_code = ccc['data'][0]['model_response']
-    #    print(ccc['data'][0]['model_response'])
-    #    print('='*100)
-    #    ccc_res = properly_arrange_code_with_imports_functions(example_code, False, 'evolve', True, False, 2, False)
-    #    print(ccc_res['renamed_main_func'])
-    #    print('='*100)
-    #    exec(ccc_res['full_code'])
+    # with open('file1.txt', 'w') as f:
+    #     f.write(s)
+    # with open('files/Gemma2B_problem120.json', 'r') as f:
+    #     ccc = json.load(f)
+    #     example_code = ccc['data'][0]['model_response']
+    #     print(ccc['data'][0]['model_response'])
+    #     print('='*100)
+    #     ccc_res = properly_arrange_code_with_imports_functions(example_code, False, 'evolve', True, False, 2, True)
+    #     print(ccc_res['renamed_main_func'])
+    #     print('='*100)
+    #     exec(ccc_res['full_code'])
+
 
 if __name__ == '__main__':
     try_main()
