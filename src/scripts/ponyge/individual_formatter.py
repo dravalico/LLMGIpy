@@ -70,7 +70,7 @@ def extract_variables_names(code: str):
     for node in ast.walk(first_function):
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
             local_vars.append(node.id)
-    return local_vars
+    return list(set(local_vars))
 
 
 def replace_variables_with_names(code: str, imports):

@@ -110,7 +110,7 @@ def remove_imports_and_functions(l: list[str]) -> list[str]:
             idx_to_remove.add(i)
             num_lead_spaces = len(l[i]) - len(l[i].lstrip())
             for j in range(i + 1, len(l)):
-                if len(l[j]) - len(l[j].lstrip()) == num_lead_spaces:
+                if len(l[j]) - len(l[j].lstrip()) <= num_lead_spaces:
                     break
                 idx_to_remove.add(j)
             
@@ -144,7 +144,7 @@ def extract_single_function(l: list[str]) -> list[str]:
     num_lead_spaces: int = len(l[0]) - len(l[0].lstrip())
     func_lines_end: int = 0
     for j in range(1, len(l)):
-        if len(l[j]) - len(l[j].lstrip()) == num_lead_spaces:
+        if len(l[j]) - len(l[j].lstrip()) <= num_lead_spaces:
             break
         func_lines_end = j
     func_lines: list[str] = [l[k][num_lead_spaces:] for k in range(func_lines_end + 1)]
@@ -161,7 +161,7 @@ def remove_nested_functions(l: list[str]) -> list[str]:
         if is_nested:
             idx_to_remove.add(code_line)
             for j in range(code_line + 1, len(l)):
-                if len(l[j]) - len(l[j].lstrip()) == num_lead_spaces:
+                if len(l[j]) - len(l[j].lstrip()) <= num_lead_spaces:
                     break
                 idx_to_remove.add(j)
     
@@ -244,21 +244,25 @@ def remove_comments(l: list[str]) -> list[str]:
 
 def extract_distinct_functions(l: list[str], remove_syntax_errors: bool, potentially_new_name: str, n_inputs: Optional[int] = None) -> tuple[list[str], str, str, int]:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
-    t = [(i, re.findall(r'def (.+)\(', l[i])[0], len(l[i]) - len(l[i].lstrip()), len(l[i]) - len(l[i].lstrip()) != 0) for i in range(len(l)) if p.match(l[i])]
+    
+    outer_indent_size: int = min([len(l[i]) - len(l[i].lstrip()) for i in range(len(l)) if p.match(l[i])])
+    l_copy: list[str] = [line[outer_indent_size:] for line in l]
+
+    t = [(i, re.findall(r'def (.+)\(', l_copy[i])[0], len(l_copy[i]) - len(l_copy[i].lstrip()), len(l_copy[i]) - len(l_copy[i].lstrip()) != 0) for i in range(len(l_copy)) if p.match(l_copy[i])]
     
     # PICK LAST NON-NESTED FUNCTION (THE MAIN CODE FUNCTION)
-    last_non_nested_function = t[0]
+    last_non_nested_function = t[-1]
     for i in range(len(t)):
         if not t[i][3]:
             last_non_nested_function = t[i]
     
-    main_code_line = l[last_non_nested_function[0]]
+    main_code_line = l_copy[last_non_nested_function[0]]
     entry_point = last_non_nested_function[1]
 
     # EXTRACT INDIVIDUAL FUNCTIONS (NESTED AND NON-NESTED, NESTED FUNCTIONS BECOME NON-NESTED AND THEY ARE REMOVED FROM THE MOTHER FUNCTIONS)
-    all_funcs: list[list[str]] = [remove_nested_functions(extract_single_function(l[t[i][0]:])) for i in range(len(t))]
+    all_funcs: list[list[str]] = [remove_nested_functions(extract_single_function(l_copy[t[i][0]:])) for i in range(len(t))]
     main_func_idx: int = None
-    
+
     for i in range(len(all_funcs)):
         if all_funcs[i][0].strip() == main_code_line.strip():
             main_func_idx = i
@@ -359,13 +363,13 @@ def try_main():
     print('='*100)
     #with open('file1.txt', 'w') as f:
     #    f.write(s)
-    #with open('CodeLLaMA13B_problem31.json', 'r') as f:
+    #with open('CodeLLaMA13B_problem83.json', 'r') as f:
     #    ccc = json.load(f)
     #    example_code = ccc['data'][0]['model_response']
     #    print(ccc['data'][0]['model_response'])
     #    print('='*100)
-    #    ccc_res = properly_arrange_code_with_imports_functions(example_code, False, '', False, False, None, False)
-    #    print(ccc_res['full_code'])
+    #    ccc_res = properly_arrange_code_with_imports_functions(example_code, False, 'evolve', True, False, 2, False)
+    #    print(ccc_res['renamed_main_func'])
     #    print('='*100)
     #    exec(ccc_res['full_code'])
 
