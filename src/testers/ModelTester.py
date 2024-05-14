@@ -43,9 +43,11 @@ class ModelTester():
             n_inputs: int = self.__dataset_loader.get_n_inputs(prob_name)
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             print(f'{prob_name}\n')
+            start_time: float = time.time()
             responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None)
             _, _, data = self.__run_all_workers_and_collect_results(responses=responses, prob_name=prob_name, n_prob=n_prob, iteration=1, rep=1)
-            dir_name: str = self.__create_and_save_json(data, n_prob, prob_name)
+            end_time: float = time.time()
+            dir_name: str = self.__create_and_save_json(data, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"\nProblem '{prob_name}' completed.")
             print(f"{'=' * 80}")
         print(f'Results saved in {dir_name}')
@@ -63,6 +65,7 @@ class ModelTester():
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             print(f'{prob_name}\n')
             to_save: List[List[Any]] = []
+            start_time: float = time.time()
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
                 data_not_passed: List[Any] = []
@@ -93,7 +96,8 @@ class ModelTester():
                     if worker_res is not None and worker_res[1] == [] and not exc:
                         break
                 print('\n')
-            dir_name: str = self.__create_and_save_json(to_save, n_prob, prob_name)
+            end_time: float = time.time()
+            dir_name: str = self.__create_and_save_json(to_save, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"Problem '{prob_name}' completed.")
             print(f"{'=' * 80}")
         print(f'Results saved in {dir_name}')
@@ -109,7 +113,9 @@ class ModelTester():
         for iteration in range(iterations):
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
+            start_time_llm_answer: float = time.time()
             llm_answer: str = self.__model.ask(prompt, reask)
+            end_time_llm_answer: float = time.time()
             res: Dict[str, Any] = properly_arrange_code_with_imports_functions(
                 s=llm_answer,
                 include_free_code=False,
@@ -120,6 +126,7 @@ class ModelTester():
                 remove_syntax_errors=False
             )
             res['llm_answer'] = llm_answer
+            res['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
             responses.append(res)
         return responses
 
@@ -227,7 +234,7 @@ class ModelTester():
         
         return {'passed': passed, 'not_passed': not_passed, 'with_exception(s)': with_exception, 'passed_test': passed_test, 'not_passed_test': not_passed_test, 'with_exception(s)_test': with_exception_test, 'time_minutes_fun_exec': (end_time_fun_exec - start_time_fun_exec) * (1 / 60), 'time_minutes_train_eval': (end_time_train_eval - start_time_train_eval) * (1 / 60), 'time_minutes_test_eval': (end_time_test_eval - start_time_test_eval) * (1 / 60)}, data_not_passed
 
-    def __create_and_save_json(self, data: List[Dict[str, Any]], n_prob: int, prob_name: str) -> str:
+    def __create_and_save_json(self, data: List[Dict[str, Any]], n_prob: int, prob_name: str, total_time_minutes: float) -> str:
         json_data: List[Dict[str, Any]] = []
         json_element: Dict[str, any] = {}
 
@@ -235,7 +242,10 @@ class ModelTester():
             if 'exception' in element:
                 json_element = {
                     'model_response': element['llm_answer'],
+                    'time_minutes_model_response': element['time_minutes_llm_answer'],
                     'exception': element['exception'],
+                    'time_minutes_total': total_time_minutes,
+                    'tests_results': element['test_results'] if 'test_results' in element else {}
                 }
             else:
                 imports: List[str] = element['imports']
@@ -256,6 +266,7 @@ class ModelTester():
                     'iteration': it,
                     'repetition': rep,
                     'model_response': element['llm_answer'],
+                    'time_minutes_model_response': element['time_minutes_llm_answer'],
                     'function_name': element['entry_point'],
                     'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
                     'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
@@ -264,6 +275,7 @@ class ModelTester():
                     'imports_and_supports': element['imports_and_supports'],
                     'variables_names': used_names,
                     'final_individual': ind,
+                    'time_minutes_total': total_time_minutes,
                     'tests_results': element['test_results']
                 }
             json_data.append(json_element)
