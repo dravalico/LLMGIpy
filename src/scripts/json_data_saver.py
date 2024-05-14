@@ -32,3 +32,34 @@ def create_and_save_json(filename: str, data: Dict[str, any]) -> str:
     output_file.close()
 
     return results_folder_path
+
+
+def read_json(
+    model_name: str,
+    problem_benchmark: str,
+    problem_id: int,
+    reask: bool,
+    iterations: int,
+    repeatitions: int,
+    remove_non_existing_imports: bool,
+    train_size: int,
+    test_size: int
+) -> dict[str, any]:
+    full_path: str = BASE_PATH
+    if reask:
+        full_path += 'LPLUS' + '/' + 'iter' + str(iterations) + '_rep' + str(repeatitions) + '/'
+    else:
+        full_path += 'L' + '/' + 'iter' + str(iterations) + '_rep0' + '/'
+    if remove_non_existing_imports:
+        full_path += 'removenonexistingimports1' + '/'
+    else:
+        full_path += 'removenonexistingimports0' + '/'
+    full_path += problem_benchmark + '/' + f'train{train_size}_test{test_size}' + '/'
+
+    results_folder_path: str = full_path
+    output_file_path: str = os.path.join(results_folder_path, f"{model_name}{'_problem'}{problem_id}{'.json'}")
+    
+    with open(output_file_path, 'r') as f:
+        d: dict[str, any] = json.load(f)
+    
+    return d
