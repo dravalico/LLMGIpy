@@ -3,6 +3,7 @@ from typing import Any, Optional
 import traceback
 import json
 from scripts.ponyge.individual_formatter import replace_variables_with_names 
+from scripts.json_data_saver import read_json
 
 
 def add_global_declarations_before_function_definitions(s: str) -> str:
@@ -370,6 +371,11 @@ def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool
             c: str = tabs_as_symbols('\n'.join(remove_imports_and_functions(l)), indent_size)
             res['free_code'] = c
     except Exception as e:
+        if n_inputs is None:
+            raise ValueError(f'Required n_inputs different from None if major errors occur.')
+        if replace_entry_point_with_this_name.strip() == '':
+            raise ValueError(f'Required replace_entry_point_with_this_name different from empty string if major errors occur.')
+        
         res: dict[str, Any] = {
             'imports': [],
             'sup_funcs': [],
@@ -400,7 +406,7 @@ def try_main():
     print(s)
     ss = ''
     print('='*100)
-    res = properly_arrange_code_with_imports_functions(s, True, 'evolve', True, True, None, True)
+    res = properly_arrange_code_with_imports_functions(s, True, 'evolve', True, True, 2, True)
     ss += res['full_code']
     if 'free_code' in res:
         ss += res['free_code']
@@ -416,6 +422,7 @@ def try_main():
     print('='*100)
     # with open('file1.txt', 'w') as f:
     #     f.write(s)
+    # ccc = read_json(model_name='Mistral7B', problem_benchmark='humaneval', problem_id=102, reask=False, iterations=10, repeatitions=5, remove_non_existing_imports=False, train_size=100, test_size=1000)
     # with open('files/Mistral7B_problem102.json', 'r') as f:
     #     ccc = json.load(f)
     #     idx = 0
