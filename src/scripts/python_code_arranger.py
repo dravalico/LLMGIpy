@@ -362,7 +362,9 @@ def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool
         }
         if replace_vars:
             modified_code, possible_vars = replace_variables_with_names(res['main_func'], res['imports'])
-            res['renamed_main_func'] = tabs_as_symbols(modified_code, indent_size)
+            modified_code_l: list[str] = modified_code.split('\n')
+            indent_size_modified_code: int = len(modified_code_l[1]) - len(modified_code_l[1].lstrip())
+            res['renamed_main_func'] = tabs_as_symbols(modified_code, indent_size_modified_code)
             res['possible_vars'] = sorted(possible_vars)
         res['full_code'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
         res['full_code_but_no_imports'] = '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'

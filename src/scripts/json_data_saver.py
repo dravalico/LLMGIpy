@@ -18,7 +18,7 @@ def create_and_save_json(filename: str, data: Dict[str, any]) -> str:
         full_path += 'removenonexistingimports1' + '/'
     else:
         full_path += 'removenonexistingimports0' + '/'
-    full_path += data['problem_benchmark'] + '/' + f'train{data['data_train_size']}_test{data['data_test_size']}' + '/'
+    full_path += data['problem_benchmark'] + '/' + f'train{data["data_train_size"]}_test{data["data_test_size"]}' + '/'
 
     results_folder_path: str = full_path
     if not os.path.isdir(results_folder_path):
