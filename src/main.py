@@ -28,6 +28,9 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--jsons_dir",
                            type=str,
                            help="Generate only improvement files; needs the path of jsons directory.")
+    argparser.add_argument("--remove_non_existing_imports",
+                           action=BooleanOptionalAction,
+                           help="Boolean flag to ask the code parsing procedure to get rid of the imports included by the model that raise ImportError.")
     argparser.add_argument("--reask",
                            action=BooleanOptionalAction,
                            help="Boolean flag to ask the model to correct the answer if wrong.")
@@ -57,18 +60,22 @@ def main():
         if cmd_args.train_size is not None and cmd_args.train_size > 1000:
             raise Exception(f"Train Size '{cmd_args.train_size}' is greater than 1000, It is too large!")
         model: AbstractLanguageModel = create_instance_of_class(
-            model_name=cmd_args.model, problem_bench=cmd_args.dataset)
-        args: List[Any] = [cmd_args.dataset]
-        args.append(cmd_args.train_size)
-        loader: DatasetLoader = DatasetLoader(*args)
-        args.clear()
-        args.extend([model, loader])
-        if cmd_args.iterations != None:
-            args.append(cmd_args.iterations)
-        if cmd_args.reask:
-            args.append(cmd_args.reask)
-            args.append(cmd_args.repeatitions)
-        tester: ModelTester = ModelTester(*args)
+            model_name=cmd_args.model,
+            problem_bench=cmd_args.dataset
+        )
+        loader: DatasetLoader = DatasetLoader(
+            dataset=cmd_args.dataset,
+            train_size=cmd_args.train_size,
+            test_size=1000
+        )
+        tester: ModelTester = ModelTester(
+            model=model,
+            dataset_loader=loader,
+            iterations=cmd_args.iterations if cmd_args.iterations is not None else 5,
+            reask=cmd_args.reask if cmd_args.reask else False,
+            repeatitions=cmd_args.repeatitions if cmd_args.reask else 10,
+            remove_non_existing_imports=cmd_args.remove_non_existing_imports if cmd_args.remove_non_existing_imports else False
+        )
         problems_indexes: Optional[List[int]] = [int(i) for i in cmd_args.problems_indexes.strip().split(
             ',')] if cmd_args.problems_indexes.strip() != '' else None
         if cmd_args.reask:
@@ -77,11 +84,11 @@ def main():
         else:
             results_path: str = tester.run(problems_indexes=problems_indexes)
 
-    if cmd_args.jsons_dir != None:
+    if cmd_args.jsons_dir is not None:
         results_path: str = cmd_args.jsons_dir
         print(f"\n{'=' * 80}")
 
-    if cmd_args.impr_files or cmd_args.jsons_dir != None:
+    if cmd_args.impr_files or cmd_args.jsons_dir is not None:
         print("Creation of txt files representing the initial population")
         try:
             impr_filenames, grammars_filenames = create_txt_population_foreach_json(results_path)

@@ -2,10 +2,12 @@ import traceback
 from typing import List, Any, Dict, Callable, Tuple, Optional
 from multiprocessing import Process, Queue
 from pandas import DataFrame
+import time
+from datetime import datetime
 from scripts.python_code_arranger import properly_arrange_code_with_imports_functions
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
-from scripts.json_data_saver import create_and_save_json, get_results_dir_path
+from scripts.json_data_saver import create_and_save_json
 from scripts.ponyge.individual_formatter import substitute_tabs_and_newlines_with_pony_encode
 
 
@@ -16,7 +18,8 @@ class ModelTester():
             dataset_loader: DatasetLoader,
             iterations: int = 5,
             reask: bool = False,
-            repeatitions: int = 10
+            repeatitions: int = 10,
+            remove_non_existing_imports: bool = False
     ) -> None:
         if (not isinstance(model, AbstractLanguageModel)) or (model == None):
             e: str = 'You must provide an AbstractLanguageModel instance.'
@@ -28,6 +31,7 @@ class ModelTester():
         self.__reask: bool = reask
         self.__iteration_timeout: int = 60
         self.__repeatitions: int = repeatitions
+        self.__remove_non_existing_imports: bool = remove_non_existing_imports
 
     def run(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
@@ -41,10 +45,9 @@ class ModelTester():
             print(f'{prob_name}\n')
             responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None)
             _, _, data = self.__run_all_workers_and_collect_results(responses=responses, prob_name=prob_name, n_prob=n_prob, iteration=1, rep=1)
-            self.__create_and_save_json(data, n_prob, prob_name)
+            dir_name: str = self.__create_and_save_json(data, n_prob, prob_name)
             print(f"\nProblem '{prob_name}' completed.")
             print(f"{'=' * 80}")
-        dir_name: str = get_results_dir_path()
         print(f'Results saved in {dir_name}')
         print(f"{'=' * 80}")
         return dir_name
@@ -90,10 +93,9 @@ class ModelTester():
                     if worker_res is not None and worker_res[1] == [] and not exc:
                         break
                 print('\n')
-            self.__create_and_save_json(to_save, n_prob, prob_name)
+            dir_name: str = self.__create_and_save_json(to_save, n_prob, prob_name)
             print(f"Problem '{prob_name}' completed.")
             print(f"{'=' * 80}")
-        dir_name: str = get_results_dir_path()
         print(f'Results saved in {dir_name}')
         print(f"{'=' * 80}")
         return dir_name
@@ -108,19 +110,15 @@ class ModelTester():
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
             llm_answer: str = self.__model.ask(prompt, reask)
-            try:
-                res: Dict[str, Any] = properly_arrange_code_with_imports_functions(
-                    s=llm_answer,
-                    include_free_code=False,
-                    replace_entry_point_with_this_name='evolve',
-                    replace_vars=True,
-                    remove_non_existing_import=False,
-                    n_inputs=n_inputs,
-                    remove_syntax_errors=False
-                )
-            except Exception as e:
-                res: Dict[str, Any] = {}
-                res['exception'] = str(traceback.format_exc())
+            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(
+                s=llm_answer,
+                include_free_code=False,
+                replace_entry_point_with_this_name='evolve',
+                replace_vars=True,
+                remove_non_existing_import=self.__remove_non_existing_imports,
+                n_inputs=n_inputs,
+                remove_syntax_errors=False
+            )
             res['llm_answer'] = llm_answer
             responses.append(res)
         return responses
@@ -176,12 +174,19 @@ class ModelTester():
         return exc, worker_res, data
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
+        train_data, test_data = self.__dataset_loader.load(prob_name)
+        
+        start_time_fun_exec: float = time.time()
+        
         try:
             exec(f_body, locals())
         except Exception as e:
             return str(e)
         f: Callable = eval(f_name)
-        train_data, test_data = self.__dataset_loader.load(prob_name)
+
+        end_time_fun_exec: float = time.time()
+
+        start_time_train_eval: float = time.time()
 
         X_train, y_train = train_data[0], train_data[1]
         passed: int = 0
@@ -200,6 +205,10 @@ class ModelTester():
                 with_exception += 1
                 data_not_passed.append((X_train[i], y_train[i]))
 
+        end_time_train_eval: float = time.time()
+
+        start_time_test_eval: float = time.time()
+
         X_test, y_test = test_data[0], test_data[1]
         passed_test: int = 0
         not_passed_test: int = 0
@@ -214,9 +223,11 @@ class ModelTester():
             except Exception as e:
                 with_exception_test += 1
 
-        return {'passed': passed, 'not_passed': not_passed, 'with_exception(s)': with_exception, 'passed_test': passed_test, 'not_passed_test': not_passed_test, 'with_exception(s)_test': with_exception_test}, data_not_passed
+        end_time_test_eval: float = time.time()
+        
+        return {'passed': passed, 'not_passed': not_passed, 'with_exception(s)': with_exception, 'passed_test': passed_test, 'not_passed_test': not_passed_test, 'with_exception(s)_test': with_exception_test, 'time_minutes_fun_exec': (end_time_fun_exec - start_time_fun_exec) * (1 / 60), 'time_minutes_train_eval': (end_time_train_eval - start_time_train_eval) * (1 / 60), 'time_minutes_test_eval': (end_time_test_eval - start_time_test_eval) * (1 / 60)}, data_not_passed
 
-    def __create_and_save_json(self, data: List[Dict[str, Any]], n_prob: int, prob_name: str) -> None:
+    def __create_and_save_json(self, data: List[Dict[str, Any]], n_prob: int, prob_name: str) -> str:
         json_data: List[Dict[str, Any]] = []
         json_element: Dict[str, any] = {}
 
@@ -256,7 +267,8 @@ class ModelTester():
                     'tests_results': element['test_results']
                 }
             json_data.append(json_element)
-        create_and_save_json(
+        
+        return create_and_save_json(
             f"{self.__model.name}{'_problem'}{n_prob}",
             {
                 'model_name': self.__model.name,
@@ -267,6 +279,11 @@ class ModelTester():
                 'problem_index': n_prob,
                 'data_train_size': self.__dataset_loader.train_size,
                 'data_test_size': self.__dataset_loader.test_size,
+                'timestamp': str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")),
+                'reask': self.__reask,
+                'remove_non_existing_imports': self.__remove_non_existing_imports,
+                'iterations': self.__iterations,
+                'repeatitions': self.__repeatitions,
                 'data': json_data
             }
         )

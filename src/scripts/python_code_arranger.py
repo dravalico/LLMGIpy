@@ -1,5 +1,6 @@
 import re
 from typing import Any, Optional
+import traceback
 import json
 from scripts.ponyge.individual_formatter import replace_variables_with_names 
 
@@ -342,31 +343,49 @@ def tabs_as_symbols(s: str, indent_size: int) -> str:
 
 
 def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool, replace_entry_point_with_this_name: str, replace_vars: bool, remove_non_existing_import: bool, n_inputs: Optional[int] = None, remove_syntax_errors: bool = False) -> dict[str, Any]:
-    l: list[str] = [elem for elem in remove_comments(s.split('\n')) if elem.strip() != '']
-    actual_imports: list[str] = extract_imports(l, remove_non_existing_import=remove_non_existing_import)
-    distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions(remove_internal_code_typing(remove_imports_only(l)), remove_syntax_errors=remove_syntax_errors, potentially_new_name=replace_entry_point_with_this_name, n_inputs=n_inputs)
-    distinct_funcs = [tabs_as_symbols(single_func, indent_size) for single_func in distinct_funcs]
-    main_func = tabs_as_symbols(main_func, indent_size)
-    if replace_entry_point_with_this_name.strip() != '':
-        main_func = main_func.replace(entry_point + '(', replace_entry_point_with_this_name.strip() + '(')
-    res: dict[str, Any] = {
-        'imports': actual_imports,
-        'sup_funcs': distinct_funcs,
-        'main_func': main_func,
-        'entry_point': entry_point,
-        'new_entry_point': replace_entry_point_with_this_name.strip() if replace_entry_point_with_this_name.strip() != '' else entry_point,
-        'indent_size': indent_size
-    }
-    if replace_vars:
-        modified_code, possible_vars = replace_variables_with_names(res['main_func'], res['imports'])
-        res['renamed_main_func'] = tabs_as_symbols(modified_code, indent_size)
-        res['possible_vars'] = sorted(possible_vars)
-    res['full_code'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
-    res['full_code_but_no_imports'] = '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
-    res['imports_and_supports'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n'
-    if include_free_code:
-        c: str = tabs_as_symbols('\n'.join(remove_imports_and_functions(l)), indent_size)
-        res['free_code'] = c
+    try:
+        l: list[str] = [elem for elem in remove_comments(s.split('\n')) if elem.strip() != '']
+        actual_imports: list[str] = extract_imports(l, remove_non_existing_import=remove_non_existing_import)
+        distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions(remove_internal_code_typing(remove_imports_only(l)), remove_syntax_errors=remove_syntax_errors, potentially_new_name=replace_entry_point_with_this_name, n_inputs=n_inputs)
+        distinct_funcs = [tabs_as_symbols(single_func, indent_size) for single_func in distinct_funcs]
+        main_func = tabs_as_symbols(main_func, indent_size)
+        if replace_entry_point_with_this_name.strip() != '':
+            main_func = main_func.replace(entry_point + '(', replace_entry_point_with_this_name.strip() + '(')
+        res: dict[str, Any] = {
+            'imports': actual_imports,
+            'sup_funcs': distinct_funcs,
+            'main_func': main_func,
+            'entry_point': entry_point,
+            'new_entry_point': replace_entry_point_with_this_name.strip() if replace_entry_point_with_this_name.strip() != '' else entry_point,
+            'indent_size': indent_size
+        }
+        if replace_vars:
+            modified_code, possible_vars = replace_variables_with_names(res['main_func'], res['imports'])
+            res['renamed_main_func'] = tabs_as_symbols(modified_code, indent_size)
+            res['possible_vars'] = sorted(possible_vars)
+        res['full_code'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
+        res['full_code_but_no_imports'] = '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
+        res['imports_and_supports'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n'
+        if include_free_code:
+            c: str = tabs_as_symbols('\n'.join(remove_imports_and_functions(l)), indent_size)
+            res['free_code'] = c
+    except Exception as e:
+        res: dict[str, Any] = {
+            'imports': [],
+            'sup_funcs': [],
+            'main_func': '\n'.join([f'def {replace_entry_point_with_this_name.strip()}({", ".join(f"v{i}" for i in range(n_inputs))}):', '\tpass']),
+            'entry_point': replace_entry_point_with_this_name.strip(),
+            'new_entry_point': replace_entry_point_with_this_name.strip(),
+            'indent_size': 4
+        }
+        res['renamed_main_func'] = res['main_func']
+        res['possible_vars'] = [f"v{i}" for i in range(n_inputs)]
+        res['full_code'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
+        res['full_code_but_no_imports'] = '\n\n'.join(res['sup_funcs']) + '\n\n' + res['main_func'] + '\n'
+        res['imports_and_supports'] = '\n'.join(res['imports']) + '\n\n' + '\n\n'.join(res['sup_funcs']) + '\n'
+
+        res['exception'] = str(traceback.format_exc())
+
     return res
 
 
@@ -397,12 +416,15 @@ def try_main():
     print('='*100)
     # with open('file1.txt', 'w') as f:
     #     f.write(s)
-    # with open('files/Gemma2B_problem120.json', 'r') as f:
+    # with open('files/Mistral7B_problem102.json', 'r') as f:
     #     ccc = json.load(f)
-    #     example_code = ccc['data'][0]['model_response']
-    #     print(ccc['data'][0]['model_response'])
+    #     idx = 0
+    #     example_code = ccc['data'][idx]['model_response']
+    #     print(ccc['data'][idx]['model_response'])
     #     print('='*100)
-    #     ccc_res = properly_arrange_code_with_imports_functions(example_code, False, 'evolve', True, False, 2, True)
+    #     ccc_res = properly_arrange_code_with_imports_functions(example_code, False, 'evolve', True, False, 2, False)
+    #     print(ccc_res['full_code'])
+    #     print('='*100)
     #     print(ccc_res['renamed_main_func'])
     #     print('='*100)
     #     exec(ccc_res['full_code'])

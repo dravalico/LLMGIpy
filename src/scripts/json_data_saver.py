@@ -1,17 +1,26 @@
 import os
-from datetime import datetime
 import json
-from typing import List, Dict
+from typing import Dict
 
 BASE_PATH: str = "../results/"
-FOLDER_NAME: str = str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S"))
 
 
-def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> None:
+def create_and_save_json(filename: str, data: Dict[str, any]) -> str:
     if not os.path.isdir(BASE_PATH):
         os.mkdir(BASE_PATH)
 
-    results_folder_path: str = os.path.join(BASE_PATH, FOLDER_NAME)
+    full_path: str = BASE_PATH
+    if data['reask']:
+        full_path += 'LPLUS' + '/' + 'iter' + str(data['iterations']) + '_rep' + str(data['repeatitions']) + '/'
+    else:
+        full_path += 'L' + '/' + 'iter' + str(data['iterations']) + '_rep0' + '/'
+    if data['remove_non_existing_imports']:
+        full_path += 'removenonexistingimports1' + '/'
+    else:
+        full_path += 'removenonexistingimports0' + '/'
+    full_path += data['problem_benchmark'] + '/' + f'train{data['data_train_size']}_test{data['data_test_size']}' + '/'
+
+    results_folder_path: str = full_path
     if not os.path.isdir(results_folder_path):
         os.mkdir(results_folder_path)
 
@@ -22,6 +31,4 @@ def create_and_save_json(filename: str, data: List[Dict[str, any]]) -> None:
     output_file.write(json_results)
     output_file.close()
 
-
-def get_results_dir_path() -> str:
-    return os.path.abspath(os.path.join(BASE_PATH, FOLDER_NAME))
+    return results_folder_path
