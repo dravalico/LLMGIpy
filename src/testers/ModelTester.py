@@ -130,8 +130,9 @@ class ModelTester():
                     remove_syntax_errors=do_preprocessing
                 )
                 res['preprocess' if do_preprocessing else 'vanilla'] = res_0
-            res['llm_answer'] = llm_answer
-            res['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
+            for kk in ['preprocess', 'vanilla']:
+                res[kk]['llm_answer'] = llm_answer
+                res[kk]['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
             responses.append(res)
         return responses
 
