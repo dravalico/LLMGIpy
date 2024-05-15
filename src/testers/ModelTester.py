@@ -71,8 +71,8 @@ class ModelTester():
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
                 data_not_passed: List[Any] = []
-                for rep in range(self.__repeatitions):
-                    print(f'Repetition {rep + 1}')
+                for rep in range(self.__repeatitions + 1):
+                    print(f'Repetition {rep}')
                     prompt: str = ''
                     if data_not_passed == []:
                         prompt = self.__problems['Description'][n_prob]
@@ -284,8 +284,18 @@ class ModelTester():
     def __create_single_json_element(self, element):
         json_element: Dict[str, any] = {}
 
+        it: int = 0
+        rep: int = 0
+        if '.' in str(element['iteration']):
+            it = int(element['iteration'].split('.')[0]) + 1
+            rep = int(element['iteration'].split('.')[1])
+        else:
+            it = element['iteration'] + 1
+
         if 'exception' in element:
             json_element = {
+                'iteration': it,
+                'repetition': rep,
                 'exception': element['exception'],
                 'tests_results': element['test_results'] if 'test_results' in element else {}
             }
@@ -296,13 +306,6 @@ class ModelTester():
                 imports_pony += i + '#'
             used_names = element['possible_vars']
             ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])  # imports_pony ??
-            it: int = 0
-            rep: int = 0
-            if '.' in str(element['iteration']):
-                it = int(element['iteration'].split('.')[0]) + 1
-                rep = int(element['iteration'].split('.')[1]) + 1
-            else:
-                it = element['iteration'] + 1
             json_element = {
                 'iteration': it,
                 'repetition': rep,
