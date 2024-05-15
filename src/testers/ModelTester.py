@@ -43,8 +43,8 @@ class ModelTester():
             print(f'{prob_name}\n')
             start_time: float = time.time()
             responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None)
-            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=1)
-            _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=1)
+            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
+            _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
             end_time: float = time.time()
             dir_name: str = self.__create_and_save_json(data_vanilla, data_preprocess, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"\nProblem '{prob_name}' completed.")
@@ -249,14 +249,14 @@ class ModelTester():
                 'model_response': element['llm_answer'],
                 'time_minutes_model_response': element['time_minutes_llm_answer']
             }
-            json_data_vanilla.append(self.__create_single_json_element(json_elem | element))
+            json_data_vanilla.append(json_elem | self.__create_single_json_element(element))
 
         for element in data_preprocess:
             json_elem = {
                 'model_response': element['llm_answer'],
                 'time_minutes_model_response': element['time_minutes_llm_answer']
             }
-            json_data_preprocess.append(self.__create_single_json_element(json_elem | element))
+            json_data_preprocess.append(json_elem | self.__create_single_json_element(element))
         
         return create_and_save_json(
             f"{'problem'}{n_prob}",
@@ -272,7 +272,7 @@ class ModelTester():
                 'timestamp': str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")),
                 'reask': self.__reask,
                 'iterations': self.__iterations,
-                'repeatitions': self.__repeatitions,
+                'repeatitions': self.__repeatitions if self.__reask else 0,
                 'time_minutes_total': total_time_minutes,
                 'data_vanilla': json_data_vanilla,
                 'data_preprocess': json_data_preprocess
