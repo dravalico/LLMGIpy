@@ -12,6 +12,8 @@ from scripts.ponyge.individual_formatter import substitute_tabs_and_newlines_wit
 
 
 class ModelTester():
+    NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK: int = 20
+
     def __init__(
             self,
             model: AbstractLanguageModel,
@@ -77,7 +79,7 @@ class ModelTester():
                     else:
                         if data_not_passed != []:
                             temp_prompt: List[str] = ['Make sure that\n']
-                            for i in range(len(data_not_passed[:20])):
+                            for i in range(len(data_not_passed[:ModelTester.NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK])):
                                 temp_prompt.append(
                                     str(data_not_passed[i][0])
                                     .replace('[', '')
