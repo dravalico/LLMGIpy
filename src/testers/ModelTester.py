@@ -244,10 +244,18 @@ class ModelTester():
         json_data_preprocess: List[Dict[str, Any]] = []
 
         for element in data_vanilla:
-            json_data_vanilla.append(self.__create_single_json_element(element))
+            json_elem = {
+                'model_response': element['llm_answer'],
+                'time_minutes_model_response': element['time_minutes_llm_answer']
+            }
+            json_data_vanilla.append(self.__create_single_json_element(json_elem | element))
 
         for element in data_preprocess:
-            json_data_preprocess.append(self.__create_single_json_element(element))
+            json_elem = {
+                'model_response': element['llm_answer'],
+                'time_minutes_model_response': element['time_minutes_llm_answer']
+            }
+            json_data_preprocess.append(self.__create_single_json_element(json_elem | element))
         
         return create_and_save_json(
             f"{'problem'}{n_prob}",
@@ -275,8 +283,6 @@ class ModelTester():
 
         if 'exception' in element:
             json_element = {
-                'model_response': element['llm_answer'],
-                'time_minutes_model_response': element['time_minutes_llm_answer'],
                 'exception': element['exception'],
                 'tests_results': element['test_results'] if 'test_results' in element else {}
             }
@@ -298,8 +304,6 @@ class ModelTester():
             json_element = {
                 'iteration': it,
                 'repetition': rep,
-                'model_response': element['llm_answer'],
-                'time_minutes_model_response': element['time_minutes_llm_answer'],
                 'function_name': element['entry_point'],
                 'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
                 'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
