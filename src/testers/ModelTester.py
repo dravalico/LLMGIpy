@@ -44,9 +44,13 @@ class ModelTester():
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             print(f'{prob_name}\n')
             start_time: float = time.time()
-            responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None)
+            responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None, rep_idx=None)
             _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
-            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
+            process_timed_out_data = []
+            for ddd in data_vanilla:
+                if 'error' in ddd['test_results'] and ddd['test_results']['error'].strip() == 'Process timed out':
+                    process_timed_out_data.append(ddd)
+            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0, eventual_responses_vanilla=process_timed_out_data)
             end_time: float = time.time()
             dir_name: str = self.__create_and_save_json(data_vanilla, data_preprocess, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"\nProblem '{prob_name}' completed.")
@@ -92,9 +96,13 @@ class ModelTester():
                                 )
                             prompt = ''.join(temp_prompt)
                     isFirst: bool = True if rep == 0 else False
-                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst)
+                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst, rep_idx=f'{iteration}.{rep}')
                     exc, worker_res, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
-                    _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
+                    process_timed_out_data = []
+                    for ddd in data_vanilla:
+                        if 'error' in ddd['test_results'] and ddd['test_results']['error'].strip() == 'Process timed out':
+                            process_timed_out_data.append(ddd)        
+                    _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep, eventual_responses_vanilla=process_timed_out_data)
                     to_save_preprocess.extend(data_preprocess)
                     to_save_vanilla.extend(data_vanilla)
                     if worker_res is not None and worker_res[1] == [] and not exc:
@@ -108,7 +116,7 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, prompt: str, n_inputs: int, isFirst: Optional[bool] = None) -> List[Dict[str, Any]]:
+    def __ask_model_and_process(self, prompt: str, n_inputs: int, isFirst: Optional[bool] = None, rep_idx: Optional[str] = None) -> List[Dict[str, Any]]:
         iterations: int = 1 if self.__reask else self.__iterations
         responses: List[Dict[str, Any]] = []
         reask: bool = self.__reask
@@ -139,6 +147,7 @@ class ModelTester():
             for kk in ['preprocess', 'vanilla']:
                 res[kk]['llm_answer'] = llm_answer
                 res[kk]['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
+                res[kk]['iter_id'] = str(iteration) if rep_idx is None else rep_idx
             responses.append(res)
         return responses
 
@@ -149,10 +158,11 @@ class ModelTester():
         except Exception as e:
             result_queue.put(str(e))
 
-    def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int) -> Tuple[bool, Any, List[Dict[str, Any]]]:
+    def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int, eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None) -> Tuple[bool, Any, List[Dict[str, Any]]]:
         responses_copy = [res for res in responses if 'exception' not in res]
         f_bodies: List[str] = [res['full_code'] for res in responses_copy]
         f_names: List[str] = [res['new_entry_point'] for res in responses_copy]
+        iter_indices: List[str] = [res['iter_id'] for res in responses_copy]
         args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
         data: List[Dict[str, Any]] = []
         for i, _ in enumerate(args):
@@ -173,10 +183,23 @@ class ModelTester():
         exc: bool = False
         worker_res: Any = None
         for i in range(len(args)):
+            go_to_the_next = False
+            curr_iter_id = iter_indices[i]
+            if eventual_responses_vanilla is not None:
+                for ddd in eventual_responses_vanilla:
+                    if curr_iter_id == ddd['iter_id']:
+                        data[i]['test_results'] = ddd['test_results']
+                        go_to_the_next = True
+                        break
+            if go_to_the_next:
+                workers.append(None)
+                continue
             process = Process(target=self.__worker_function, args=args[i])
             process.start()
             workers.append(process)
         for i, worker in enumerate(workers):
+            if worker is None:
+                continue
             try:
                 worker.join(timeout=self.__iteration_timeout)
                 if worker.is_alive():
@@ -257,18 +280,10 @@ class ModelTester():
         json_data_preprocess: List[Dict[str, Any]] = []
 
         for element in data_vanilla:
-            json_elem = {
-                'model_response': element['llm_answer'],
-                'time_minutes_model_response': element['time_minutes_llm_answer']
-            }
-            json_data_vanilla.append(json_elem | self.__create_single_json_element(element))
+            json_data_vanilla.append(self.__create_single_json_element(element))
 
         for element in data_preprocess:
-            json_elem = {
-                'model_response': element['llm_answer'],
-                'time_minutes_model_response': element['time_minutes_llm_answer']
-            }
-            json_data_preprocess.append(json_elem | self.__create_single_json_element(element))
+            json_data_preprocess.append(self.__create_single_json_element(element))
         
         return create_and_save_json(
             f"{'problem'}{n_prob}",
@@ -306,6 +321,8 @@ class ModelTester():
             json_element = {
                 'iteration': it,
                 'repetition': rep,
+                'model_response': element['llm_answer'],
+                'time_minutes_model_response': element['time_minutes_llm_answer'],
                 'exception': element['exception'],
                 'tests_results': element['test_results'] if 'test_results' in element else {}
             }
@@ -319,6 +336,8 @@ class ModelTester():
             json_element = {
                 'iteration': it,
                 'repetition': rep,
+                'model_response': element['llm_answer'],
+                'time_minutes_model_response': element['time_minutes_llm_answer'],
                 'function_name': element['entry_point'],
                 'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
                 'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
