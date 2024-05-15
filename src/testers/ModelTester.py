@@ -161,6 +161,13 @@ class ModelTester():
             di['problem_index'] = n_prob
             di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
             data.append(di)
+        responses_exception = [res for res in responses if 'exception' in res]
+        for i, _ in enumerate(responses_exception):
+            di = {key: responses_exception[i][key] for key in responses_exception[i]}
+            di['problem_name'] = prob_name
+            di['problem_index'] = n_prob
+            di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
+            data.append(di)
         workers = []
         print('Testing...')
         exc: bool = False
@@ -189,7 +196,6 @@ class ModelTester():
                 else:
                     print(f'Exception for iteration {i + 1}')
                     data[i]['test_results'] = {'passed': 0, 'error': str(e)}
-        data.extend([res for res in responses if 'exception' in res])
         return exc, worker_res, data
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
