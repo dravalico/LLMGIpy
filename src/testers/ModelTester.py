@@ -45,8 +45,8 @@ class ModelTester():
             print(f'{prob_name}\n')
             start_time: float = time.time()
             responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None)
-            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
             _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
+            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
             end_time: float = time.time()
             dir_name: str = self.__create_and_save_json(data_vanilla, data_preprocess, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"\nProblem '{prob_name}' completed.")
@@ -121,7 +121,7 @@ class ModelTester():
             llm_answer: str = self.__model.ask(prompt, reask)
             end_time_llm_answer: float = time.time()
             res: Dict[str, Any] = {}
-            for do_preprocessing in [True, False]:
+            for do_preprocessing in [False, True]:
                 res_0: Dict[str, Any] = properly_arrange_code_with_imports_functions(
                     s=llm_answer,
                     include_free_code=False,
@@ -131,6 +131,10 @@ class ModelTester():
                     n_inputs=n_inputs,
                     remove_syntax_errors=do_preprocessing
                 )
+                if not do_preprocessing and 'exception' not in res_0:
+                    res['preprocess'] = res_0
+                    res['vanilla'] = res_0
+                    break
                 res['preprocess' if do_preprocessing else 'vanilla'] = res_0
             for kk in ['preprocess', 'vanilla']:
                 res[kk]['llm_answer'] = llm_answer
@@ -171,7 +175,7 @@ class ModelTester():
                 if worker.is_alive():
                     worker.terminate()
                     raise Exception('Process timed out')
-                print(f'Result obtained for repetition {rep + 1}')
+                print(f'Result obtained for repetition {rep}')
                 worker_res = args[i][-1].get()
                 if isinstance(worker_res, str):
                     data[i]['test_results'] = {'passed': 0, 'error': worker_res}
@@ -179,7 +183,7 @@ class ModelTester():
                     data[i]['test_results'] = worker_res[0]
             except Exception as e:
                 if self.__reask:
-                    print(f'Exception for repetition {rep + 1}')
+                    print(f'Exception for repetition {rep}')
                     data[i]['test_results'] = {'passed': 0, 'error': str(e)}
                     exc = True
                 else:
