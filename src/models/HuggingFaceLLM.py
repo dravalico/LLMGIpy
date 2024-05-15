@@ -29,7 +29,7 @@ class HuggingFaceLLM(AbstractLanguageModel):
 
         outputs = self.__model.generate(
             input_ids,
-            max_new_tokens=1000,
+            max_new_tokens=2000,
             eos_token_id=terminators
         )
 

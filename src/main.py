@@ -28,9 +28,6 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--jsons_dir",
                            type=str,
                            help="Generate only improvement files; needs the path of jsons directory.")
-    argparser.add_argument("--remove_non_existing_imports",
-                           action=BooleanOptionalAction,
-                           help="Boolean flag to ask the code parsing procedure to get rid of the imports included by the model that raise ImportError.")
     argparser.add_argument("--reask",
                            action=BooleanOptionalAction,
                            help="Boolean flag to ask the model to correct the answer if wrong.")
@@ -73,8 +70,7 @@ def main():
             dataset_loader=loader,
             iterations=cmd_args.iterations if cmd_args.iterations is not None else 5,
             reask=cmd_args.reask if cmd_args.reask else False,
-            repeatitions=cmd_args.repeatitions if cmd_args.reask else 10,
-            remove_non_existing_imports=cmd_args.remove_non_existing_imports if cmd_args.remove_non_existing_imports else False
+            repeatitions=cmd_args.repeatitions if cmd_args.reask else 10
         )
         problems_indexes: Optional[List[int]] = [int(i) for i in cmd_args.problems_indexes.strip().split(
             ',')] if cmd_args.problems_indexes.strip() != '' else None

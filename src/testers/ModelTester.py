@@ -7,7 +7,7 @@ from datetime import datetime
 from scripts.python_code_arranger import properly_arrange_code_with_imports_functions
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
-from scripts.json_data_saver import create_and_save_json
+from scripts.json_data_io import create_and_save_json
 from scripts.ponyge.individual_formatter import substitute_tabs_and_newlines_with_pony_encode
 
 
@@ -18,8 +18,7 @@ class ModelTester():
             dataset_loader: DatasetLoader,
             iterations: int = 5,
             reask: bool = False,
-            repeatitions: int = 10,
-            remove_non_existing_imports: bool = False
+            repeatitions: int = 10
     ) -> None:
         if (not isinstance(model, AbstractLanguageModel)) or (model == None):
             e: str = 'You must provide an AbstractLanguageModel instance.'
@@ -29,9 +28,8 @@ class ModelTester():
         self.__problems: DataFrame = self.__dataset_loader.problems
         self.__iterations: int = iterations
         self.__reask: bool = reask
-        self.__iteration_timeout: int = 60
+        self.__iteration_timeout: int = 120
         self.__repeatitions: int = repeatitions
-        self.__remove_non_existing_imports: bool = remove_non_existing_imports
 
     def run(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
@@ -45,9 +43,10 @@ class ModelTester():
             print(f'{prob_name}\n')
             start_time: float = time.time()
             responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None)
-            _, _, data = self.__run_all_workers_and_collect_results(responses=responses, prob_name=prob_name, n_prob=n_prob, iteration=1, rep=1)
+            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=1)
+            _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=1)
             end_time: float = time.time()
-            dir_name: str = self.__create_and_save_json(data, n_prob, prob_name, (end_time - start_time) * (1 / 60))
+            dir_name: str = self.__create_and_save_json(data_vanilla, data_preprocess, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"\nProblem '{prob_name}' completed.")
             print(f"{'=' * 80}")
         print(f'Results saved in {dir_name}')
@@ -64,7 +63,8 @@ class ModelTester():
             n_inputs: int = self.__dataset_loader.get_n_inputs(prob_name)
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             print(f'{prob_name}\n')
-            to_save: List[List[Any]] = []
+            to_save_preprocess: List[List[Any]] = []
+            to_save_vanilla: List[List[Any]] = []
             start_time: float = time.time()
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
@@ -91,13 +91,15 @@ class ModelTester():
                             prompt = ''.join(temp_prompt)
                     isFirst: bool = True if rep == 0 else False
                     responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst)
-                    exc, worker_res, data = self.__run_all_workers_and_collect_results(responses=responses, prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
-                    to_save.extend(data)
+                    exc, worker_res, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
+                    _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
+                    to_save_preprocess.extend(data_preprocess)
+                    to_save_vanilla.extend(data_vanilla)
                     if worker_res is not None and worker_res[1] == [] and not exc:
                         break
                 print('\n')
             end_time: float = time.time()
-            dir_name: str = self.__create_and_save_json(to_save, n_prob, prob_name, (end_time - start_time) * (1 / 60))
+            dir_name: str = self.__create_and_save_json(to_save_vanilla, to_save_preprocess, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"Problem '{prob_name}' completed.")
             print(f"{'=' * 80}")
         print(f'Results saved in {dir_name}')
@@ -116,15 +118,18 @@ class ModelTester():
             start_time_llm_answer: float = time.time()
             llm_answer: str = self.__model.ask(prompt, reask)
             end_time_llm_answer: float = time.time()
-            res: Dict[str, Any] = properly_arrange_code_with_imports_functions(
-                s=llm_answer,
-                include_free_code=False,
-                replace_entry_point_with_this_name='evolve',
-                replace_vars=True,
-                remove_non_existing_import=self.__remove_non_existing_imports,
-                n_inputs=n_inputs,
-                remove_syntax_errors=False
-            )
+            res: Dict[str, Any] = {}
+            for do_preprocessing in [True, False]:
+                res_0: Dict[str, Any] = properly_arrange_code_with_imports_functions(
+                    s=llm_answer,
+                    include_free_code=False,
+                    replace_entry_point_with_this_name='evolve',
+                    replace_vars=True,
+                    remove_non_existing_import=do_preprocessing,
+                    n_inputs=n_inputs,
+                    remove_syntax_errors=do_preprocessing
+                )
+                res['preprocess' if do_preprocessing else 'vanilla'] = res_0
             res['llm_answer'] = llm_answer
             res['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
             responses.append(res)
@@ -234,54 +239,18 @@ class ModelTester():
         
         return {'passed': passed, 'not_passed': not_passed, 'with_exception(s)': with_exception, 'passed_test': passed_test, 'not_passed_test': not_passed_test, 'with_exception(s)_test': with_exception_test, 'time_minutes_fun_exec': (end_time_fun_exec - start_time_fun_exec) * (1 / 60), 'time_minutes_train_eval': (end_time_train_eval - start_time_train_eval) * (1 / 60), 'time_minutes_test_eval': (end_time_test_eval - start_time_test_eval) * (1 / 60)}, data_not_passed
 
-    def __create_and_save_json(self, data: List[Dict[str, Any]], n_prob: int, prob_name: str, total_time_minutes: float) -> str:
-        json_data: List[Dict[str, Any]] = []
-        json_element: Dict[str, any] = {}
+    def __create_and_save_json(self, data_vanilla: List[Dict[str, Any]], data_preprocess: List[Dict[str, Any]], n_prob: int, prob_name: str, total_time_minutes: float) -> str:
+        json_data_vanilla: List[Dict[str, Any]] = []
+        json_data_preprocess: List[Dict[str, Any]] = []
 
-        for element in data:
-            if 'exception' in element:
-                json_element = {
-                    'model_response': element['llm_answer'],
-                    'time_minutes_model_response': element['time_minutes_llm_answer'],
-                    'exception': element['exception'],
-                    'time_minutes_total': total_time_minutes,
-                    'tests_results': element['test_results'] if 'test_results' in element else {}
-                }
-            else:
-                imports: List[str] = element['imports']
-                imports_pony: str = ''
-                for i in imports:
-                    imports_pony += i + '#'
-                used_names = element['possible_vars']
-                ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])  # imports_pony ??
-                it: int = 0
-                rep: int = 0
-                if '.' in str(element['iteration']):
-                    it = int(element['iteration'].split('.')[0]) + 1
-                    rep = int(element['iteration'].split('.')[1]) + 1
-                else:
-                    it = element['iteration'] + 1
-                    rep = 1
-                json_element = {
-                    'iteration': it,
-                    'repetition': rep,
-                    'model_response': element['llm_answer'],
-                    'time_minutes_model_response': element['time_minutes_llm_answer'],
-                    'function_name': element['entry_point'],
-                    'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
-                    'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
-                    'imports': imports,
-                    'supports': element['sup_funcs'],
-                    'imports_and_supports': element['imports_and_supports'],
-                    'variables_names': used_names,
-                    'final_individual': ind,
-                    'time_minutes_total': total_time_minutes,
-                    'tests_results': element['test_results']
-                }
-            json_data.append(json_element)
+        for element in data_vanilla:
+            json_data_vanilla.append(self.__create_single_json_element(element))
+
+        for element in data_preprocess:
+            json_data_preprocess.append(self.__create_single_json_element(element))
         
         return create_and_save_json(
-            f"{self.__model.name}{'_problem'}{n_prob}",
+            f"{'problem'}{n_prob}",
             {
                 'model_name': self.__model.name,
                 'problem_benchmark': self.__dataset_loader.dataset,
@@ -293,9 +262,54 @@ class ModelTester():
                 'data_test_size': self.__dataset_loader.test_size,
                 'timestamp': str(datetime.now().strftime("%Y-%m-%d_%H:%M:%S")),
                 'reask': self.__reask,
-                'remove_non_existing_imports': self.__remove_non_existing_imports,
                 'iterations': self.__iterations,
                 'repeatitions': self.__repeatitions,
-                'data': json_data
+                'time_minutes_total': total_time_minutes,
+                'data_vanilla': json_data_vanilla,
+                'data_preprocess': json_data_preprocess
             }
         )
+
+    def __create_single_json_element(element):
+        json_element: Dict[str, any] = {}
+
+        if 'exception' in element:
+            json_element = {
+                'model_response': element['llm_answer'],
+                'time_minutes_model_response': element['time_minutes_llm_answer'],
+                'exception': element['exception'],
+                'tests_results': element['test_results'] if 'test_results' in element else {}
+            }
+        else:
+            imports: List[str] = element['imports']
+            imports_pony: str = ''
+            for i in imports:
+                imports_pony += i + '#'
+            used_names = element['possible_vars']
+            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])  # imports_pony ??
+            it: int = 0
+            rep: int = 0
+            if '.' in str(element['iteration']):
+                it = int(element['iteration'].split('.')[0]) + 1
+                rep = int(element['iteration'].split('.')[1]) + 1
+            else:
+                it = element['iteration'] + 1
+                rep = 1
+            json_element = {
+                'iteration': it,
+                'repetition': rep,
+                'model_response': element['llm_answer'],
+                'time_minutes_model_response': element['time_minutes_llm_answer'],
+                'function_name': element['entry_point'],
+                'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
+                'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),
+                'imports': imports,
+                'supports': element['sup_funcs'],
+                'imports_and_supports': element['imports_and_supports'],
+                'variables_names': used_names,
+                'final_individual': ind,
+                'tests_results': element['test_results']
+            }
+        
+        return json_element
+    

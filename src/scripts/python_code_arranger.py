@@ -3,7 +3,7 @@ from typing import Any, Optional
 import traceback
 import json
 from scripts.ponyge.individual_formatter import replace_variables_with_names 
-from scripts.json_data_saver import read_json
+from scripts.json_data_io import read_json
 
 
 def add_global_declarations_before_function_definitions(s: str) -> str:
@@ -424,10 +424,10 @@ def try_main():
     print('='*100)
     # with open('file1.txt', 'w') as f:
     #     f.write(s)
-    # ccc = read_json(model_name='Mistral7B', problem_benchmark='humaneval', problem_id=102, reask=False, iterations=10, repeatitions=5, remove_non_existing_imports=False, train_size=100, test_size=1000)
-    # with open('files/Mistral7B_problem102.json', 'r') as f:
+    # ccc = read_json(model_name='Mistral7B', problem_benchmark='humaneval', problem_id=102, reask=False, iterations=10, repeatitions=5, train_size=100, test_size=1000)
+    # with open('files/LLaMA213B_problem33.json', 'r') as f:
     #     ccc = json.load(f)
-    #     idx = 0
+    #     idx = 1
     #     example_code = ccc['data'][idx]['model_response']
     #     print(ccc['data'][idx]['model_response'])
     #     print('='*100)
@@ -437,6 +437,8 @@ def try_main():
     #     print(ccc_res['renamed_main_func'])
     #     print('='*100)
     #     exec(ccc_res['full_code'])
+    #     if 'exception' in ccc_res:
+    #         print(ccc_res['exception'])
 
 
 if __name__ == '__main__':
