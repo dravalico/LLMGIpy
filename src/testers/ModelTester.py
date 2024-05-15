@@ -301,7 +301,6 @@ class ModelTester():
                 rep = int(element['iteration'].split('.')[1]) + 1
             else:
                 it = element['iteration'] + 1
-                rep = 1
             json_element = {
                 'iteration': it,
                 'repetition': rep,
