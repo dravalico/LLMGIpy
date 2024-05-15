@@ -270,7 +270,7 @@ class ModelTester():
             }
         )
 
-    def __create_single_json_element(element):
+    def __create_single_json_element(self, element):
         json_element: Dict[str, any] = {}
 
         if 'exception' in element:
