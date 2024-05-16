@@ -144,7 +144,7 @@ class ModelTester():
                     break
                 res['preprocess' if do_preprocessing else 'vanilla'] = res_0
             for kk in ['preprocess', 'vanilla']:
-                res[kk]['prompt'] = prompt
+                res[kk]['prompt'] = self.__model.get_complete_prompt(prompt, reask)
                 res[kk]['llm_answer'] = llm_answer
                 res[kk]['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
                 res[kk]['no_import_syntax_errors_in_vanilla'] = no_import_syntax_errors_in_vanilla

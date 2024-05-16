@@ -28,6 +28,10 @@ class AbstractLanguageModel(ABC):
 
     def llm_id(self) -> str:
         return self.__llm_id
+    
+    @abstractmethod
+    def get_complete_prompt(self, prompt: str, reask: bool) -> str:
+        pass
 
     @abstractmethod
     def ask(self, prompt: str, reask: bool) -> str:
