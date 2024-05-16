@@ -50,7 +50,7 @@ class ModelTester():
             for ddd in data_vanilla:
                 if 'error' in ddd['test_results'] and ddd['test_results']['error'].strip() == 'Process timed out':
                     process_timed_out_data.append(ddd)
-            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0, eventual_responses_vanilla=process_timed_out_data)
+            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0, eventual_responses_vanilla=process_timed_out_data, all_eventual_responses_vanilla=data_vanilla)
             end_time: float = time.time()
             dir_name: str = self.__create_and_save_json(data_vanilla, data_preprocess, n_prob, prob_name, (end_time - start_time) * (1 / 60))
             print(f"\nProblem '{prob_name}' completed.")
@@ -77,32 +77,27 @@ class ModelTester():
                 data_not_passed: List[Any] = []
                 for rep in range(self.__repeatitions + 1):
                     print(f'Repetition {rep}')
-                    prompt: str = ''
+                    isFirst: bool = rep == 0
+                    prompt: str = '' if isFirst else 'Your code is incorrect. Please, rewrite it.\n'
                     if data_not_passed == []:
-                        prompt = self.__problems['Description'][n_prob]
+                        prompt += self.__problems['Description'][n_prob]
                     else:
-                        if data_not_passed != []:
-                            temp_prompt: List[str] = ['Make sure that\n']
-                            for i in range(len(data_not_passed[:ModelTester.NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK])):
-                                temp_prompt.append(
-                                    str(data_not_passed[i][0])
-                                    .replace('[', '')
-                                    .replace(']', '')
-                                    + ' -> '
-                                    + str(data_not_passed[i][1])
-                                    .replace('[', '')
-                                    .replace(']', '')
-                                    + '\n'
-                                )
-                            prompt = ''.join(temp_prompt)
-                    isFirst: bool = True if rep == 0 else False
+                        temp_prompt: List[str] = ['Make sure that\n']
+                        for i in range(len(data_not_passed[:ModelTester.NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK])):
+                            temp_prompt.append(
+                                str(data_not_passed[i][0])[1:-1]
+                                + ' -> '
+                                + str(data_not_passed[i][1])[1:-1]
+                                + '\n'
+                            )
+                        prompt += ''.join(temp_prompt)
                     responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst, rep_idx=f'{iteration}.{rep}')
                     exc, worker_res, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
                     process_timed_out_data = []
                     for ddd in data_vanilla:
                         if 'error' in ddd['test_results'] and ddd['test_results']['error'].strip() == 'Process timed out':
                             process_timed_out_data.append(ddd)        
-                    _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep, eventual_responses_vanilla=process_timed_out_data)
+                    _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep, eventual_responses_vanilla=process_timed_out_data, all_eventual_responses_vanilla=data_vanilla)
                     to_save_preprocess.extend(data_preprocess)
                     to_save_vanilla.extend(data_vanilla)
                     if worker_res is not None and worker_res[1] == [] and not exc:
@@ -129,6 +124,7 @@ class ModelTester():
             llm_answer: str = self.__model.ask(prompt, reask)
             end_time_llm_answer: float = time.time()
             res: Dict[str, Any] = {}
+            no_import_syntax_errors_in_vanilla: bool = False
             for do_preprocessing in [False, True]:
                 res_0: Dict[str, Any] = properly_arrange_code_with_imports_functions(
                     s=llm_answer,
@@ -142,11 +138,14 @@ class ModelTester():
                 if not do_preprocessing and 'exception' not in res_0:
                     res['preprocess'] = res_0
                     res['vanilla'] = res_0
+                    no_import_syntax_errors_in_vanilla = True
                     break
                 res['preprocess' if do_preprocessing else 'vanilla'] = res_0
             for kk in ['preprocess', 'vanilla']:
+                res[kk]['prompt'] = prompt
                 res[kk]['llm_answer'] = llm_answer
                 res[kk]['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
+                res[kk]['no_import_syntax_errors_in_vanilla'] = no_import_syntax_errors_in_vanilla
                 res[kk]['iter_id'] = str(iteration) if rep_idx is None else rep_idx
             responses.append(res)
         return responses
@@ -158,11 +157,12 @@ class ModelTester():
         except Exception as e:
             result_queue.put(str(e))
 
-    def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int, eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None) -> Tuple[bool, Any, List[Dict[str, Any]]]:
+    def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int, eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None, all_eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None) -> Tuple[bool, Any, List[Dict[str, Any]]]:
         responses_copy = [res for res in responses if 'exception' not in res]
         f_bodies: List[str] = [res['full_code'] for res in responses_copy]
         f_names: List[str] = [res['new_entry_point'] for res in responses_copy]
         iter_indices: List[str] = [res['iter_id'] for res in responses_copy]
+        no_import_syntax_errors_in_vanillas: List[bool] = [res['no_import_syntax_errors_in_vanilla'] for res in responses_copy]
         args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
         data: List[Dict[str, Any]] = []
         for i, _ in enumerate(args):
@@ -170,6 +170,7 @@ class ModelTester():
             di['problem_name'] = prob_name
             di['problem_index'] = n_prob
             di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
+            di['test_results'] = {}
             data.append(di)
         responses_exception = [res for res in responses if 'exception' in res]
         for i, _ in enumerate(responses_exception):
@@ -177,6 +178,7 @@ class ModelTester():
             di['problem_name'] = prob_name
             di['problem_index'] = n_prob
             di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
+            di['test_results'] = {}
             data.append(di)
         workers = []
         print('Testing...')
@@ -185,12 +187,19 @@ class ModelTester():
         for i in range(len(args)):
             go_to_the_next = False
             curr_iter_id = iter_indices[i]
+            curr_no_import_syntax_errors_in_vanilla = no_import_syntax_errors_in_vanillas[i]
             if eventual_responses_vanilla is not None:
                 for ddd in eventual_responses_vanilla:
                     if curr_iter_id == ddd['iter_id']:
                         data[i]['test_results'] = ddd['test_results']
                         go_to_the_next = True
                         break
+                if curr_no_import_syntax_errors_in_vanilla:
+                    for ddd in all_eventual_responses_vanilla:
+                        if curr_iter_id == ddd['iter_id']:
+                            data[i]['test_results'] = ddd['test_results']
+                            go_to_the_next = True
+                            break
             if go_to_the_next:
                 workers.append(None)
                 continue
@@ -323,6 +332,9 @@ class ModelTester():
                 'repetition': rep,
                 'model_response': element['llm_answer'],
                 'time_minutes_model_response': element['time_minutes_llm_answer'],
+                'iter_id': element['iter_id'],
+                'prompt': element['prompt'],
+                'no_import_syntax_errors_in_vanilla': element['no_import_syntax_errors_in_vanilla'],
                 'exception': element['exception'],
                 'tests_results': element['test_results'] if 'test_results' in element else {}
             }
@@ -338,6 +350,9 @@ class ModelTester():
                 'repetition': rep,
                 'model_response': element['llm_answer'],
                 'time_minutes_model_response': element['time_minutes_llm_answer'],
+                'iter_id': element['iter_id'],
+                'prompt': element['prompt'],
+                'no_import_syntax_errors_in_vanilla': element['no_import_syntax_errors_in_vanilla'],
                 'function_name': element['entry_point'],
                 'main_func': element['main_func'].replace('evolve' + '(', element['entry_point'] + '('),
                 'code': element['full_code'].replace('evolve' + '(', element['entry_point'] + '('),

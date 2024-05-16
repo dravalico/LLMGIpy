@@ -5,8 +5,8 @@ from models import ALL_LLMs
 
 class AbstractLanguageModel(ABC):
     _INTRODUCTION_TO_QUESTION: dict[str, str] = {
-        'psb2': 'Write a single Python function to solve the following problem inserting the necessary modules: ',
-        'humaneval': 'Complete the following Python function based on the provided comment: '
+        'psb2': 'Write a single Python function to solve the following problem and insert the necessary modules:\n',
+        'humaneval': 'Complete the following Python function based on the provided comment and insert the necessary modules:\n'
     }
 
     def __init__(self, model_name: str, problem_bench: str) -> None:
