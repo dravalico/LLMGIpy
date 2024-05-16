@@ -30,7 +30,7 @@ class ModelTester():
         self.__problems: DataFrame = self.__dataset_loader.problems
         self.__iterations: int = iterations
         self.__reask: bool = reask
-        self.__iteration_timeout: int = 120
+        self.__iteration_timeout: int = 80
         self.__repeatitions: int = repeatitions
 
     def run(self, problems_indexes: Optional[List[int]] = None) -> str:
@@ -91,7 +91,7 @@ class ModelTester():
                                 + '\n'
                             )
                         prompt += ''.join(temp_prompt)
-                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst, rep_idx=f'{iteration}.{rep}')
+                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst, rep_idx=f'{iteration + 1}.{rep}')
                     exc, worker_res, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
                     process_timed_out_data = []
                     for ddd in data_vanilla:
@@ -148,7 +148,7 @@ class ModelTester():
                 res[kk]['llm_answer'] = llm_answer
                 res[kk]['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
                 res[kk]['no_import_syntax_errors_in_vanilla'] = no_import_syntax_errors_in_vanilla
-                res[kk]['iter_id'] = str(iteration) if rep_idx is None else rep_idx
+                res[kk]['iter_id'] = str(iteration + 1) if rep_idx is None else rep_idx
             responses.append(res)
         return responses
 
