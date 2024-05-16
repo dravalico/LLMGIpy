@@ -100,6 +100,8 @@ class ModelTester():
                     _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep, eventual_responses_vanilla=process_timed_out_data, all_eventual_responses_vanilla=data_vanilla)
                     to_save_preprocess.extend(data_preprocess)
                     to_save_vanilla.extend(data_vanilla)
+                    if worker_res is not None:
+                        data_not_passed = worker_res[1]
                     if worker_res is not None and worker_res[1] == [] and not exc:
                         break
                 print('\n')
