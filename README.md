@@ -16,10 +16,24 @@ Large Language Model Genetic Improvement Python (LLMGIpy) is a software that all
 
 Note that for Hugging Face models you need a (free) token and for OpenAI models you need to pay.
 
-## Example
+## Usage
 
-Clone this repository and run
+Clone this repository, move to the folder
 
 ```
-python3 main.py --help
+git clone https://github.com/dravalico/LLMGIpy
+cd LLMGIpy
+```
+
+Create a conda environment from `environment.yml`
+
+```
+conda env create -f environment.yml
+conda activate llmgipy
+```
+
+Move to `src` folder and run
+
+```
+python main.py --help
 ```

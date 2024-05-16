@@ -46,10 +46,10 @@ class HuggingFaceLLM(AbstractLanguageModel):
 
         model_id = self.llm_id()
 
-        self.__tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.getenv('HUGGING_TOKEN'))
+        self.__tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.getenv('HF_TOKEN'))
         self.__model = AutoModelForCausalLM.from_pretrained(
             model_id,
             device_map="auto",
-            token=os.getenv('HUGGING_TOKEN'),
+            token=os.getenv('HF_TOKEN'),
             quantization_config=quantization_config
         )
