@@ -13,6 +13,7 @@ PonyGE2/grammars/dynamic/
 PonyGE2/grammars/progsys/
 PonyGE2/parameters/improvements/*/*
 PonyGE2/seeds/*
+/bash_utils/timings.txt
 
 # dummy scripts
 dummyscripts/

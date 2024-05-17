@@ -37,3 +37,6 @@ Move to `src` folder and run
 ```
 python main.py --help
 ```
+
+Make sure that you have an environment variable with your HUGGING FACE TOKEN set so that Hugging Face models can use it to run the models (the environment variable must be called HF_TOKEN).
+

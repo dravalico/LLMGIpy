@@ -1,5 +1,5 @@
-import Levenshtein
+import editdistance
 
 def fitnessTrainingCase(i, o):
-  eval = evolve(*i)
-  return [Levenshtein.distance(str([eval]), str(o))]
+  eval_ = evolve(*i)
+  return [editdistance.eval(str([eval_]), str(o))]
