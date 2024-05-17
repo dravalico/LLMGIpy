@@ -163,9 +163,13 @@ class ModelTester():
         responses_copy = [res for res in responses if 'exception' not in res]
         f_bodies: List[str] = [res['full_code'] for res in responses_copy]
         f_names: List[str] = [res['new_entry_point'] for res in responses_copy]
+        f_ind: List[int] = list(range(len(f_bodies)))
         iter_indices: List[str] = [res['iter_id'] for res in responses_copy]
         no_import_syntax_errors_in_vanillas: List[bool] = [res['no_import_syntax_errors_in_vanilla'] for res in responses_copy]
-        args: List[Tuple] = [(b, n, prob_name, Queue()) for b, n in zip(f_bodies, f_names)]
+        if self.__reask:
+            args: List[Tuple] = [(b, n, prob_name, iteration, Queue()) for b, n in zip(f_bodies, f_names)]
+        else:
+            args: List[Tuple] = [(b, n, prob_name, i, Queue()) for b, n, i in zip(f_bodies, f_names, f_ind)]
         data: List[Dict[str, Any]] = []
         for i, _ in enumerate(args):
             di = {key: responses_copy[i][key] for key in responses_copy[i]}
@@ -232,8 +236,8 @@ class ModelTester():
                     data[i]['test_results'] = {'passed': 0, 'error': str(e)}
         return exc, worker_res, data
 
-    def __test_function(self, f_body: str, f_name: str, prob_name: str) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
-        train_data, test_data = self.__dataset_loader.load(prob_name)
+    def __test_function(self, f_body: str, f_name: str, prob_name: str, n_iter: int) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
+        train_data, test_data = self.__dataset_loader.load(prob_name, n_iter)
         
         start_time_fun_exec: float = time.time()
         
