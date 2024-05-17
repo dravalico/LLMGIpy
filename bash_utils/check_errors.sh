@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ "$#" != "1" ]]; then
-    echo "Usage ./check.sh relative_path"
+    echo "Usage ./check_errors.sh relative_path"
     exit 1
 fi
 

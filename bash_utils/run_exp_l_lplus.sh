@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cd src
-problem_benchmarks=("psb2")
+problem_benchmarks=("psb2" "humaneval")
 models=("Gemma2B" "CodeGemma7B" "LLaMA38B" "CodeLLaMA7B" "Mistral7B")
 train_sizes=(20 40 60)
 
