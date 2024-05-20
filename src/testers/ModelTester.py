@@ -101,7 +101,7 @@ class ModelTester():
                     to_save_preprocess.extend(data_preprocess)
                     to_save_vanilla.extend(data_vanilla)
                     if worker_res is not None:
-                        data_not_passed = worker_res[1] if not isinstance(worker_res, str) and isinstance(worker_res[1], list) else []
+                        data_not_passed = worker_res[1] if not isinstance(worker_res, str) and isinstance(worker_res[1], list) else data_not_passed
                     if worker_res is not None and worker_res[1] == [] and not exc:
                         break
                 print('\n')
