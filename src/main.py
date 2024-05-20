@@ -72,8 +72,19 @@ def main():
             reask=cmd_args.reask if cmd_args.reask else False,
             repeatitions=cmd_args.repeatitions if cmd_args.reask else 10
         )
-        problems_indexes: Optional[List[int]] = [int(i) for i in cmd_args.problems_indexes.strip().split(
-            ',')] if cmd_args.problems_indexes.strip() != '' else None
+
+        problems_indexes: Optional[List[int]] = None
+        if cmd_args.problems_indexes.strip() != '':
+            if cmd_args.problems_indexes.strip().contains('..'):
+                problems_range_to_run = cmd_args.problems_indexes.strip().split('..')
+                if len(problems_range_to_run) != 2:
+                    raise AttributeError(f'If you specify a range of problem indexes, ensure they are just two, found {cmd_args.problems_indexes.strip()}.')
+                if int(problems_range_to_run[0]) > int(problems_range_to_run[1]):
+                    raise AttributeError(f'Invalid problems range, start must be less than or equal than end. Found {int(problems_range_to_run[0])} and {int(problems_range_to_run[1])}.')
+                problems_indexes = [int(i) for i in range(int(problems_range_to_run[0]), int(problems_range_to_run[1]) + 1)]
+            else:
+                problems_indexes = [int(i) for i in cmd_args.problems_indexes.strip().split(',')]
+        
         if cmd_args.reask:
             tester.run_with_reask(problems_indexes=problems_indexes)
             return
