@@ -16,7 +16,7 @@ class AbstractLanguageModel(ABC):
 
         allowed_models: list[str] = [key for key in ALL_LLMs if ALL_LLMs[key][0] == self.__class__.__name__]
 
-        if self.name not in allowed_models:
+        if self.name.lower() not in [n_model.lower() for n_model in allowed_models]:
             raise AttributeError(
                 f'Cannot recognize llm {self.name} for category {self.__class__.__name__}. It is not in the dictionary of known llms, which are: {str(allowed_models)}.')
 
