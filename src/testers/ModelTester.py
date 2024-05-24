@@ -22,7 +22,7 @@ class ModelTester():
             reask: bool = False,
             repeatitions: int = 10
     ) -> None:
-        if (not isinstance(model, AbstractLanguageModel)) or (model == None):
+        if (not isinstance(model, AbstractLanguageModel)) or (model is None):
             e: str = 'You must provide an AbstractLanguageModel instance.'
             raise Exception(e)
         self.__model: AbstractLanguageModel = model
@@ -44,7 +44,7 @@ class ModelTester():
             print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
             print(f'{prob_name}\n')
             start_time: float = time.time()
-            responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=self.__problems['Description'][n_prob], n_inputs=n_inputs, isFirst=None, rep_idx=None)
+            responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=[self.__problems['Description'][n_prob]], n_inputs=n_inputs, rep_idx=None)
             _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
             process_timed_out_data = []
             for ddd in data_vanilla:
@@ -75,23 +75,34 @@ class ModelTester():
             for iteration in range(self.__iterations):
                 print(f'Iteration {iteration + 1}')
                 data_not_passed: List[Any] = []
+                previous_llm_answer: str = ''
+                prompts: List[str] = []
+                is_process_timed_out: bool = False
+                is_syntax_error: bool = False
                 for rep in range(self.__repeatitions + 1):
                     print(f'Repetition {rep}')
                     isFirst: bool = rep == 0
-                    prompt: str = '' if isFirst else 'Your code is incorrect. Please, rewrite it.\n'
-                    if data_not_passed == []:
-                        prompt += self.__problems['Description'][n_prob]
+                    if isFirst:
+                        prompts.append(self.__problems['Description'][n_prob])
                     else:
-                        temp_prompt: List[str] = ['Make sure that\n']
-                        for i in range(len(data_not_passed[:ModelTester.NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK])):
-                            temp_prompt.append(
-                                str(data_not_passed[i][0])[1:-1]
-                                + ' -> '
-                                + str(data_not_passed[i][1])[1:-1]
-                                + '\n'
-                            )
-                        prompt += ''.join(temp_prompt)
-                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompt=prompt, n_inputs=n_inputs, isFirst=isFirst, rep_idx=f'{iteration + 1}.{rep}')
+                        prompts.append(previous_llm_answer)
+                        if is_process_timed_out:
+                            prompts.append('Your code is too slow. Please, rewrite it and make it more efficient.')
+                        elif is_syntax_error:
+                            prompts.append('Your code contains syntax errors. Please, rewrite it and fix all the syntax errors.')
+                        else:
+                            temp_prompt: List[str] = ['Your code is incorrect. Please, rewrite it. Make sure that\n']
+                            num_failed_test_cases_tot: int = len(data_not_passed[:ModelTester.NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK])
+                            for i in range(num_failed_test_cases_tot):
+                                temp_prompt.append(
+                                    str(data_not_passed[i][0])[1:-1]
+                                    + ' -> '
+                                    + str(data_not_passed[i][1])[1:-1]
+                                    + ('\n' if i != num_failed_test_cases_tot - 1 else '')
+                                )
+                            prompts.append(''.join(temp_prompt))
+                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=prompts, n_inputs=n_inputs, rep_idx=f'{iteration + 1}.{rep}')
+                    previous_llm_answer = responses[0]['vanilla']['llm_answer']
                     exc, worker_res, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
                     process_timed_out_data = []
                     for ddd in data_vanilla:
@@ -100,8 +111,10 @@ class ModelTester():
                     _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep, eventual_responses_vanilla=process_timed_out_data, all_eventual_responses_vanilla=data_vanilla)
                     to_save_preprocess.extend(data_preprocess)
                     to_save_vanilla.extend(data_vanilla)
+                    is_process_timed_out = exc
+                    is_syntax_error = isinstance(worker_res, str)
                     if worker_res is not None:
-                        data_not_passed = worker_res[1] if not isinstance(worker_res, str) and isinstance(worker_res[1], list) else data_not_passed
+                        data_not_passed = worker_res[1] if (not isinstance(worker_res, str)) and isinstance(worker_res[1], list) else data_not_passed
                     if worker_res is not None and worker_res[1] == [] and not exc:
                         break
                 print('\n')
@@ -113,17 +126,14 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, prompt: str, n_inputs: int, isFirst: Optional[bool] = None, rep_idx: Optional[str] = None) -> List[Dict[str, Any]]:
+    def __ask_model_and_process(self, prompts: List[str], n_inputs: int, rep_idx: Optional[str] = None) -> List[Dict[str, Any]]:
         iterations: int = 1 if self.__reask else self.__iterations
         responses: List[Dict[str, Any]] = []
-        reask: bool = self.__reask
-        if isFirst:
-            reask = False
         for iteration in range(iterations):
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
             start_time_llm_answer: float = time.time()
-            llm_answer: str = self.__model.ask(prompt, reask)
+            llm_answer: str = self.__model.ask(prompts)
             end_time_llm_answer: float = time.time()
             res: Dict[str, Any] = {}
             no_import_syntax_errors_in_vanilla: bool = False
@@ -144,7 +154,7 @@ class ModelTester():
                     break
                 res['preprocess' if do_preprocessing else 'vanilla'] = res_0
             for kk in ['preprocess', 'vanilla']:
-                res[kk]['prompt'] = self.__model.get_complete_prompt(prompt, reask)
+                res[kk]['prompt'] = self.__model.get_complete_prompt(prompts[-1], len(prompts) != 1)
                 res[kk]['llm_answer'] = llm_answer
                 res[kk]['time_minutes_llm_answer'] = (end_time_llm_answer - start_time_llm_answer) * (1 / 60)
                 res[kk]['no_import_syntax_errors_in_vanilla'] = no_import_syntax_errors_in_vanilla

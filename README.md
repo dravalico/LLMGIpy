@@ -32,6 +32,12 @@ conda env create -f environment.yml
 conda activate llmgipy
 ```
 
+If you prefer, you could also install the required modules from the requirements.txt file (ensure you have an environment with at least Python 3.9.16):
+
+```
+pip install -r requirements.txt
+```
+
 Move to `src` folder and run
 
 ```
