@@ -10,7 +10,7 @@ ALL_LLMs: dict[str, tuple[str, str]] = {
     'Mistral7B': ('HuggingFaceLLM', 'mistralai/Mistral-7B-Instruct-v0.2'),
     'ChatGPT': ('OpenAILLM', 'gpt-3.5-turbo'),
     'GPT4': ('OpenAILLM', 'gpt-4'),
-    'LLaMA38B': ('GrammarGeneratorLLM', 'meta-llama/Meta-Llama-3-8B-Instruct'),
+    'LLaMA38B_G': ('GrammarGeneratorLLM', 'meta-llama/Meta-Llama-3-8B-Instruct'),
 }
 
 models_list = sorted([key for key in ALL_LLMs])
