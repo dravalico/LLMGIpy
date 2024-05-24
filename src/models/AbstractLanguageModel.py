@@ -20,45 +20,21 @@ class AbstractLanguageModel(ABC):
             raise AttributeError(
                 f'Cannot recognize llm {self.name} for category {self.__class__.__name__}. It is not in the dictionary of known llms, which are: {str(allowed_models)}.')
 
-        self.__llm_class: str = ALL_LLMs[self.name][0]
         self.__llm_id: str = ALL_LLMs[self.name][1]
-        self.__llm_chat_role: str = ALL_LLMs[self.name][2]
         self._load_model()
-
-    def get_complete_prompt(self, prompt: str, original: bool) -> str:
-        if not original:
-            return self._INTRODUCTION_TO_QUESTION[self.problem_bench()] + prompt
-        return prompt
-
-    def build_chat_from_prompts(self, prompts: list[str]) -> list[dict[str, str]]:
-        if len(prompts) == 0:
-            return [{"role": "user", "content": ""}]
-        if len(prompts) == 1:
-            return [{"role": "user", "content": self.get_complete_prompt(prompts[0], False)}]
-        chat: list[dict[str, str]] = []
-        roles: tuple[str, str] = ("user", self.llm_chat_role())
-        current_role_idx: int = 0
-        isFirst: bool = True
-        for prompt in prompts:
-            chat.append({"role": roles[current_role_idx], "content": self.get_complete_prompt(prompt, not isFirst)})
-            current_role_idx = 1 - current_role_idx
-            isFirst = False
-        return chat
 
     def problem_bench(self) -> str:
         return self._problem_bench
 
-    def llm_class(self) -> str:
-        return self.__llm_class
-
     def llm_id(self) -> str:
         return self.__llm_id
     
-    def llm_chat_role(self) -> str:
-        return self.__llm_chat_role
+    @abstractmethod
+    def get_complete_prompt(self, prompt: str, reask: bool) -> str:
+        pass
 
     @abstractmethod
-    def ask(self, prompts: list[str]) -> str:
+    def ask(self, prompt: str, reask: bool) -> str:
         pass
 
     @property
