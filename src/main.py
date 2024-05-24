@@ -39,7 +39,7 @@ def set_parser() -> ArgumentParser:
 
 
 def create_instance_of_class(model_name: str, problem_bench: str, **kwargs) -> Any:
-    category_llm, _ = models.ALL_LLMs[model_name]
+    category_llm = models.ALL_LLMs[model_name][0]
     return eval(category_llm)(model_name=model_name, problem_bench=problem_bench, **kwargs)
 
 
