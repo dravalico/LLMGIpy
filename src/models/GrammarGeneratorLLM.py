@@ -5,7 +5,7 @@ from models import ALL_LLMs
 
 
 class GrammarGeneratorLLM:
-    def __init__(self, model_name: str = "LLaMA38B_G", grammar_task: str = "generate_grammar") -> None:
+    def __init__(self, model_name: str = "LLaMA38B", grammar_task: str = "generate_grammar") -> None:
         __PROMPT_GRAMMAR_TEMPLATE: dict[str, str] = {
         'generate_grammar': 'Given this bnf grammar: {bnf}\n i want that you write a smaller grammar for encode this code:\n{code}\n\n',
         'generate_grammar_from_zero': 'I have this problem:\n{prompt}\nAnd this code is the solution for the problem:\n{code}\n\nI want you to write the bnf grammar for the problem:\n',
