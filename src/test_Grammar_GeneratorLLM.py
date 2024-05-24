@@ -6,7 +6,7 @@ load_dotenv()
 
 
 print("Start test GrammarGeneratorLLM")
-GrammarGLM = GrammarGeneratorLLM(model_name="LLaMA38B", grammar_task="generate_grammar_from_zero")
+GrammarGLM = GrammarGeneratorLLM(model_name="LLaMA38B_G", grammar_task="generate_grammar_from_zero")
 
 print("Grammar template")
 print(GrammarGLM.print_prompt_grammar_template(['generate_grammar_from_zero']))
