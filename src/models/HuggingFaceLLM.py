@@ -1,7 +1,9 @@
 from typing import Any
 from models.AbstractLanguageModel import AbstractLanguageModel
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import os
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+
 
 
 class HuggingFaceLLM(AbstractLanguageModel):
@@ -9,6 +11,7 @@ class HuggingFaceLLM(AbstractLanguageModel):
         super().__init__(model_name, problem_bench)
 
     def ask(self, prompts: list[str]) -> str:
+        torch.cuda.empty_cache()
         messages = self.build_chat_from_prompts(prompts)
 
         input_ids = self.__tokenizer.apply_chat_template(
@@ -24,7 +27,7 @@ class HuggingFaceLLM(AbstractLanguageModel):
 
         outputs = self.__model.generate(
             input_ids,
-            max_new_tokens=1024,
+            max_new_tokens=700,
             eos_token_id=terminators
         )
 

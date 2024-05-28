@@ -12,7 +12,7 @@ from scripts.ponyge.individual_formatter import substitute_tabs_and_newlines_wit
 
 
 class ModelTester():
-    NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK: int = 20
+    NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK: int = 10
 
     def __init__(
             self,
