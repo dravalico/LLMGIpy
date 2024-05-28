@@ -6,7 +6,7 @@ if [ -z ${4} ]
 then
       problem_indexes_param=""
 else
-      problem_indexes_param="--problem_indexes ${4}"
+      problem_indexes_param="--problems_indexes ${4}"
 fi
 
 start=$(date +%s)
