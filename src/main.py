@@ -75,7 +75,7 @@ def main():
 
         problems_indexes: Optional[List[int]] = None
         if cmd_args.problems_indexes.strip() != '':
-            if cmd_args.problems_indexes.strip().contains('..'):
+            if '..' in cmd_args.problems_indexes.strip():
                 problems_range_to_run = cmd_args.problems_indexes.strip().split('..')
                 if len(problems_range_to_run) != 2:
                     raise AttributeError(f'If you specify a range of problem indexes, ensure they are just two, found {cmd_args.problems_indexes.strip()}.')
