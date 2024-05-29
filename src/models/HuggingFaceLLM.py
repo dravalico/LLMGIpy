@@ -27,7 +27,7 @@ class HuggingFaceLLM(AbstractLanguageModel):
 
         outputs = self.__model.generate(
             input_ids,
-            max_new_tokens=700,
+            max_new_tokens=512,
             eos_token_id=terminators
         )
 
@@ -43,6 +43,7 @@ class HuggingFaceLLM(AbstractLanguageModel):
         self.__tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.getenv('HF_TOKEN'))
         self.__model = AutoModelForCausalLM.from_pretrained(
             model_id,
+            torch_dtype=torch.float16,
             device_map="auto",
             token=os.getenv('HF_TOKEN'),
             quantization_config=quantization_config
