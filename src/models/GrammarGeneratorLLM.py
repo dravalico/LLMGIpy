@@ -6,8 +6,21 @@ from models import ALL_LLMs
 
 class GrammarGeneratorLLM:
     def __init__(self, model_name: str = "LLaMA38B_G", grammar_task: str = "generate_grammar") -> None:
+        """
+        Initializes a GrammarGeneratorLLM object with the given model name and grammar task.
+        
+        Args:
+            model_name (str, optional): The name of the model to use. Defaults to "LLaMA38B_G".
+            grammar_task (str, optional): The task to perform with the grammar. Defaults to "generate_grammar".
+        
+        Returns:
+            None
+        
+        Raises:
+            AttributeError: If the given model name is not recognized.
+        """
         self.__PROMPT_GRAMMAR_TEMPLATE: dict[str, str] = {
-        'generate_grammar': 'Given this bnf grammar: {bnf}\n i want that you write a smaller grammar for encode this code:\n{code}\n\n',
+        'generate_grammar': 'Given this bnf grammar:\n{bnf}\n i want that you write a smaller grammar for encode this code:\n{code}\n\n',
         'generate_grammar_from_zero': 'I have this problem:\n{prompt}\nAnd this code is the solution for the problem:\n{code}\n\nI want you to write the bnf grammar for the problem:\n',
         'find_tags_grammar': 'I have this problem:\n{prompt}\nAnd this code is the "solution" for the problem:\n{code}\n\nI also have this bnf grammar:\n{bnf}\nI want you to find all the tags in the bnf grammar for encode the code:\n',
         }
@@ -49,6 +62,21 @@ class GrammarGeneratorLLM:
                 self._bnf_content = file.read() 
 
     def get_complete_prompt(self, prompt: str, code: str, grammar_str: str = None) -> str:
+        """
+        Generates a complete prompt for the BNF generation task.
+
+        Args:
+            prompt (str): The prompt for the BNF generation task.
+            code (str): The code for the BNF generation task.
+            grammar_str (str, optional): The BNF grammar string. Defaults to None.
+
+        Returns:
+            str: The complete prompt for the BNF generation task.
+
+        This function generates a complete prompt for the BNF generation task based on the provided prompt, code, and grammar string.
+        If the grammar task is set to 'generate_grammar_from_zero', the prompt is formatted with the given prompt and code.
+        Otherwise, the prompt is formatted with the given grammar string, prompt, and code.
+        """
         if self._grammar_task == 'generate_grammar_from_zero':
             bnf_generation_prompt = self._prompt_template.format(prompt = prompt, code = code)
         else:
@@ -56,6 +84,23 @@ class GrammarGeneratorLLM:
         return bnf_generation_prompt
 
     def ask(self, prompt: str, code: str, grammar_path: str = None) -> str:
+        """
+        Generates a response based on the given prompt, code, and grammar path.
+
+        Args:
+            prompt (str): The prompt for the BNF generation task.
+            code (str): The code for the BNF generation task.
+            grammar_path (str, optional): The path to the grammar file. Defaults to None.
+
+        Returns:
+            str: The generated response.
+
+        This function generates a response based on the given prompt, code, and grammar path. It first reads the grammar
+        file if a path is provided, otherwise it uses the pre-loaded BNF content. It then formats the prompt using the
+        grammar string, prompt, and code. It creates a chat template with the formatted prompt and applies it to the
+        tokenizer. It generates the input IDs and sets the terminators. It then generates the response using the model
+        and decodes it using the tokenizer. The function returns the decoded response.
+        """
         grammar_str = self.read_grammar_file(grammar_path) if grammar_path is not None else self._bnf_content
         prompt = self.get_complete_prompt(prompt, code, grammar_str=grammar_str)
 
