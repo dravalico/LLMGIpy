@@ -28,7 +28,7 @@ model_response = GrammarGLM.ask(prompt="Create a fibonacci python function", cod
 print("="*30)
 print("model_response")
 print(model_response)
-print(GrammarGeneratorLLM.get_complete_prompt(prompt="Create a fibonacci python function", code="def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"))
+print(GrammarGLM.get_complete_prompt(prompt="Create a fibonacci python function", code="def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)"))
 print("="*30)
 print("="*30)
 print("Finish")
