@@ -30,7 +30,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str) -> Any:
 
 def create_grammar_from(json_path: str) -> str:
     cwd: str = os.getcwd()
-    chdir("../PonyGE2/grammars")
+    chdir("./PonyGE2/grammars")
     if not os.path.isdir("dynamic"):
         os.mkdir("dynamic")
     chdir("dynamic")
@@ -40,7 +40,7 @@ def create_grammar_from(json_path: str) -> str:
     chdir(dir_name)
     with open(json_path, 'r') as json_file:
         json_file: Any = json.load(json_file)
-    data: List[Dict[str, Any]] = json_file["data"]
+    data: List[Dict[str, Any]] = json_file["data_vanilla"]
     extracted_functions_from_individuals: List[List[str]] = []
     extracted_strings_from_individuals: List[List[str]] = []
     variables: List[List[str]] = []
@@ -48,11 +48,11 @@ def create_grammar_from(json_path: str) -> str:
     nums = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
     for e in data:
         extracted_functions_from_individuals.append(
-            extract_functions_and_methods(e["code_no_imports_and_comments"]))
-        res_strings = extract_strings(e["code_no_imports_and_comments"])
-        prompt_info_strings = extract_prompt_info_with_keybert(json_file["prompt"])
+            extract_functions_and_methods(e["code"]))
+        res_strings = extract_strings(e["code"])
+        prompt_info_strings = extract_prompt_info_with_keybert(json_file["problem_description"])
         extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
-        nums.append(extract_numbers_from_string(json_file["prompt"]))
+        nums.append(extract_numbers_from_string(json_file["problem_description"]))
         variables.append(e["variables_names"])
         imports.append(e["imports"])
     temp0: str = ""
