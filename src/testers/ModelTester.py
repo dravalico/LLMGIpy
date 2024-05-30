@@ -3,12 +3,18 @@ from typing import List, Any, Dict, Callable, Tuple, Optional
 from multiprocessing import Process, Queue
 from pandas import DataFrame
 import time
+import torch
+import warnings
 from datetime import datetime
 from scripts.python_code_arranger import properly_arrange_code_with_imports_functions
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
 from scripts.json_data_io import create_and_save_json
 from scripts.ponyge.individual_formatter import substitute_tabs_and_newlines_with_pony_encode
+
+
+class CudaOutOfMemoryWarning(Warning):
+    pass
 
 
 class ModelTester():
@@ -101,7 +107,24 @@ class ModelTester():
                                     + ('\n' if i != num_failed_test_cases_tot - 1 else '')
                                 )
                             prompts.append(''.join(temp_prompt))
-                    responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=prompts, n_inputs=n_inputs, rep_idx=f'{iteration + 1}.{rep}')
+                    try:
+                        responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=prompts, n_inputs=n_inputs, rep_idx=f'{iteration + 1}.{rep}')
+                    except torch.cuda.OutOfMemoryError:
+                        warnings.warn('Warning ! torch.cuda.OutOfMemoryError encoutered for iteration {iteration} repeatition {rep} problem {n_prob}!', CudaOutOfMemoryWarning)
+                        oom_data: Dict[str, Any] = {}
+                        oom_data['prompt'] = self.__model.get_complete_prompt(prompts[-1], len(prompts) != 1)
+                        oom_data['llm_answer'] = ''
+                        oom_data['time_minutes_llm_answer'] = 0.0
+                        oom_data['no_import_syntax_errors_in_vanilla'] = False
+                        oom_data['iter_id'] = f'{iteration + 1}.{rep}'
+                        oom_data['iteration'] = f'{iteration}.{rep}'
+                        oom_data['test_results'] = {}
+                        oom_data['problem_name'] = prob_name
+                        oom_data['problem_index'] = n_prob
+                        oom_data['exception'] = 'torch.cuda.OutOfMemoryError'
+                        to_save_preprocess.extend([oom_data])
+                        to_save_vanilla.extend([oom_data])
+                        break
                     previous_llm_answer = responses[0]['vanilla']['llm_answer']
                     exc, worker_res, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
                     process_timed_out_data = []
