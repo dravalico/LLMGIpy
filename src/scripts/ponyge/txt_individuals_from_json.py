@@ -61,7 +61,7 @@ def create_txt_foreach_ind(dir_name: str, genotypes: List[List[str]]) -> None:
 
 def txt_population(json_path: str,  grammar_file: str, output_dir_name: str) -> None:
     cwd: str = os.getcwd()
-    os.chdir("../PonyGE2/src")
+    os.chdir("./PonyGE2/src")
     try:
         phenotypes: List[str] = load_phenotypes_from_json(json_path)
         genotypes: List[List[str]] = parse_genotypes(phenotypes, grammar_file)
