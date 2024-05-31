@@ -8,7 +8,7 @@ import multiprocessing
 def load_phenotypes_from_json(json_path: str) -> List[str]:
     with open(json_path, 'r') as json_file:
         json_file: Any = json.load(json_file)
-    data: List[Dict[str, Any]] = json_file["data_vanilla"]
+    data: List[Dict[str, Any]] = json_file["data_preprocess"]
     phenotypes: List[str] = []
     test_cases: str = json_file["data_train_size"]
     for i in range(0, len(data)):
