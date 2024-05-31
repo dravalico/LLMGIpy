@@ -93,11 +93,11 @@ class ModelTester():
                     else:
                         prompts.append(previous_llm_answer)
                         if is_process_timed_out:
-                            prompts.append('Your code is too slow. Please, rewrite it and make it more efficient.')
+                            prompts.append('Your code is too slow. Please, rewrite it and make it correct and more efficient. Remember to insert the necessary modules.')
                         elif is_syntax_error:
-                            prompts.append('Your code contains syntax errors. Please, rewrite it and fix all the syntax errors.')
+                            prompts.append('Your code contains syntax errors. Please, rewrite it and fix all the syntax errors. Remember to insert the necessary modules.')
                         else:
-                            temp_prompt: List[str] = ['Your code is incorrect. Please, rewrite it. Make sure that\n']
+                            temp_prompt: List[str] = ['Your code is incorrect. Please, rewrite it. Remember to insert the necessary modules. Make sure that\n']
                             num_failed_test_cases_tot: int = len(data_not_passed[:ModelTester.NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK])
                             for i in range(num_failed_test_cases_tot):
                                 temp_prompt.append(
@@ -110,7 +110,7 @@ class ModelTester():
                     try:
                         responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=prompts, n_inputs=n_inputs, rep_idx=f'{iteration + 1}.{rep}')
                     except torch.cuda.OutOfMemoryError:
-                        warnings.warn('Warning ! torch.cuda.OutOfMemoryError encoutered for iteration {iteration} repeatition {rep} problem {n_prob}!', CudaOutOfMemoryWarning)
+                        warnings.warn(f'Warning ! torch.cuda.OutOfMemoryError encoutered for iteration {iteration} repeatition {rep} problem {n_prob}!', CudaOutOfMemoryWarning)
                         oom_data: Dict[str, Any] = {}
                         oom_data['prompt'] = self.__model.get_complete_prompt(prompts[-1], len(prompts) != 1)
                         oom_data['llm_answer'] = ''
