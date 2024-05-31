@@ -7,12 +7,16 @@ from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
 
+from models.GrammarGeneratorLLM import GrammarGeneratorLLM
 
-def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator: str | None = None) -> Any:
+# def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator: str | None = None) -> Any:
+def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator = None) -> Any:
     impr_filenames: List[str] = []
     grammars_filenames: List[str] = []
+    if task_llm_grammar_generator is not None:
+        grammarGenerator = GrammarGeneratorLLM(grammar_task = task_llm_grammar_generator)
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
-        bnf_filename: str = create_grammar_from(jsons_dir_path + '/' + filename, task_llm_grammar_generator)
+        bnf_filename: str = create_grammar_from(jsons_dir_path + '/' + filename, grammarGenerator)
         try:
             txt_population(jsons_dir_path + '/' + filename,
                            "dynamic/" + jsons_dir_path.split('/')[-1] + "/" + filename.replace(".json", ".bnf"),
@@ -28,7 +32,8 @@ def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_gen
     return impr_filenames, grammars_filenames
 
 
-def create_grammar_from(json_path: str, task_llm_grammar_generator: str | None) -> str:
+# def create_grammar_from(json_path: str, task_llm_grammar_generator: str | None) -> str:
+def create_grammar_from(json_path: str, grammarGenerator) -> str:
     cwd: str = os.getcwd()
     chdir("./PonyGE2/grammars")
     if not os.path.isdir("dynamic"):
@@ -111,10 +116,13 @@ def create_grammar_from(json_path: str, task_llm_grammar_generator: str | None) 
             bnf.write("<var> ::= " + '""' + '\n')
         bnf.write("<num> ::= " + temp4 + '\n')
         bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
+    if grammarGenerator is not None:
+        for i, e in enumerate(data): # where data = json_file["data_preprocess"]
+           generated_bnfs = grammarGenerator.ask_just_grammar(prompt=json_file["problem_description"], code=e["main_func"], grammar_path=os.path.join(cwd, "PonyGE2/grammars/dynamic", dir_name, json_path.split('/')[-1].replace(".json", ".bnf")))
+           with open(json_path.split('/')[-1].replace(".json", f"_generated_iteration{i}.bnf"), 'w') as bnf_generated: # ! add a folder where put the files
+                bnf_generated.write(generated_bnfs)
+    
     chdir(cwd)
-    #  ! va insertare qui la parte della grammatica dinamica !!
-    if task_llm_grammar_generator is not None:
-        pass
     return json_path.split('/')[-2] + '/' + json_path.split('/')[-1].replace(".json", ".bnf")
 
 
