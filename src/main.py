@@ -35,6 +35,10 @@ def set_parser() -> ArgumentParser:
                            type=str,
                            default='',
                            help="Put the indexes of the problems to execute separated by comma, if it is not provided then all problems are executed.")
+    argparser.add_argument("--llm_grammar_generator",
+                           type=str,
+                           default='',
+                           help="Select the methods on how a LLM have to generate the BNF grammar. It can be 'generate_grammar' or 'generate_grammar_from_zero' or 'find_tags_grammar'. ")
     return argparser
 
 
@@ -98,7 +102,8 @@ def main():
     if cmd_args.impr_files or cmd_args.jsons_dir is not None:
         print("Creation of txt files representing the initial population")
         try:
-            impr_filenames, grammars_filenames = create_txt_population_foreach_json(results_path)
+            task_llm_grammar_generator = cmd_args.llm_grammar_generator if cmd_args.llm_grammar_generator != '' else None
+            impr_filenames, grammars_filenames = create_txt_population_foreach_json(results_path, task_llm_grammar_generator)
             print("Creation of txt files containing the parameters of each problem for genetic improvement")
             params_dir_path: str = create_params_file(results_path, impr_filenames, grammars_filenames)
             print(f"The files have been saved in '{params_dir_path}'")
