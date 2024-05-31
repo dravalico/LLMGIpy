@@ -1,3 +1,4 @@
+import re
 from typing import Any
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import os
@@ -127,6 +128,13 @@ class GrammarGeneratorLLM:
 
         response = outputs[0][input_ids.shape[-1]:]
         return self.__tokenizer.decode(response, skip_special_tokens=True)
+    
+    def ask_just_grammar(self, prompt: str, code: str, grammar_path: str = None) -> str:
+        raw_response = self.ask(prompt, code, grammar_path)
+        pattern = r'```(.*?)```'
+        return re.findall(pattern, raw_response, re.DOTALL)[0]
+        
+        
 
     def _load_model(self) -> Any:
         print("Loading model...")
