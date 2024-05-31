@@ -48,8 +48,8 @@ def create_grammar_from(json_path: str, task_llm_grammar_generator: str | None) 
     nums = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
     for e in data:
         extracted_functions_from_individuals.append(
-            extract_functions_and_methods(e["code"]))
-        res_strings = extract_strings(e["code"])
+            extract_functions_and_methods(e["main_func"]))
+        res_strings = extract_strings(e["main_func"])
         prompt_info_strings = extract_prompt_info_with_keybert(json_file["problem_description"])
         extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
         nums.append(extract_numbers_from_string(json_file["problem_description"]))
