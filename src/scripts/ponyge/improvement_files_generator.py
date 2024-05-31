@@ -8,11 +8,11 @@ import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
 
 
-def create_txt_population_foreach_json(jsons_dir_path: str) -> Any:
+def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator: str | None = None) -> Any:
     impr_filenames: List[str] = []
     grammars_filenames: List[str] = []
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
-        bnf_filename: str = create_grammar_from(jsons_dir_path + '/' + filename)
+        bnf_filename: str = create_grammar_from(jsons_dir_path + '/' + filename, task_llm_grammar_generator)
         try:
             txt_population(jsons_dir_path + '/' + filename,
                            "dynamic/" + jsons_dir_path.split('/')[-1] + "/" + filename.replace(".json", ".bnf"),
@@ -28,7 +28,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str) -> Any:
     return impr_filenames, grammars_filenames
 
 
-def create_grammar_from(json_path: str) -> str:
+def create_grammar_from(json_path: str, task_llm_grammar_generator: str | None) -> str:
     cwd: str = os.getcwd()
     chdir("./PonyGE2/grammars")
     if not os.path.isdir("dynamic"):
@@ -40,7 +40,7 @@ def create_grammar_from(json_path: str) -> str:
     chdir(dir_name)
     with open(json_path, 'r') as json_file:
         json_file: Any = json.load(json_file)
-    data: List[Dict[str, Any]] = json_file["data_vanilla"]
+    data: List[Dict[str, Any]] = json_file["data_preprocess"]
     extracted_functions_from_individuals: List[List[str]] = []
     extracted_strings_from_individuals: List[List[str]] = []
     variables: List[List[str]] = []
@@ -112,6 +112,9 @@ def create_grammar_from(json_path: str) -> str:
         bnf.write("<num> ::= " + temp4 + '\n')
         bnf.write('<IMPORTS> ::= "' + temp3 + '"' + ' | ' + '""' + '\n')
     chdir(cwd)
+    #  ! va insertare qui la parte della grammatica dinamica !!
+    if task_llm_grammar_generator is not None:
+        pass
     return json_path.split('/')[-2] + '/' + json_path.split('/')[-1].replace(".json", ".bnf")
 
 
