@@ -1,5 +1,5 @@
 import editdistance
 
-def fitnessTrainingCase(i, o):
+def fitnessTrainingCase(i, o, **kwargs):
   eval_ = evolve(*i)
   return [editdistance.eval(str([eval_]), str(o))]

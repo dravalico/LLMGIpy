@@ -72,6 +72,9 @@ def save_best_ind_to_file(stats, ind, end=False, name="best"):
         if end:
             savefile.write("\nTraining fitness:\n" + str(ind.training_fitness))
             savefile.write("\nTest fitness:\n" + str(ind.test_fitness))
+            if params['FITNESS_FUNCTION'].__class__.__name__ == 'progimpr':
+                savefile.write("\nTraining num not passed cases:\n" + str(ind.num_not_passed_cases_train))
+                savefile.write("\nTest num not passed cases:\n" + str(ind.num_not_passed_cases_test))
         else:
             savefile.write("\nFitness:\n" + str(ind.fitness))
     else:

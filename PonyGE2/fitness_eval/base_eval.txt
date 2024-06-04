@@ -1,6 +1,10 @@
 import math
 import re
 import numpy as np
+from sys import path
+path.append("../src")
+from utilities.fitness.typed_fitness import get_actual_size
+from utilities.fitness.typed_fitness import compare_based_on_type
 # *****************************************************************************
 # Helper Code
 # *****************************************************************************
@@ -18,8 +22,9 @@ import numpy as np
 def fitness():
   error = []
   cases = []
+  max_val = max([get_actual_size(ooo[0]) for ooo in outval])
   for (i, o) in zip(inval, outval):
-    values = fitnessTrainingCase(i, o)
+    values = fitnessTrainingCase(i, o, max_val=max_val)
     error.extend(values)
     cases.append(all(v < 0.000000001 for v in values))
   return error, cases

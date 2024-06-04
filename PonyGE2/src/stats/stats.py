@@ -1,9 +1,12 @@
 from copy import copy
 from sys import stdout
 from time import time
-
+import editdistance
+import statistics
+from collections.abc import Callable
 import math
 import numpy as np
+from fitness.progimpr import progimpr
 from algorithm.parameters import params
 from utilities.algorithm.NSGA2 import compute_pareto_metrics
 from utilities.algorithm.state import create_state
@@ -29,6 +32,13 @@ stats = {
     "std_genome_length": 0,
     "q1_genome_length": 0,
     "q3_genome_length": 0,
+    "ave_editdist": 0,
+    "max_editdist": 0,
+    "min_editdist": 0,
+    "med_editdist": 0,
+    "std_editdist": 0,
+    "q1_editdist": 0,
+    "q3_editdist": 0,
     "ave_used_codons": 0,
     "max_used_codons": 0,
     "min_used_codons": 0,
@@ -70,6 +80,30 @@ stats = {
     "total_time": 0,
     "time_adjust": 0
 }
+
+
+def compute_stats_all_distinct_distances(vectors: list, distance_function: Callable) -> dict[str, float]:
+    distances: list[float] = []
+
+    for i in range(len(vectors) - 1):
+        for j in range(i + 1, len(vectors)):
+            distances.append(distance_function(vectors[i], vectors[j]))
+
+    return compute_some_stats(distances)
+
+
+def compute_some_stats(distances: list[float]) -> dict[str, float]:
+    stats: dict[str, float] = {}
+
+    stats['ave'] = statistics.mean(distances)
+    stats['med'] = statistics.median(distances)
+    stats['max'] = max(distances)
+    stats['min'] = min(distances)
+    stats['std'] = statistics.pstdev(distances, mu=stats['ave'])
+    stats['q1'] = float(np.percentile(distances, 25))
+    stats['q3'] = float(np.percentile(distances, 75))
+
+    return stats
 
 
 def get_stats(individuals, end=False):
@@ -161,6 +195,24 @@ def get_soo_stats(individuals, end):
 
         # Set main fitness as training fitness.
         trackers.best_ever.fitness = trackers.best_ever.training_fitness
+
+        if params['FITNESS_FUNCTION'].__class__.__name__ == 'progimpr':
+            temp_fitness_file = params['FITNESS_FILE']
+            temp_ind_fitness = trackers.best_ever.fitness
+            temp_ind_levi_test_fitness = trackers.best_ever.levi_test_fitness
+            temp_ind_levi_errors = trackers.best_ever.levi_errors
+            
+            params['FITNESS_FILE'] = 'fitness_cases.txt'
+            temp_fitness_class_instance = progimpr()
+            rubber_train = temp_fitness_class_instance(trackers.best_ever, dist='training')
+            rubber_test = temp_fitness_class_instance(trackers.best_ever, dist='test')
+            trackers.best_ever.num_not_passed_cases_train = rubber_train
+            trackers.best_ever.num_not_passed_cases_test = rubber_test
+
+            params['FITNESS_FILE'] = temp_fitness_file
+            trackers.best_ever.fitness = temp_ind_fitness
+            trackers.best_ever.levi_test_fitness = temp_ind_levi_test_fitness
+            trackers.best_ever.levi_errors = temp_ind_levi_errors
 
     # Save stats to list.
     if params['VERBOSE'] or (not params['DEBUG'] and not end):
@@ -337,6 +389,12 @@ def update_stats(individuals, end):
         stats['unused_search'] = 100 - stats['unique_inds'] / \
                                  stats['total_inds'] * 100
 
+    # EditDistance-based diversity measure
+    all_genomes = [i.genome for i in individuals]
+    diversity_stats = compute_stats_all_distinct_distances(all_genomes, editdistance.eval)
+    for diversity_stats_key in diversity_stats:
+        stats[diversity_stats_key + '_' + 'editdist'] = diversity_stats[diversity_stats_key]
+    
     # Genome Stats
     genome_lengths = [len(i.genome) for i in individuals]
     stats['max_genome_length'] = np.nanmax(genome_lengths)
@@ -456,6 +514,9 @@ def print_final_stats():
         print("\n\nBest:\n  Training fitness:\t",
               trackers.best_ever.training_fitness)
         print("  Test fitness:\t\t", trackers.best_ever.test_fitness)
+        if params['FITNESS_FUNCTION'].__class__.__name__ == 'progimpr':
+            print("  Train num not passed cases:\t\t", trackers.best_ever.num_not_passed_cases_train)
+            print("  Test num not passed cases:\t\t", trackers.best_ever.num_not_passed_cases_test)
     else:
         print("\n\nBest:\n  Fitness:\t", trackers.best_ever.fitness)
 

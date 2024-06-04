@@ -1,4 +1,4 @@
-def fitnessTrainingCase(i, o):
+def fitnessTrainingCase(i, o, **kwargs):
   eval = evolve(*i)
   if str([round(eval, 2)]) == str([round(o[0], 2)]):
     return [0]

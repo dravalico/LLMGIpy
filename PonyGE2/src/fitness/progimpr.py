@@ -58,7 +58,10 @@ class progimpr(base_ff):
             raise ValueError(f'{dist} is not a valid dist. It must be either training or test.')
         
         program = "{}\n{}\n".format(data, program)
-        eval_json = json.dumps({'script': program, 'timeout': 1.0,
+        # BE CAREFUL WITH TIMEOUT, IF EVOLUTION TAKES LONG CONSIDER DECREASING IT.
+        # HOWEVER, AVOID PUTTING THIS TO 1.0 SINCE IS TOO LOW AND
+        # IF TIMEOUT OCCURRED THEN YOU WILL HAVE MAXSIZE AS FITNESS.
+        eval_json = json.dumps({'script': program, 'timeout': 3.0,
                                 'variables': ['cases', 'caseQuality',
                                               'quality']})
 

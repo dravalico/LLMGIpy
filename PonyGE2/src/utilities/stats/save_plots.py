@@ -8,7 +8,7 @@ from utilities.stats.trackers import first_pareto_list
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-plt.rc('font', family='Times New Roman')
+#plt.rc('font', family='Times New Roman')
 
 
 def save_pareto_fitness_plot():
@@ -147,7 +147,7 @@ def save_box_plot(data, names, title):
     from algorithm.parameters import params
 
     import matplotlib.pyplot as plt
-    plt.rc('font', family='Times New Roman')
+    #plt.rc('font', family='Times New Roman')
 
     # Set up the figure.
     fig = plt.figure()

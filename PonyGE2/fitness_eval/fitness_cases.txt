@@ -1,4 +1,4 @@
-def fitnessTrainingCase(i, o):
+def fitnessTrainingCase(i, o, **kwargs):
   try:
     eval = evolve(*i)
   except:

@@ -19,7 +19,7 @@ from utilities.stats import trackers
 
 from representation import grammar
 
-from dynamic_tags_grammar import create_tag_dynamic_bnf
+from scripts.dynamic_tags_grammar import create_tag_dynamic_bnf
 
 
 def parse_terminals(target):

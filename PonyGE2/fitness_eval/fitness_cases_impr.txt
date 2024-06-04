@@ -1,4 +1,4 @@
-def fitnessTrainingCase(i, o):
+def fitnessTrainingCase(i, o, **kwargs):
   eval = evolve(*i)
   if isinstance(eval, float):
     eval = round(eval, 2)

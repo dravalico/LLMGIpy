@@ -1,0 +1,10 @@
+def fitnessTrainingCase(i, o, **kwargs):
+  max_val = kwargs.get('max_val', None)
+  try:
+    eval = evolve(*i)
+  except:
+    return [max_val * 2]
+  res = compare_based_on_type(eval, o[0])
+  if res is None:
+    return [max_val]
+  return [res]
