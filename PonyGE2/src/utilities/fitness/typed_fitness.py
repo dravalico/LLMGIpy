@@ -9,8 +9,11 @@ def jaccard_distance(set1, set2):
     return len(symmetric_difference_) / float(len(union))
 
 def get_actual_size(a):
+    if isinstance(a, bool):
+        return 1.0
+
     if isinstance(a, int) or isinstance(a, float):
-        return float(a)
+        return abs(float(a))
     
     if isinstance(a, str) or isinstance(a, list) or isinstance(a, set) or isinstance(a, dict):
         return float(len(a))
@@ -18,13 +21,26 @@ def get_actual_size(a):
     if isinstance(a, tuple):
         return sum([get_actual_size(val) for val in a])
 
-    return float(len(a))
+    try:
+        return float(len(a))
+    except:
+        pass
+
+    try:
+        return abs(float(a))
+    except:
+        pass
+
+    return float(10 ** 6)
 
 def compare_equal(a, b):
-    return float(a == b)
+    return float(a != b)
 
 def compare_numbers(a, b):
     return float(abs(a - b))
+
+def compare_bools(a, b):
+    return compare_numbers(int(a), int(b))
 
 def compare_strings(a, b):
     return float(editdistance.eval(a, b))
@@ -56,6 +72,9 @@ def compare_tuples(a, b):
     return distance
 
 def compare_based_on_type(a, b):
+    if isinstance(a, bool) and isinstance(b, bool):
+        return compare_bools(a, b)
+    
     if (isinstance(a, int) or isinstance(a, float)) and (isinstance(b, int) or isinstance(b, float)):
         return compare_numbers(a, b)
     
@@ -77,4 +96,9 @@ def compare_based_on_type(a, b):
     if isinstance(a, tuple):
         return compare_tuples(a, b)
     
-    return compare_equal(a, b)
+    try:
+        return compare_equal(a, b)
+    except:
+        pass
+
+    return None
