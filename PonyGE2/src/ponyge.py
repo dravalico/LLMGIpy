@@ -14,6 +14,7 @@ check_python_version()
 from stats.stats import get_stats
 from algorithm.parameters import params, set_params
 import sys
+import time
 
 
 def mane():
@@ -21,10 +22,13 @@ def mane():
     set_params(sys.argv[1:])  # exclude the ponyge.py arg itself
 
     # Run evolution
+    start_time = time.time()
     individuals = params['SEARCH_LOOP']()
+    end_time = time.time()
+    execution_time_in_minutes = (end_time - start_time) * (1 / 60)
 
     # Print final review
-    get_stats(individuals, end=True)
+    get_stats(individuals, end=True, execution_time_in_minutes=execution_time_in_minutes)
 
 
 if __name__ == "__main__":

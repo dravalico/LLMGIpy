@@ -50,7 +50,7 @@ def save_stats_headers(stats):
     savefile.close()
 
 
-def save_best_ind_to_file(stats, ind, end=False, name="best"):
+def save_best_ind_to_file(stats, ind, end=False, name="best", execution_time_in_minutes=None):
     """
     Saves the best individual to a file.
 
@@ -64,6 +64,8 @@ def save_best_ind_to_file(stats, ind, end=False, name="best"):
 
     filename = path.join(params['FILE_PATH'], (str(name) + ".txt"))
     savefile = open(filename, 'w')
+    if execution_time_in_minutes is not None:
+        savefile.write("Execution time (min):\n" + str(execution_time_in_minutes) + "\n\n")
     savefile.write("Generation:\n" + str(stats['gen']) + "\n\n")
     savefile.write("Phenotype:\n" + str(ind.phenotype) + "\n\n")
     savefile.write("Genotype:\n" + str(ind.genome) + "\n")

@@ -106,7 +106,7 @@ def compute_some_stats(distances: list[float]) -> dict[str, float]:
     return stats
 
 
-def get_stats(individuals, end=False):
+def get_stats(individuals, end=False, execution_time_in_minutes=None):
     """
     Generate the statistics for an evolutionary run. Save statistics to
     utilities.trackers.stats_list. Print statistics. Save fitness plot
@@ -128,11 +128,11 @@ def get_stats(individuals, end=False):
                 stats.pop(stats_key, None)
 
         # Update stats.
-        get_moo_stats(individuals, end)
+        get_moo_stats(individuals, end, execution_time_in_minutes)
 
     else:
         # Single objective optimisation is being used.
-        get_soo_stats(individuals, end)
+        get_soo_stats(individuals, end, execution_time_in_minutes)
 
     if params['SAVE_STATE'] and not params['DEBUG'] and \
             stats['gen'] % params['SAVE_STATE_STEP'] == 0:
@@ -140,7 +140,7 @@ def get_stats(individuals, end=False):
         create_state(individuals)
 
 
-def get_soo_stats(individuals, end):
+def get_soo_stats(individuals, end, execution_time_in_minutes):
     """
     Generate the statistics for an evolutionary run with a single objective.
     Save statistics to utilities.trackers.stats_list. Print statistics. Save
@@ -227,16 +227,16 @@ def get_soo_stats(individuals, end):
         save_stats_to_file(stats, end)
 
         if params['SAVE_ALL']:
-            save_best_ind_to_file(stats, trackers.best_ever, end, stats['gen'])
+            save_best_ind_to_file(stats=stats, ind=trackers.best_ever, end=end, name=stats['gen'], execution_time_in_minutes=execution_time_in_minutes)
 
         elif params['VERBOSE'] or end:
-            save_best_ind_to_file(stats, trackers.best_ever, end)
+            save_best_ind_to_file(stats=stats, ind=trackers.best_ever, end=end, execution_time_in_minutes=execution_time_in_minutes)
 
     if end and not params['SILENT']:
         print_final_stats()
 
 
-def get_moo_stats(individuals, end):
+def get_moo_stats(individuals, end, execution_time_in_minutes):
     """
     Generate the statistics for an evolutionary run with multiple objectives.
     Save statistics to utilities.trackers.stats_list. Print statistics. Save
