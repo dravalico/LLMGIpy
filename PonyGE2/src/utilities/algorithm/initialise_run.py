@@ -24,7 +24,7 @@ def initialise_run_params(create_files):
     # Set random seed
     if params['RANDOM_SEED'] is None:
         params['RANDOM_SEED'] = int(start.microsecond)
-    seed(params['RANDOM_SEED'])
+    seed(37 * params['RANDOM_SEED'] * params['RANDOM_SEED'] + 64)
 
     # Generate a time stamp for use with folder and file names.
     hms = "%02d%02d%02d" % (start.hour, start.minute, start.second)

@@ -4,6 +4,7 @@ import matplotlib
 import numpy as np
 import pandas as pd
 from utilities.stats.trackers import first_pareto_list
+from utilities.stats.file_io import create_results_folder_path, BASE_PATH
 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -93,7 +94,7 @@ def save_plot_from_data(data, name):
     plt.title(name)
 
     # Save plot and close.
-    plt.savefig(path.join(params['FILE_PATH'], (name + '.pdf')))
+    plt.savefig(path.join(create_results_folder_path(BASE_PATH, params), (name + '.pdf')))
     plt.close()
 
 

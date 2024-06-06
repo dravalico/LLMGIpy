@@ -50,7 +50,18 @@ class progimpr(base_ff):
         
         if dist == "training":
             data = self.training
-            data = '\n'.join([ss_data + f"[:{n_actual_train_examples}]" for ss_data in data.split('\n')])
+            data = '\n'.join([ss_data + f"[:]" for ss_data in data.split('\n')])
+            data += '\n'
+            data += 'import random\n'
+            data += 'indices = list(range(len(inval)))\n'
+            data += f'random.Random(24 + 31 * {params["RANDOM_SEED"]} * {params["RANDOM_SEED"]}).shuffle(indices)\n'
+            data += 'new_inval = []\n'
+            data += 'new_outval = []\n'
+            data += f'for iii in indices[:{n_actual_train_examples}]:\n'
+            data += '  new_inval.append(inval[iii])\n'
+            data += '  new_outval.append(outval[iii])\n'
+            data += 'inval = new_inval\n'
+            data += 'outval = new_outval\n'
         elif dist == "test":
             data = self.test
             data = '\n'.join([ss_data + f"[:{n_actual_test_examples}]" for ss_data in data.split('\n')])

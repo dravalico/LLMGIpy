@@ -1,10 +1,48 @@
 from copy import copy
+import os
+from typing import Any
 from os import getcwd, makedirs, path
 from shutil import rmtree
 
 from algorithm.parameters import params
 from utilities.stats import trackers
 
+
+BASE_PATH: str = "../results/"
+
+
+def create_results_folder_path(base_path: str, params: dict[str, Any]) -> str:
+    if not os.path.isdir(base_path):
+        os.mkdir(base_path)
+
+    full_path: str = base_path
+    full_path += 'GI' + '/'
+    full_path += params['BENCHMARK_NAME'] + '/'
+    full_path += params['MODEL_NAME'] + '/'
+    
+    if isinstance(params['FITNESS_FUNCTION'], str):
+        full_path += params['FITNESS_FUNCTION'] + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '/'
+    else:
+        full_path += params['FITNESS_FUNCTION'].__class__.__name__ + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '/'
+    
+    if isinstance(params['SELECTION'], str):
+        full_path += (f'{params["SELECTION"]}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'] == 'tournament' else f'{params["SELECTION"]}') + '_'
+    else:
+        full_path += (f'{params["SELECTION"].__name__}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'].__name__ == 'tournament' else f'{params["SELECTION"].__name__}') + '_'
+    
+    if isinstance(params['CROSSOVER'], str) and isinstance(params['MUTATION'], str):
+        full_path += f'pop{params["POPULATION_SIZE"]}_gen{params["GENERATIONS"]}_cx{params["CROSSOVER"]}{params["CROSSOVER_PROBABILITY"]}mut{params["MUTATION"]}{params["MUTATION_PROBABILITY"]}' + '/'
+    else:
+        full_path += f'pop{params["POPULATION_SIZE"]}_gen{params["GENERATIONS"]}_cx{params["CROSSOVER"].__name__}{params["CROSSOVER_PROBABILITY"]}mut{params["MUTATION"].__name__}{params["MUTATION_PROBABILITY"]}' + '/'
+    
+    full_path += f'problem{params["PROBLEM_INDEX"]}' + '_'
+    full_path += f'seed{params["RANDOM_SEED"]}' + '/'
+
+    results_folder_path: str = full_path
+    if not os.path.isdir(results_folder_path):
+        os.makedirs(results_folder_path)
+
+    return results_folder_path
 
 def save_stats_to_file(stats, end=False):
     """
@@ -17,7 +55,7 @@ def save_stats_to_file(stats, end=False):
     """
 
     if params['VERBOSE']:
-        filename = path.join(params['FILE_PATH'], "stats.tsv")
+        filename = path.join(create_results_folder_path(BASE_PATH, params), "stats.tsv")
         savefile = open(filename, 'a')
         for stat in sorted(stats.keys()):
             savefile.write(str(stats[stat]) + "\t")
@@ -25,7 +63,7 @@ def save_stats_to_file(stats, end=False):
         savefile.close()
 
     elif end:
-        filename = path.join(params['FILE_PATH'], "stats.tsv")
+        filename = path.join(create_results_folder_path(BASE_PATH, params), "stats.tsv")
         savefile = open(filename, 'a')
         for item in trackers.stats_list:
             for stat in sorted(item.keys()):
@@ -42,7 +80,7 @@ def save_stats_headers(stats):
     :return: Nothing.
     """
 
-    filename = path.join(params['FILE_PATH'], "stats.tsv")
+    filename = path.join(create_results_folder_path(BASE_PATH, params), "stats.tsv")
     savefile = open(filename, 'w')
     for stat in sorted(stats.keys()):
         savefile.write(str(stat) + "\t")
@@ -62,7 +100,7 @@ def save_best_ind_to_file(stats, ind, end=False, name="best", execution_time_in_
     :return: Nothing.
     """
 
-    filename = path.join(params['FILE_PATH'], (str(name) + ".txt"))
+    filename = path.join(create_results_folder_path(BASE_PATH, params), (str(name) + ".txt"))
     savefile = open(filename, 'w')
     if execution_time_in_minutes is not None:
         savefile.write("Execution time (min):\n" + str(execution_time_in_minutes) + "\n\n")
@@ -71,7 +109,7 @@ def save_best_ind_to_file(stats, ind, end=False, name="best", execution_time_in_
     savefile.write("Genotype:\n" + str(ind.genome) + "\n")
     savefile.write("Tree:\n" + str(ind.tree) + "\n")
     if hasattr(params['FITNESS_FUNCTION'], "training_test"):
-        if end:
+        if True: # end
             savefile.write("\nTraining fitness:\n" + str(ind.training_fitness))
             savefile.write("\nTest fitness:\n" + str(ind.test_fitness))
             if params['FITNESS_FUNCTION'].__class__.__name__ == 'progimpr':
@@ -130,7 +168,8 @@ def generate_folders_and_files():
 
         if not path.isdir(path_1):
             # Create results folder.
-            makedirs(path_1, exist_ok=True)
+            #makedirs(path_1, exist_ok=True)
+            pass
 
         # Set file path to include experiment name.
         params['FILE_PATH'] = path.join(path_1, params['EXPERIMENT_NAME'])
@@ -141,15 +180,14 @@ def generate_folders_and_files():
 
     # Generate save folders
     if not path.isdir(params['FILE_PATH']):
-        makedirs(params['FILE_PATH'], exist_ok=True)
+        #makedirs(params['FILE_PATH'], exist_ok=True)
+        pass
 
-    if not path.isdir(path.join(params['FILE_PATH'],
-                                str(params['TIME_STAMP']))):
-        makedirs(path.join(params['FILE_PATH'],
-                           str(params['TIME_STAMP'])), exist_ok=True)
+    if not path.isdir(path.join(params['FILE_PATH'], str(params['TIME_STAMP']))):
+        #makedirs(path.join(params['FILE_PATH'], str(params['TIME_STAMP'])), exist_ok=True)
+        pass
 
-    params['FILE_PATH'] = path.join(params['FILE_PATH'],
-                                    str(params['TIME_STAMP']))
+    params['FILE_PATH'] = path.join(params['FILE_PATH'], str(params['TIME_STAMP']))
 
     save_params_to_file()
 
@@ -162,7 +200,7 @@ def save_params_to_file():
     """
 
     # Generate file path and name.
-    filename = path.join(params['FILE_PATH'], "parameters.txt")
+    filename = path.join(create_results_folder_path(BASE_PATH, params), "parameters.txt")
     savefile = open(filename, 'w')
 
     # Justify whitespaces for pretty printing/saving.

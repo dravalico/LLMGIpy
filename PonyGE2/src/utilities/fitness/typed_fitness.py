@@ -45,6 +45,9 @@ def compare_bools(a, b):
 def compare_strings(a, b):
     return float(editdistance.eval(a, b))
 
+def compare_ranges(a, b):
+    return float(editdistance.eval(a, b))
+
 def compare_lists(a, b):
     return float(editdistance.eval([str(val) for val in a], [str(val) for val in b]))
 
@@ -83,6 +86,9 @@ def compare_based_on_type(a, b):
     
     if isinstance(a, str):
         return compare_strings(a, b)
+    
+    if isinstance(a, range):
+        return compare_ranges(a, b)
     
     if isinstance(a, list):
         return compare_lists(a, b)

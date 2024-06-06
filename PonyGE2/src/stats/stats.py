@@ -185,13 +185,12 @@ def get_soo_stats(individuals, end, execution_time_in_minutes):
         stdout.flush()
 
     # Generate test fitness on regression problems
-    if hasattr(params['FITNESS_FUNCTION'], "training_test") and end:
+    if hasattr(params['FITNESS_FUNCTION'], "training_test") and True: # end
         # Save training fitness.
         trackers.best_ever.training_fitness = copy(trackers.best_ever.fitness)
 
         # Evaluate test fitness.
-        trackers.best_ever.test_fitness = params['FITNESS_FUNCTION'](
-            trackers.best_ever, dist='test')
+        trackers.best_ever.test_fitness = params['FITNESS_FUNCTION'](trackers.best_ever, dist='test')
 
         # Set main fitness as training fitness.
         trackers.best_ever.fitness = trackers.best_ever.training_fitness

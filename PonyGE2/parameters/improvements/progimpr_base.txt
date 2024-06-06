@@ -1,33 +1,40 @@
+MODEL_NAME:             <modelName>
+BENCHMARK_NAME:         <benchmarkName>
+PROBLEM_INDEX:          <problemIndex>
+
 CACHE:                  True
 DEBUG:                  False
 VERBOSE:                True
+SAVE_ALL:               True
 
 GRAMMAR_FILE:           dynamic/<bnf>
 DATASET_TRAIN:          <train>/Train.txt
 DATASET_TEST:           <test>/Test.txt
 NUM_TRAIN_EXAMPLES:     <numTrainExamples>
 NUM_TEST_EXAMPLES:      <numTestExamples>
-FITNESS_FILE:           fitness_cases.txt
+FITNESS_FILE:           <fitnessFile>
 FITNESS_FUNCTION:       progimpr
 
 INITIALISATION:         seed_individuals
 TARGET_SEED_FOLDER:     <seedFolder>
 
-POPULATION_SIZE:        1000
-GENERATIONS:            100
+POPULATION_SIZE:        <populationSize>
+GENERATIONS:            <generations>
 MAX_GENOME_LENGTH:      0
 CODON_SIZE:             200
 
-MAX_INIT_TREE_DEPTH:     15
-MAX_TREE_DEPTH:          30
+MAX_INIT_TREE_DEPTH:    15
+MAX_TREE_DEPTH:         30
 
-CROSSOVER:              subtree
-CROSSOVER_PROBABILITY:  0.8
-MUTATION:               subtree
-MUTATION_PROBABILITY:   0.8
+CROSSOVER:              <crossover>
+CROSSOVER_PROBABILITY:  <crossoverProbability>
+MUTATION:               <mutation>
+MUTATION_PROBABILITY:   <mutationProbability>
 
 ERROR_METRIC:           mse
 REPLACEMENT:            generational
-SELECTION:              tournament
-TOURNAMENT_SIZE:        50
+SELECTION:              <selection>
+TOURNAMENT_SIZE:        <tournamentSize>
 INVALID_SELECTION:      False
+
+RANDOM_SEED:            <randomSeed>
