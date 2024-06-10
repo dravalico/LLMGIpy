@@ -94,7 +94,7 @@ def save_plot_from_data(data, name):
     plt.title(name)
 
     # Save plot and close.
-    plt.savefig(path.join(create_results_folder_path(BASE_PATH, params), (name + '.pdf')))
+    plt.savefig(path.join(create_results_folder_path(BASE_PATH, params, True), (name + '.pdf')))
     plt.close()
 
 

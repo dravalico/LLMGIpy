@@ -11,7 +11,7 @@ from utilities.stats import trackers
 BASE_PATH: str = "../results/"
 
 
-def create_results_folder_path(base_path: str, params: dict[str, Any]) -> str:
+def create_results_folder_path(base_path: str, params: dict[str, Any], include_seed: bool) -> str:
     if not os.path.isdir(base_path):
         os.mkdir(base_path)
 
@@ -35,8 +35,11 @@ def create_results_folder_path(base_path: str, params: dict[str, Any]) -> str:
     else:
         full_path += f'pop{params["POPULATION_SIZE"]}_gen{params["GENERATIONS"]}_cx{params["CROSSOVER"].__name__}{params["CROSSOVER_PROBABILITY"]}mut{params["MUTATION"].__name__}{params["MUTATION_PROBABILITY"]}' + '/'
     
-    full_path += f'problem{params["PROBLEM_INDEX"]}' + '_'
-    full_path += f'seed{params["RANDOM_SEED"]}' + '/'
+    if include_seed:
+        full_path += f'problem{params["PROBLEM_INDEX"]}' + '_'
+        full_path += f'seed{params["RANDOM_SEED"]}' + '/'
+    else:
+        full_path += f'problem{params["PROBLEM_INDEX"]}' + '/'
 
     results_folder_path: str = full_path
     if not os.path.isdir(results_folder_path):
@@ -55,7 +58,7 @@ def save_stats_to_file(stats, end=False):
     """
 
     if params['VERBOSE']:
-        filename = path.join(create_results_folder_path(BASE_PATH, params), "stats.tsv")
+        filename = path.join(create_results_folder_path(BASE_PATH, params, True), "stats.tsv")
         savefile = open(filename, 'a')
         for stat in sorted(stats.keys()):
             savefile.write(str(stats[stat]) + "\t")
@@ -63,7 +66,7 @@ def save_stats_to_file(stats, end=False):
         savefile.close()
 
     elif end:
-        filename = path.join(create_results_folder_path(BASE_PATH, params), "stats.tsv")
+        filename = path.join(create_results_folder_path(BASE_PATH, params, True), "stats.tsv")
         savefile = open(filename, 'a')
         for item in trackers.stats_list:
             for stat in sorted(item.keys()):
@@ -80,7 +83,7 @@ def save_stats_headers(stats):
     :return: Nothing.
     """
 
-    filename = path.join(create_results_folder_path(BASE_PATH, params), "stats.tsv")
+    filename = path.join(create_results_folder_path(BASE_PATH, params, True), "stats.tsv")
     savefile = open(filename, 'w')
     for stat in sorted(stats.keys()):
         savefile.write(str(stat) + "\t")
@@ -100,7 +103,7 @@ def save_best_ind_to_file(stats, ind, end=False, name="best", execution_time_in_
     :return: Nothing.
     """
 
-    filename = path.join(create_results_folder_path(BASE_PATH, params), (str(name) + ".txt"))
+    filename = path.join(create_results_folder_path(BASE_PATH, params, True), (str(name) + ".txt"))
     savefile = open(filename, 'w')
     if execution_time_in_minutes is not None:
         savefile.write("Execution time (min):\n" + str(execution_time_in_minutes) + "\n\n")
@@ -200,7 +203,7 @@ def save_params_to_file():
     """
 
     # Generate file path and name.
-    filename = path.join(create_results_folder_path(BASE_PATH, params), "parameters.txt")
+    filename = path.join(create_results_folder_path(BASE_PATH, params, True), "parameters.txt")
     savefile = open(filename, 'w')
 
     # Justify whitespaces for pretty printing/saving.
