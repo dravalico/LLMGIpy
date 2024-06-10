@@ -40,7 +40,8 @@ def create_and_save_json(filename: str, data: Dict[str, any]) -> str:
     return results_folder_path
 
 
-def read_json(
+def create_dir_path_string(
+    full_path: str,
     model_name: str,
     problem_benchmark: str,
     problem_id: int,
@@ -49,8 +50,9 @@ def read_json(
     repeatitions: int,
     train_size: int,
     test_size: int
-) -> dict[str, any]:
-    full_path: str = BASE_PATH
+) -> str:
+    if full_path is None or (full_path is not None and full_path.strip() == ''):
+        full_path = BASE_PATH
     
     if reask:
         full_path += 'LPLUS' + '/'
@@ -69,6 +71,33 @@ def read_json(
 
     results_folder_path: str = full_path
     output_file_path: str = os.path.join(results_folder_path, f"{'problem'}{problem_id}{'.json'}")
+    
+    return output_file_path
+
+
+def read_json(
+    full_path: str,
+    model_name: str,
+    problem_benchmark: str,
+    problem_id: int,
+    reask: bool,
+    iterations: int,
+    repeatitions: int,
+    train_size: int,
+    test_size: int
+) -> dict[str, any]:
+    
+    output_file_path: str = create_dir_path_string(
+        full_path=full_path,
+        model_name=model_name,
+        problem_benchmark=problem_benchmark,
+        problem_id=problem_id,
+        reask=reask,
+        iterations=iterations,
+        repeatitions=repeatitions,
+        train_size=train_size,
+        test_size=test_size
+    )
     
     with open(output_file_path, 'r') as f:
         d: dict[str, any] = json.load(f)
