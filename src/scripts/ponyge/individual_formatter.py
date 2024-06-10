@@ -1,6 +1,7 @@
 from typing import List, Any
 import ast
 import re
+from scripts.function_util import orderering_preserving_duplicates_elimination
 
 
 def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
@@ -71,12 +72,7 @@ def extract_variables_names(code: str):
         if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
             local_vars.append(node.id)
     
-    actual_local_vars = []
-    for local_var in local_vars:
-        if local_var not in actual_local_vars:
-            actual_local_vars.append(local_var)
-
-    return actual_local_vars
+    return orderering_preserving_duplicates_elimination(local_vars)
 
 
 def replace_variables_with_names(code: str, imports):
@@ -98,4 +94,4 @@ def replace_variables_with_names(code: str, imports):
     replace_var_names(tree)
     modified_code = ast.unparse(tree)
     used_variables = [var_mapping[var] for var in variables if var in var_mapping]
-    return modified_code, list(set(used_variables + import_manipulation(imports)))
+    return modified_code, orderering_preserving_duplicates_elimination(used_variables + import_manipulation(imports))

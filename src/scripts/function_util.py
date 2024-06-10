@@ -5,6 +5,15 @@ import re
 from re import Match
 
 
+def orderering_preserving_duplicates_elimination(local_vars):
+    actual_local_vars = []
+    for local_var in local_vars:
+        if local_var not in actual_local_vars:
+            actual_local_vars.append(local_var)
+
+    return actual_local_vars
+
+
 def extract_external_imports(text: str) -> List[str]:
     pattern: str = r"(?:^|\n)(?:from\s+(\S+)\s+)?import\s+(.+?)(?:\s+as\s+(\w+))?(?=$|\n)"
     imports_match: List[str] = re.findall(pattern, text, re.MULTILINE)

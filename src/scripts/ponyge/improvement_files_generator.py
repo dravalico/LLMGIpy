@@ -6,6 +6,7 @@ from typing import List, Any, Dict
 from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
+from scripts.function_util import orderering_preserving_duplicates_elimination
 
 from models.GrammarGeneratorLLM import GrammarGeneratorLLM
 
@@ -16,10 +17,10 @@ def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_gen
     if task_llm_grammar_generator is not None:
         grammarGenerator = GrammarGeneratorLLM(grammar_task = task_llm_grammar_generator)
     for filename in [f for f in listdir(jsons_dir_path) if isfile(join(jsons_dir_path, f))]:
-        bnf_filename: str = create_grammar_from(jsons_dir_path + '/' + filename, grammarGenerator)
+        bnf_filename: str = create_grammar_from(join(jsons_dir_path, filename), grammarGenerator)
         try:
-            txt_population(jsons_dir_path + '/' + filename,
-                           "dynamic/" + jsons_dir_path.split('/')[-1] + "/" + filename.replace(".json", ".bnf"),
+            txt_population(join(jsons_dir_path, filename),
+                           join("dynamic", jsons_dir_path.split('/')[-1], filename.replace(".json", ".bnf")),
                            jsons_dir_path.split('/')[-1] + '_' + filename.replace(".json", ''))
             print(f"'{filename}' leads to a valid seed for improvement")
             impr_filenames.append(filename)
@@ -123,7 +124,7 @@ def create_grammar_from(json_path: str, grammarGenerator) -> str:
                 bnf_generated.write(generated_bnfs)
     
     chdir(cwd)
-    return json_path.split('/')[-2] + '/' + json_path.split('/')[-1].replace(".json", ".bnf")
+    return join(json_path.split('/')[-2], json_path.split('/')[-1].replace(".json", ".bnf"))
 
 
 def extract_functions_and_methods(code: str) -> List[str]:
@@ -156,7 +157,7 @@ def extract_strings(code: str) -> List[str]:
             strings.append(node.s)
     string_extractor = StringExtractor()
     string_extractor.visit(tree)
-    return list(set(strings))
+    return orderering_preserving_duplicates_elimination(strings)
 
 
 # NOTE maybe ponyge related things can be enucleate

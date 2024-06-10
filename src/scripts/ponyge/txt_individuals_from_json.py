@@ -3,6 +3,7 @@ import json
 import subprocess
 from typing import Any, List, Dict, Tuple
 import multiprocessing
+from scripts.function_util import orderering_preserving_duplicates_elimination
 
 
 def load_phenotypes_from_json(json_path: str) -> List[str]:
@@ -23,7 +24,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str) -> List[List[str]]
         raise Exception(e)
     genotypes: List[Any] = []
     args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
-                              for p in list(set(phenotypes))]
+                              for p in orderering_preserving_duplicates_elimination(phenotypes)]
     with multiprocessing.Pool(processes=len(args)) as pool:
         genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
     return genotypes

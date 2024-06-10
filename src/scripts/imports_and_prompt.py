@@ -2,6 +2,7 @@ from keybert import KeyBERT
 from sklearn.feature_extraction.text import TfidfVectorizer
 from word2number import w2n
 import re
+from scripts.function_util import orderering_preserving_duplicates_elimination
 
 
 def import_manipulation(imports, available_vars):
@@ -81,7 +82,7 @@ def extract_prompt_info_with_keybert(prompt):
         for k in keywords:
             if elem.lower() == k[0]:
                 original_key.append(elem)
-    return list(set(original_key))
+    return orderering_preserving_duplicates_elimination(original_key)
 
 
 def extract_numbers_from_string(prompt):
@@ -106,7 +107,7 @@ def extract_numbers_from_string(prompt):
             numbers.append(number)
         except ValueError:
             pass  # Ignore words that are not recognized as numbers
-    return list(set(numbers))
+    return orderering_preserving_duplicates_elimination(numbers)
 
 
 if __name__ == "__main__":
