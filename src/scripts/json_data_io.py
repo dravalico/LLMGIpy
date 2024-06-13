@@ -3,6 +3,8 @@ import json
 from typing import Dict
 
 BASE_PATH: str = "../results/"
+ALREADY_SOLVED_STRING: str = 'ALREADY_SOLVED'
+NOT_PARSED_STRING: str = 'NOT_PARSED'
 
 
 def create_and_save_json(filename: str, data: Dict[str, any]) -> str:
