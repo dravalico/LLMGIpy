@@ -242,10 +242,11 @@ def extract_strings(code: str) -> List[str]:
     return orderering_preserving_duplicates_elimination(strings)
 
 
-# NOTE maybe ponyge related things can be enucleate
+# NOTE maybe ponyge related things can be enucleated
 MODEL_NAME_TAG: str = "<modelName>"
 BENCHMARK_NAME_TAG: str = "<benchmarkName>"
 PROBLEM_INDEX_TAG: str = "<problemIndex>"
+LLM_ITERATIONS_TAG: str = "<llmIterations>"
 BNF_GRAMMAR_TAG: str = "<bnf>"
 TRAIN_DATASET_TAG: str = "<train>"
 TEST_DATASET_TAG: str = "<test>"
@@ -269,7 +270,7 @@ def create_params_file(
         grammars_filenames: List[str],
         llm_param: dict[str, Any],
         pony_param: dict[str, Any]
-    ) -> str:
+    ) -> List[str]:
     cwd: str = os.getcwd()
     chdir("../PonyGE2/parameters")
     improvement_dir: str = "improvements"
@@ -321,6 +322,7 @@ def create_params_file(
             impr_file = impr_file.replace(MODEL_NAME_TAG, llm_param['model_name'])
             impr_file = impr_file.replace(BENCHMARK_NAME_TAG, llm_param['benchmark_name'])
             impr_file = impr_file.replace(PROBLEM_INDEX_TAG, str(prob_index))
+            impr_file = impr_file.replace(LLM_ITERATIONS_TAG, str(llm_param['iterations']))
             impr_file = impr_file.replace(NUM_TRAIN_EXAMPLES_TAG, str(llm_param['train_size']))
             impr_file = impr_file.replace(NUM_TEST_EXAMPLES_TAG, str(llm_param['test_size']))
             impr_file = impr_file.replace(FITNESS_FILE_TAG, pony_param['fitness_file'])
@@ -347,4 +349,4 @@ def create_params_file(
             all_output_paths.append(output_filepath)
     
     chdir(cwd)
-    return '\n'.join(["../PonyGE2/parameters/" + curr_output_filepath for curr_output_filepath in all_output_paths])
+    return all_output_paths

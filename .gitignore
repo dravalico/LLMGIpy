@@ -14,6 +14,7 @@ PonyGE2/parameters/improvements/*/*
 PonyGE2/seeds/*
 PonyGE2/seeds_metadata/*
 /bash_utils/timings.txt
+/bash_utils/timings_ponyge.txt
 
 # dummy scripts
 dummyscripts/

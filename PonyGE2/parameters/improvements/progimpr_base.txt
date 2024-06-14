@@ -1,6 +1,7 @@
 MODEL_NAME:             <modelName>
 BENCHMARK_NAME:         <benchmarkName>
 PROBLEM_INDEX:          <problemIndex>
+LLM_ITERATIONS:         <llmIterations>
 
 CACHE:                  True
 DEBUG:                  False

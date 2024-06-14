@@ -5,10 +5,11 @@ from sys import path
 path.append("../src")
 from utilities.fitness.typed_fitness import get_actual_size
 from utilities.fitness.typed_fitness import compare_based_on_type
+
 # *****************************************************************************
 # Helper Code
 # *****************************************************************************
-
+<insertSupports>
 # *****************************************************************************
 
 #  evolved function

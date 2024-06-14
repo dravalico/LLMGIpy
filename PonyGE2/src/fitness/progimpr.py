@@ -3,6 +3,11 @@ from subprocess import Popen, PIPE
 import sys
 from os import path
 
+curr_path = [sss for sss in sys.path]
+sys.path.append('../../src/scripts')
+from json_data_io import read_json # type: ignore
+sys.path = curr_path
+
 from algorithm.parameters import params
 from fitness.base_ff_classes.base_ff import base_ff
 
@@ -14,6 +19,7 @@ class progimpr(base_ff):
 
     # constants required for formatting the code correctly
     INSERTCODE = "<insertCodeHere>"
+    INSERTSUPPORTS = "<insertSupports>"
     INSERTFITNESSFUNCTION = "<insertFitnessFunction>"
 
     INDENTSPACE = "  "
@@ -183,6 +189,25 @@ class progimpr(base_ff):
         embed_header, embed_footer = "", ""
         if insert > 0:
             embed_header = embed_code[:insert]
+
+            llm_data = read_json(
+                full_path='../../results/',
+                model_name=params['MODEL_NAME'],
+                problem_benchmark=params['BENCHMARK_NAME'],
+                problem_id=params['PROBLEM_INDEX'],
+                reask=False,
+                iterations=params['LLM_ITERATIONS'],
+                repeatitions=0,
+                train_size=params['NUM_TRAIN_EXAMPLES'],
+                test_size=params['NUM_TEST_EXAMPLES']
+            )["data_preprocess"]
+            this_random_seed = params['RANDOM_SEED']
+            if len(llm_data) > this_random_seed:
+                curr_iter_ind = llm_data[this_random_seed]
+                embed_header = embed_header.replace(self.INSERTSUPPORTS, '\n'.join([lol.replace('\t', self.INDENTSPACE) for lol in curr_iter_ind['supports']] if 'supports' in curr_iter_ind else []))
+            else:
+                embed_header = embed_header.replace(self.INSERTSUPPORTS, '')
+
             embed_footer = embed_code[insert + len(self.INSERTCODE):]  # NOTE
         with open(train_set, 'r') as train_file, \
                 open(test_set, 'r') as test_file:

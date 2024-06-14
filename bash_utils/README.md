@@ -1,6 +1,6 @@
 # Bash script to help execution of experiments
 
-`run_exp_l_lplus.sh` and `run_single_l_lplus.sh` must be runned from the root folder, i.e., `LLMGIpy`, after the repository has been cloned, run:
+bash scripts must be runned from the root folder, i.e., `LLMGIpy`, after the repository has been cloned, run:
 
 ```
 cd LLMGIpy
@@ -24,3 +24,5 @@ Some notes on the `problems\_indexes` parameter that you can set as optional par
 - Running a sequence of problems by specifying their indexes separated by comma (e.g., 5,7,9,10 runs problems with index 5, 7, 9, and 10, in this order);
 - Running a range of problems by specifying a start index and an end index (both inclusive) separated by .. (e.g., 5..10 runs problems with index 5, 6, 7, 8, 9, and 10, in this order).
 
+- `run_single_ponyge.sh` needs one parameter, it runs a PonyGE2-based evolution and performs Genetic Improvement. The required parameter is the path to the ponyge parameters .txt file. This path must begin with the 'improvements' folder, which is located in PonyGE2/parameters/. For instance, improvements/GI/psb2/CodeLLaMA7B/progimpr\_fitness\_type\_train1000\_test1000/lexicase\_pop1000\_gen100\_cxsubtree0.8mutsubtree0.6/problem0_seed0.txt is an example of valid path.
+- `run_parallel_ponyge.sh` needs one parameter when running from the terminal which is the path to .txt file in which each line contains a path to a parameters file for pony (the same type of path of the parameter for `run_single_ponyge.sh` script). This script will run all the ponyge evolutions in parallel by using the available cores, specifically, it will run `run_single_ponyge.sh` for each path specified in the .txt file pointed by the command-line parameter of `run_parallel_ponyge.sh`. You must have parallel library from GNU installed on your system.

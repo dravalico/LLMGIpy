@@ -46,6 +46,11 @@ def set_parser_impr() -> ArgumentParser:
         action=BooleanOptionalAction,
         help="Boolean flag to force the generation of the improvements file only. It requires that seeds and grammars have already been generated before."
     )
+    argparser.add_argument(
+        "--input_params_ponyge",
+        type=str,
+        help="Path detailing an empty .txt file with the paths of the improvement parameters files for parallel execution of the evolutionary runs."
+    )
     return argparser
 
 
@@ -72,7 +77,7 @@ def generate_impr_files():
     
     llm_params = all_llm_params(json_params)
     pony_params = all_pony_params(json_params)
-    
+    all_impr_paths = []
     try:
         task_llm_grammar_generator = None
         for llm_param in llm_params:
@@ -89,16 +94,21 @@ def generate_impr_files():
                 print("Creation of txt files containing the parameters of each problem for genetic improvement")
                 print(pony_param)
                 print()
-                params_dir_path: str = create_params_file(
+                all_impr_paths.extend(create_params_file(
                     impr_prob_names=impr_prob_names,
                     grammars_filenames=grammars_filenames,
                     llm_param=llm_param,
                     pony_param=pony_param
-                )
+                ))
                 print(f"The files have been saved.")
     except Exception as e:
         print(e)
     
+    if cmd_args.input_params_ponyge is not None:
+        output_file = open(cmd_args.input_params_ponyge, 'w')
+        output_file.writelines(all_impr_paths)
+        output_file.close()
+
     print(f"{'=' * 80}")
 
 
