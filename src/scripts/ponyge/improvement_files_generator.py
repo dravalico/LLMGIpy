@@ -115,13 +115,14 @@ def create_grammar_from(
         if "imports" not in e:
             e["imports"] = []
         
-        extracted_functions_from_individuals.append(extract_functions_and_methods(e["main_func"]))
-        res_strings = extract_strings(e["main_func"])
-        prompt_info_strings = extract_prompt_info_with_keybert(json_file["problem_description"])
-        extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
-        nums.append(extract_numbers_from_string(json_file["problem_description"]))
-        variables.append(e["variables_names"])
-        imports.append(e["imports"])
+        if not only_impr:
+            extracted_functions_from_individuals.append(extract_functions_and_methods(e["main_func"]))
+            res_strings = extract_strings(e["main_func"])
+            prompt_info_strings = extract_prompt_info_with_keybert(json_file["problem_description"])
+            extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
+            nums.append(extract_numbers_from_string(json_file["problem_description"]))
+            variables.append(e["variables_names"])
+            imports.append(e["imports"])
     
     temp0: str = ""
     temp: str = ""

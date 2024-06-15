@@ -1,6 +1,5 @@
 import math
 import re
-import numpy as np
 from sys import path
 path.append("../src")
 from utilities.fitness.typed_fitness import get_actual_size

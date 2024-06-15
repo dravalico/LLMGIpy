@@ -106,7 +106,7 @@ def generate_impr_files():
     
     if cmd_args.input_params_ponyge is not None:
         output_file = open(cmd_args.input_params_ponyge, 'w')
-        output_file.writelines(all_impr_paths)
+        output_file.writelines([lol + '\n' for lol in all_impr_paths])
         output_file.close()
 
     print(f"{'=' * 80}")
