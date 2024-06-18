@@ -19,6 +19,7 @@ class progimpr(base_ff):
 
     # constants required for formatting the code correctly
     INSERTCODE = "<insertCodeHere>"
+    INSERTIMPORTS = "<insertImports>"
     INSERTSUPPORTS = "<insertSupports>"
     INSERTFITNESSFUNCTION = "<insertFitnessFunction>"
 
@@ -207,12 +208,23 @@ class progimpr(base_ff):
                 train_size=params['NUM_TRAIN_EXAMPLES'],
                 test_size=params['NUM_TEST_EXAMPLES']
             )["data_preprocess"]
-            this_random_seed = params['RANDOM_SEED']
-            if len(llm_data) > this_random_seed:
-                curr_iter_ind = llm_data[this_random_seed]
-                embed_header = embed_header.replace(self.INSERTSUPPORTS, '\n'.join([lol.replace('\t', self.INDENTSPACE) for lol in curr_iter_ind['supports']] if 'supports' in curr_iter_ind else []))
-            else:
-                embed_header = embed_header.replace(self.INSERTSUPPORTS, '')
+            llm_data_supports = []
+            llm_data_imports = []
+            for curr_data in llm_data:
+                if "supports" not in curr_data:
+                    curr_data["supports"] = []
+                if "imports" not in curr_data:
+                    curr_data["imports"] = []
+                for lol in curr_data["supports"]:
+                    lol = lol.replace('\t', self.INDENTSPACE)
+                    if lol not in llm_data_supports:
+                        llm_data_supports.append(lol)
+                for lol in curr_data["imports"]:
+                    if lol not in llm_data_imports:
+                        llm_data_imports.append(lol)
+
+            embed_header = embed_header.replace(self.INSERTIMPORTS, '\n'.join(llm_data_imports))
+            embed_header = embed_header.replace(self.INSERTSUPPORTS, '\n'.join(llm_data_supports))
 
             embed_footer = embed_code[insert + len(self.INSERTCODE):]  # NOTE
         with open(train_set, 'r') as train_file, \

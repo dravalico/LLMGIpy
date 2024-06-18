@@ -1,17 +1,24 @@
 import math
 import re
-from sys import path
-path.append("../src")
-from utilities.fitness.typed_fitness import get_actual_size
-from utilities.fitness.typed_fitness import compare_based_on_type
+import sys
+curr_path = [sss for sss in sys.path]
+sys.path.append('../src')
+from utilities.fitness.typed_fitness import get_actual_size # type: ignore
+from utilities.fitness.typed_fitness import compare_based_on_type # type: ignore
+sys.path = curr_path
+
+<insertImports>
 
 # *****************************************************************************
 # Helper Code
 # *****************************************************************************
+
 <insertSupports>
+
 # *****************************************************************************
 
 #  evolved function
+
 <insertCodeHere>
 
 
@@ -30,7 +37,6 @@ def fitness():
   return error, cases
 
 
-import sys
 quality = sys.maxsize
 caseQuality, cases = fitness()
 quality = sum(caseQuality)

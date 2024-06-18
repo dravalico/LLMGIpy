@@ -90,6 +90,8 @@ def generate_impr_files():
                 only_impr=only_impr,
                 task_llm_grammar_generator=task_llm_grammar_generator
             )
+            if len(impr_prob_names) == 0:
+                continue
             for pony_param in pony_params:
                 print("Creation of txt files containing the parameters of each problem for genetic improvement")
                 print(pony_param)

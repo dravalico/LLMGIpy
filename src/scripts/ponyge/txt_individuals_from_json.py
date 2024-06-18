@@ -39,7 +39,23 @@ def load_phenotypes_from_json(
     already_solved: bool = False
     num_iter_solved: int = 0
     for i in range(0, len(data)):
-        final_ind: str = data[i]['final_individual'] if 'final_individual' in data[i] else ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
+        if 'final_individual' in data[i]:
+            final_ind: str = data[i]['final_individual'].replace('\u2019', "'")
+            final_ind = final_ind[final_ind.index('def evolve('):].replace('repeat=', '')
+            final_ind = final_ind.replace('\\\\d', '\d')
+            final_ind = final_ind.replace('\\\\w', '\w')
+            final_ind = final_ind.replace('\\\\s', '\s')
+            final_ind = final_ind.replace('\\\\D', '\D')
+            final_ind = final_ind.replace('\\\\W', '\W')
+            final_ind = final_ind.replace('\\\\S', '\S')
+            final_ind = final_ind.replace('\\d', '\d')
+            final_ind = final_ind.replace('\\w', '\w')
+            final_ind = final_ind.replace('\\s', '\s')
+            final_ind = final_ind.replace('\\D', '\D')
+            final_ind = final_ind.replace('\\W', '\W')
+            final_ind = final_ind.replace('\\S', '\S')
+        else:
+            final_ind: str = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
         phenotypes.append(final_ind)
         if 'tests_results' in data[i] and 'passed' in data[i]["tests_results"] and int(data[i]["tests_results"]["passed"]) == train_size:
             num_iter_solved += 1
