@@ -61,11 +61,11 @@ class progsys(base_ff):
             self.eval = self.create_eval_process()
             
         if 'quality' in	result:
-            if result['quality'] > sys.maxsize:
-                result['quality'] = sys.maxsize
+            if result['quality'] > 10 ** 18:
+                result['quality'] = 10 ** 18
 
         if 'quality' not in result:
-            result['quality'] = sys.maxsize
+            result['quality'] = 10 ** 18
         return result['quality']
 
     @staticmethod
