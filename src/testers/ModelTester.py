@@ -54,7 +54,7 @@ class ModelTester():
             _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
             process_timed_out_data = []
             for ddd in data_vanilla:
-                if 'error' in ddd['test_results'] and ddd['test_results']['error'].strip() == 'Process timed out':
+                if 'error' in ddd['tests_results'] and ddd['tests_results']['error'].strip() == 'Process timed out':
                     process_timed_out_data.append(ddd)
             _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0, eventual_responses_vanilla=process_timed_out_data, all_eventual_responses_vanilla=data_vanilla)
             end_time: float = time.time()
@@ -118,7 +118,7 @@ class ModelTester():
                         oom_data['no_import_syntax_errors_in_vanilla'] = False
                         oom_data['iter_id'] = f'{iteration + 1}.{rep}'
                         oom_data['iteration'] = f'{iteration}.{rep}'
-                        oom_data['test_results'] = {}
+                        oom_data['tests_results'] = {}
                         oom_data['problem_name'] = prob_name
                         oom_data['problem_index'] = n_prob
                         oom_data['exception'] = 'torch.cuda.OutOfMemoryError'
@@ -129,7 +129,7 @@ class ModelTester():
                     exc, worker_res, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep)
                     process_timed_out_data = []
                     for ddd in data_vanilla:
-                        if 'error' in ddd['test_results'] and ddd['test_results']['error'].strip() == 'Process timed out':
+                        if 'error' in ddd['tests_results'] and ddd['tests_results']['error'].strip() == 'Process timed out':
                             process_timed_out_data.append(ddd)        
                     _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=iteration, rep=rep, eventual_responses_vanilla=process_timed_out_data, all_eventual_responses_vanilla=data_vanilla)
                     to_save_preprocess.extend(data_preprocess)
@@ -209,7 +209,7 @@ class ModelTester():
             di['problem_name'] = prob_name
             di['problem_index'] = n_prob
             di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
-            di['test_results'] = {}
+            di['tests_results'] = {}
             data.append(di)
         responses_exception = [res for res in responses if 'exception' in res]
         for i, _ in enumerate(responses_exception):
@@ -217,7 +217,7 @@ class ModelTester():
             di['problem_name'] = prob_name
             di['problem_index'] = n_prob
             di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
-            di['test_results'] = {}
+            di['tests_results'] = {}
             data.append(di)
         workers = []
         print('Testing...')
@@ -230,13 +230,13 @@ class ModelTester():
             if eventual_responses_vanilla is not None:
                 for ddd in eventual_responses_vanilla:
                     if curr_iter_id == ddd['iter_id']:
-                        data[i]['test_results'] = ddd['test_results']
+                        data[i]['tests_results'] = ddd['tests_results']
                         go_to_the_next = True
                         break
                 if curr_no_import_syntax_errors_in_vanilla:
                     for ddd in all_eventual_responses_vanilla:
                         if curr_iter_id == ddd['iter_id']:
-                            data[i]['test_results'] = ddd['test_results']
+                            data[i]['tests_results'] = ddd['tests_results']
                             go_to_the_next = True
                             break
             if go_to_the_next:
@@ -256,17 +256,17 @@ class ModelTester():
                 print(f'Result obtained for repetition {rep}')
                 worker_res = args[i][-1].get()
                 if isinstance(worker_res, str):
-                    data[i]['test_results'] = {'passed': 0, 'error': worker_res}
+                    data[i]['tests_results'] = {'passed': 0, 'error': worker_res}
                 else:
-                    data[i]['test_results'] = worker_res[0]
+                    data[i]['tests_results'] = worker_res[0]
             except Exception as e:
                 if self.__reask:
                     print(f'Exception for repetition {rep}')
-                    data[i]['test_results'] = {'passed': 0, 'error': str(e)}
+                    data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
                     exc = True
                 else:
                     print(f'Exception for iteration {i + 1}')
-                    data[i]['test_results'] = {'passed': 0, 'error': str(e)}
+                    data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
         return exc, worker_res, data
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str, n_iter: int) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
@@ -375,7 +375,7 @@ class ModelTester():
                 'prompt': element['prompt'],
                 'no_import_syntax_errors_in_vanilla': element['no_import_syntax_errors_in_vanilla'],
                 'exception': element['exception'],
-                'tests_results': element['test_results'] if 'test_results' in element else {}
+                'tests_results': element['tests_results'] if 'tests_results' in element else {}
             }
         else:
             imports: List[str] = element['imports']
@@ -400,7 +400,7 @@ class ModelTester():
                 'imports_and_supports': element['imports_and_supports'],
                 'variables_names': used_names,
                 'final_individual': ind,
-                'tests_results': element['test_results']
+                'tests_results': element['tests_results']
             }
         
         return json_element
