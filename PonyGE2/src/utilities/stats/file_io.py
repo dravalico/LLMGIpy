@@ -57,7 +57,7 @@ def save_stats_to_file(stats, end=False):
     :return: Nothing.
     """
 
-    if params['VERBOSE']:
+    if False: # params['VERBOSE'] 
         filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "stats.tsv")
         savefile = open(filename, 'a')
         for stat in sorted(stats.keys()):

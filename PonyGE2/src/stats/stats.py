@@ -214,7 +214,7 @@ def get_soo_stats(individuals, end, execution_time_in_minutes):
             trackers.best_ever.levi_errors = temp_ind_levi_errors
 
     # Save stats to list.
-    if params['VERBOSE'] or (not params['DEBUG'] and not end):
+    if False or (not params['DEBUG'] and not end): # params['VERBOSE']
         trackers.stats_list.append(copy(stats))
 
     # Save stats to file.
@@ -342,7 +342,7 @@ def get_moo_stats(individuals, end, execution_time_in_minutes):
             ind.fitness = ind.training_fitness
 
     # Save stats to list.
-    if params['VERBOSE'] or (not params['DEBUG'] and not end):
+    if False or (not params['DEBUG'] and not end): # params['VERBOSE']
         trackers.stats_list.append(copy(stats))
 
     # Save stats to file.

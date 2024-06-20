@@ -5,7 +5,7 @@ LLM_ITERATIONS:         <llmIterations>
 
 CACHE:                  True
 DEBUG:                  False
-VERBOSE:                True
+VERBOSE:                False
 SAVE_ALL:               True
 
 GRAMMAR_FILE:           dynamic/<bnf>
