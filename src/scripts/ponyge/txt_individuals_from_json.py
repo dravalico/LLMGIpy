@@ -59,7 +59,7 @@ def load_phenotypes_from_json(
         phenotypes.append(final_ind)
         if 'tests_results' in data[i] and 'passed' in data[i]["tests_results"] and int(data[i]["tests_results"]["passed"]) == train_size:
             num_iter_solved += 1
-    if num_iter_solved > 0:
+    if num_iter_solved == len(data):
         already_solved = True
     return phenotypes, already_solved, num_iter_solved, len(data)
 
