@@ -40,7 +40,7 @@ def load_phenotypes_from_json(
     num_iter_solved: int = 0
     for i in range(0, len(data)):
         if 'final_individual' in data[i]:
-            final_ind: str = data[i]['final_individual'].replace('\u2019', "'")
+            final_ind: str = data[i]['final_individual'].replace('\u2019', "\'")
             final_ind = final_ind[final_ind.index('def evolve('):].replace('repeat=', '')
             final_ind = final_ind.replace('\\\\d', '\d')
             final_ind = final_ind.replace('\\\\w', '\w')
