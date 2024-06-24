@@ -173,8 +173,6 @@ def create_grammar_from(
         if f'"{i}"' not in temp1:
             temp1.append(f'"{i}"')
     temp1 = ' | '.join(temp1)
-    print(temp1)
-    #quit()
     temp2 = []
     flat_list2 = sorted([item for sublist in variables for item in sublist])
     for i in flat_list2:
