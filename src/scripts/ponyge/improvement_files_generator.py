@@ -155,36 +155,39 @@ def create_grammar_from(
             nums.append(extract_numbers_from_string(json_file["problem_description"]))
             variables.append(e["variables_names"])
     
-    temp0: str = ""
-    temp: str = ""
+    temp0 = []
+    temp = []
     flat_list = sorted([item for sublist in extracted_functions_from_individuals for item in sublist])
     for i in flat_list:
-        if "." in i and i not in temp0:
-            temp0 += f'"{i}" | '
-        elif "." not in i and i not in temp:
-            temp += f'"{i}" | '
-    temp0 = temp0[:-2]
-    temp = temp[:-2]
-    temp1: str = []
+        if "." in i and f'"{i}"' not in temp0:
+            temp0.append(f'"{i}"')
+        elif "." not in i and f'"{i}"' not in temp:
+            temp.append(f'"{i}"')
+    temp0 = ' | '.join(temp0)
+    temp = ' | '.join(temp)
+    temp1 = []
     flat_list1 = sorted([item for sublist in extracted_strings_from_individuals for item in sublist])
+    flat_list1 = [item if item != '\n' else '\\n' for item in flat_list1]
+    flat_list1 = [item if item != '\t' else '\\t' for item in flat_list1]
     for i in flat_list1:
         if f'"{i}"' not in temp1:
             temp1.append(f'"{i}"')
-            temp1.append(" | ")
-    temp1 = temp1[:-1]
-    temp2: str = ""
+    temp1 = ' | '.join(temp1)
+    print(temp1)
+    #quit()
+    temp2 = []
     flat_list2 = sorted([item for sublist in variables for item in sublist])
     for i in flat_list2:
-        if i not in temp2:
-            temp2 += f'"{i}" | '
-    temp2 = temp2[:-2]
+        if f'"{i}"' not in temp2:
+            temp2.append(f'"{i}"')
+    temp2 = ' | '.join(temp2)
     temp2 += '| "a0" | "a1" | "a2"'
-    temp4: str = ""
+    temp4 = []
     flat_list4 = sorted([item for sublist in nums for item in sublist])
     for i in flat_list4:
-        if str(i) not in temp4:
-            temp4 += f'"{i}" | '
-    temp4 = temp4[:-2]
+        if f'"{i}"' not in temp4:
+            temp4.append(f'"{i}"')
+    temp4 = ' | '.join(temp4)
 
     actual_grammar_path: str = create_dir_path_string(
         full_path=os.getcwd() + '/',
@@ -215,8 +218,8 @@ def create_grammar_from(
                 bnf.write("<METHOD> ::= " + temp0 + '\n')
             else:
                 bnf.write("<METHOD> ::= " + '""' + '\n')
-            if temp1 != []:
-                bnf.write("<STRINGS> ::= " + ''.join(temp1) + '\n')
+            if temp1 != "":
+                bnf.write("<STRINGS> ::= " + temp1 + '\n')
             else:
                 bnf.write("<STRINGS> ::= " + '""' + '\n')
             if temp2 != "":
