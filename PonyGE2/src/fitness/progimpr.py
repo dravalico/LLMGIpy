@@ -61,6 +61,7 @@ class progimpr(base_ff):
             data += '\n'
             data += 'import warnings\n'
             data += 'warnings.filterwarnings("ignore", category=SyntaxWarning)\n'
+            data += 'warnings.filterwarnings("ignore", category=RuntimeWarning)\n'
             data += 'import random\n'
             data += 'indices = list(range(len(inval)))\n'
             data += f'random.Random(24 + 31 * {params["RANDOM_SEED"]} * {params["RANDOM_SEED"]}).shuffle(indices)\n'
@@ -78,6 +79,7 @@ class progimpr(base_ff):
             data += '\n'
             data += 'import warnings\n'
             data += 'warnings.filterwarnings("ignore", category=SyntaxWarning)\n'
+            data += 'warnings.filterwarnings("ignore", category=RuntimeWarning)\n'
         else:
             raise ValueError(f'{dist} is not a valid dist. It must be either training or test.')
 
