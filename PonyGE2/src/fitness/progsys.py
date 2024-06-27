@@ -61,11 +61,11 @@ class progsys(base_ff):
             self.eval = self.create_eval_process()
             
         if 'quality' in	result:
-            if result['quality'] > 10 ** 18:
-                result['quality'] = 10 ** 18
+            if result['quality'] > 1e+10:
+                result['quality'] = 1e+10
 
         if 'quality' not in result:
-            result['quality'] = 10 ** 18
+            result['quality'] = 1e+10
         return result['quality']
 
     @staticmethod

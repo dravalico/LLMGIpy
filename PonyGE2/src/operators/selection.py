@@ -68,9 +68,9 @@ def lexicase(population):
     else:
         available = [i for i in population if not i.invalid]
 
-    worst_fitness = 10 ** 18
+    worst_fitness = 1e+10
     if params['FITNESS_FUNCTION'].maximise:
-        worst_fitness = -10 ** 18
+        worst_fitness = -1e+10
 
     n_samples = params['NUM_TRAIN_EXAMPLES']
     data_indices = list(range(n_samples))
@@ -78,20 +78,24 @@ def lexicase(population):
 
     if params['FITNESS_FUNCTION'].maximise:
         errors_for_each_ind = [[-aaa for aaa in er_] for er_ in errors_for_each_ind]
-    
+
+    num_samples_restricted = min(n_samples, 100)
+    shuffle(data_indices)
+    data_indices = data_indices[:num_samples_restricted]
     for _ in range(params['GENERATION_SIZE']):
-        curr_data_indices = [data_ind for data_ind in data_indices]
-        shuffle(curr_data_indices)
-        competitors = {i: available[i] for i in range(len(available))}
-        for i in range(n_samples):
-            idx = curr_data_indices[i]
-            comp_error = {key: errors_for_each_ind[key][idx] for key in competitors.keys()}
+        shuffle(data_indices)
+        competitors = set(range(len(available)))
+        for i in range(len(data_indices)):
+            idx = data_indices[i]
+            comp_error = {key: errors_for_each_ind[key][idx] for key in competitors}
             best_val = min(comp_error.items(), key=lambda x: x[1])[1]
-            competitors = {key: competitors[key] for key in competitors.keys() if comp_error[key] == best_val}
+            competitors = {key for key in competitors if comp_error[key] == best_val}
             if len(competitors) == 1:
                 break
-        final_competitors = sorted(list(competitors.keys()))
-        winners.append( available[ final_competitors[ int(random.random()*len(final_competitors)) ] ] )
+        competitors = list(competitors)
+        competitors.sort()
+        winners.append( available[ competitors[ int(random.random()*len(competitors)) ] ] )
+
     # Return the population of selection winners.
     return winners
 
@@ -122,7 +126,7 @@ def nsga2_selection(population):
     than sorting the population according to their front rank. The
     list returned contains references to the input *population*. For more
     details on the NSGA-II operator see [Deb2002]_.
-    
+
     :param population: A population from which to select individuals.
     :returns: A list of selected individuals.
     .. [Deb2002] Deb, Pratab, Agarwal, and Meyarivan, "A fast elitist

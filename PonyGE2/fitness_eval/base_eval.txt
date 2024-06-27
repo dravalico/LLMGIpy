@@ -31,12 +31,12 @@ def fitness():
   cases = []
   max_val = max([get_actual_size(ooo[0]) for ooo in outval])
   for (i, o) in zip(inval, outval):
-    values = [min(fitnessTrainingCase(i, o, max_val=max_val)[0], 10 ** 13)]
+    values = [min(fitnessTrainingCase(i, o, max_val=max_val)[0], 1e+10)]
     error.extend(values)
     cases.append(all(v < 0.000000001 for v in values))
   return error, cases
 
 
-quality = 10 ** 18
+quality = 1e+10
 caseQuality, cases = fitness()
 quality = sum(caseQuality)

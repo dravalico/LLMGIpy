@@ -87,7 +87,7 @@ class progimpr(base_ff):
         # BE CAREFUL WITH TIMEOUT, IF EVOLUTION TAKES LONG CONSIDER DECREASING IT.
         # HOWEVER, AVOID PUTTING THIS TO 1.0 SINCE IS TOO LOW AND
         # IF TIMEOUT OCCURRED THEN YOU WILL HAVE MAXSIZE AS FITNESS.
-        eval_json = json.dumps({'script': program, 'timeout': 3.0,
+        eval_json = json.dumps({'script': program, 'timeout': 1.0,
                                 'variables': ['cases', 'caseQuality',
                                               'quality']})
 
@@ -102,11 +102,11 @@ class progimpr(base_ff):
             self.eval = self.create_eval_process()
 
         if 'quality' in result:
-            if result['quality'] > 10 ** 18:
-                result['quality'] = 10 ** 18
+            if result['quality'] > 1e+10:
+                result['quality'] = 1e+10
 
         if 'quality' not in result:
-            result['quality'] = 10 ** 18
+            result['quality'] = 1e+10
 
         if dist == 'training':
             ind.levi_errors = result['caseQuality'] if 'caseQuality' in result else None

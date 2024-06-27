@@ -72,7 +72,7 @@ if __name__ == '__main__':
             # HeuristicLab is not running anymore
             # stop thread
             consume.put(None)
-            if not p.join(5):
+            if not p.join(2):
                 p.terminate()
             break
 
@@ -94,7 +94,7 @@ if __name__ == '__main__':
         if not results:
             p.stop_current()
             try:
-                produce.get(block=True, timeout=message_dict['timeout'] * 10)
+                produce.get(block=True, timeout=message_dict['timeout'] * 2)
             except Empty:
                 # START: Used to terminate worker process if it does not return
                 # Possible reasons: OS X does not throw a MemoryError and

@@ -31,7 +31,7 @@ def get_actual_size(a):
     except:
         pass
 
-    return float(10 ** 8)
+    return float(1e+8)
 
 def compare_equal(a, b):
     return float(a != b)
