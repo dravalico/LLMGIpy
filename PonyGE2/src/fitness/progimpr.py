@@ -1,5 +1,8 @@
 import json
 from subprocess import Popen, PIPE
+from multiprocessing import Queue
+import threading
+import concurrent.futures as cf
 import sys
 from os import path
 
@@ -8,6 +11,7 @@ sys.path.append('../../src/scripts')
 from json_data_io import read_json # type: ignore
 sys.path = curr_path
 
+from utilities.algorithm.parallel import thread_pool_parallelize
 from algorithm.parameters import params
 from fitness.base_ff_classes.base_ff import base_ff
 
@@ -40,7 +44,7 @@ class progimpr(base_ff):
         self.training, self.test, self.embed_header, self.embed_footer = \
             self.get_data(params['DATASET_TRAIN'], params['DATASET_TEST'],
                           params['GRAMMAR_FILE'])
-        self.eval = self.create_eval_process()
+        #self.eval = self.create_eval_process()
         if params['MULTICORE']:
             print("Warming: multi-core is not supported with progsys "
                   "as fitness function.\n"
@@ -84,8 +88,10 @@ class progimpr(base_ff):
             raise ValueError(f'{dist} is not a valid dist. It must be either training or test.')
 
         program = "{}\n{}\n".format(data, program)
+
         # BE CAREFUL WITH TIMEOUT, IF EVOLUTION TAKES LONG CONSIDER DECREASING IT.
         # IF TIMEOUT OCCURRED THEN YOU WILL HAVE MAXSIZE AS FITNESS.
+        '''
         eval_json = json.dumps({'script': program, 'timeout': 0.8,
                                 'variables': ['cases', 'caseQuality',
                                               'quality']})
@@ -99,6 +105,18 @@ class progimpr(base_ff):
         if 'exception' in result and 'JSONDecodeError' in result['exception']:
             self.eval.stdin.close()
             self.eval = self.create_eval_process()
+        '''
+        result = {}
+        try:
+            result = thread_pool_parallelize(
+                progimpr.exec_single_program,
+                [{'program': program}],
+                num_workers=1,
+                chunksize=1,
+                timeout=0.8
+            )[0]
+        except Exception as e:
+            result = {}
 
         if 'quality' in result:
             if result['quality'] > 1e+10:
@@ -110,6 +128,14 @@ class progimpr(base_ff):
         if dist == 'training':
             ind.levi_errors = result['caseQuality'] if 'caseQuality' in result else None
         return result['quality']
+
+    @staticmethod
+    def exec_single_program(program):
+        try:
+            exec(program, globals())
+            return {'quality': quality, 'caseQuality': caseQuality} # type: ignore
+        except Exception as e:
+            return {}
 
     @staticmethod
     def create_eval_process():

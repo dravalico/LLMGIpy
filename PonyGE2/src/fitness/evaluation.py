@@ -1,8 +1,10 @@
+import os
 import numpy as np
 
 from algorithm.parameters import params
 from stats.stats import stats
 from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache
+from utilities.algorithm.parallel import process_pool_parallelize
 
 
 def evaluate_fitness(individuals):
@@ -31,6 +33,8 @@ def evaluate_fitness(individuals):
 
     if params['MULTICORE']:
         pool = params['POOL']
+
+    almost_new_individuals = []
 
     for name, ind in enumerate(individuals):
         ind.name = name
@@ -78,8 +82,21 @@ def evaluate_fitness(individuals):
                     individuals[name] = ind
                     ind.name = name
 
-            if eval_ind:
-                results = eval_or_append(ind, results, pool)
+            #if eval_ind:
+                #results = eval_or_append(ind, results, pool)
+            almost_new_individuals.append((ind, eval_ind))
+    
+    new_individuals = process_pool_parallelize(
+        eval_or_append,
+        [{'ind': ind, 'results': [], 'pool': None, 'eval_ind': eval_ind} for ind, eval_ind in almost_new_individuals],
+        num_workers=os.cpu_count() // 2,
+        chunksize=1,
+        timeout=None
+    )
+
+    for ind, eval_ind in new_individuals:
+        if eval_ind:
+            update_ind_cache(ind)
 
     if params['MULTICORE']:
         for result in results:
@@ -99,10 +116,10 @@ def evaluate_fitness(individuals):
             if ind.runtime_error:
                 runtime_error_cache.append(ind.phenotype)
 
-    return individuals
+    return [ind for ind, _ in new_individuals]
 
 
-def eval_or_append(ind, results, pool):
+def eval_or_append(ind, results, pool, eval_ind=True):
     """
     Evaluates an individual if sequential evaluation is being used. If
     multi-core parallel evaluation is being used, adds the individual to the
@@ -112,6 +129,7 @@ def eval_or_append(ind, results, pool):
     :param results: A list of individuals to be evaluated by the multicore
     pool of workers.
     :param pool: A pool of workers for multicore evaluation.
+    :param eval_ind: A bool telling whether to evaluate the individual from scratch or not.
     :return: The evaluated individual or the list of individuals to be
     evaluated.
     """
@@ -122,32 +140,37 @@ def eval_or_append(ind, results, pool):
         return results
 
     else:
-        # Evaluate the individual.
-        ind.evaluate()
+        if eval_ind:
+            # Evaluate the individual.
+            ind.evaluate()
+            #update_ind_cache(ind)
+        return ind, eval_ind
+    
+def update_ind_cache(ind):
+    # Check if individual had a runtime error.
+    if ind.runtime_error:
+        runtime_error_cache.append(ind.phenotype)
 
-        # Check if individual had a runtime error.
-        if ind.runtime_error:
-            runtime_error_cache.append(ind.phenotype)
+    if params['CACHE']:
+        # The phenotype string of the individual does not appear
+        # in the cache, it must be evaluated and added to the
+        # cache.
 
-        if params['CACHE']:
-            # The phenotype string of the individual does not appear
-            # in the cache, it must be evaluated and added to the
-            # cache.
+        if (isinstance(ind.fitness, list) and not
+        any([np.isnan(i) for i in ind.fitness])) or \
+                (not isinstance(ind.fitness, list) and not
+                np.isnan(ind.fitness)):
+            # All fitnesses are valid.
+            cache[ind.phenotype] = ind.fitness
 
-            if (isinstance(ind.fitness, list) and not
-            any([np.isnan(i) for i in ind.fitness])) or \
-                    (not isinstance(ind.fitness, list) and not
-                    np.isnan(ind.fitness)):
-                # All fitnesses are valid.
-                cache[ind.phenotype] = ind.fitness
+        if (isinstance(ind.levi_test_fitness, list) and not
+        any([np.isnan(i) for i in ind.levi_test_fitness])) or \
+                (not isinstance(ind.levi_test_fitness, list) and not
+                np.isnan(ind.levi_test_fitness)):
+            # All fitnesses are valid.
+            cache_test_set[ind.phenotype] = ind.levi_test_fitness
 
-            if (isinstance(ind.levi_test_fitness, list) and not
-            any([np.isnan(i) for i in ind.levi_test_fitness])) or \
-                    (not isinstance(ind.levi_test_fitness, list) and not
-                    np.isnan(ind.levi_test_fitness)):
-                # All fitnesses are valid.
-                cache_test_set[ind.phenotype] = ind.levi_test_fitness
-
-            if ind.levi_errors is None or (ind.levi_errors is not None and isinstance(ind.levi_errors, list)):
-                # All fitnesses are valid.
-                cache_levi_errors[ind.phenotype] = ind.levi_errors
+        if ind.levi_errors is None or (ind.levi_errors is not None and isinstance(ind.levi_errors, list)):
+            # All fitnesses are valid.
+            cache_levi_errors[ind.phenotype] = ind.levi_errors
+    
