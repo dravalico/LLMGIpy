@@ -85,9 +85,8 @@ class progimpr(base_ff):
 
         program = "{}\n{}\n".format(data, program)
         # BE CAREFUL WITH TIMEOUT, IF EVOLUTION TAKES LONG CONSIDER DECREASING IT.
-        # HOWEVER, AVOID PUTTING THIS TO 1.0 SINCE IS TOO LOW AND
         # IF TIMEOUT OCCURRED THEN YOU WILL HAVE MAXSIZE AS FITNESS.
-        eval_json = json.dumps({'script': program, 'timeout': 1.0,
+        eval_json = json.dumps({'script': program, 'timeout': 0.8,
                                 'variables': ['cases', 'caseQuality',
                                               'quality']})
 

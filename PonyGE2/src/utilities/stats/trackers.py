@@ -9,6 +9,9 @@ cache_test_set = {}
 # This dict stores the cache for an evolutionary run. The key for each entry
 # is the phenotype of the individual, the value is its fitness on the test set.
 
+cache_levi_errors = {}
+# This dict stores the cache for an evolutionary run. The key for each entry
+# is the phenotype of the individual, the value is its errors on the training set.
 
 runtime_error_cache = []
 # This list stores a list of phenotypes which produce runtime errors over an

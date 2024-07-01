@@ -2,7 +2,7 @@ import numpy as np
 
 from algorithm.parameters import params
 from stats.stats import stats
-from utilities.stats.trackers import cache, cache_test_set, runtime_error_cache
+from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache
 
 
 def evaluate_fitness(individuals):
@@ -41,6 +41,7 @@ def evaluate_fitness(individuals):
             # default fitness.
             ind.fitness = params['FITNESS_FUNCTION'].default_fitness
             ind.levi_test_fitness = params['FITNESS_FUNCTION'].default_fitness
+            ind.levi_errors = None
             stats['invalids'] += 1
 
         else:
@@ -56,12 +57,14 @@ def evaluate_fitness(individuals):
                     # cache.
                     ind.fitness = cache[ind.phenotype]
                     ind.levi_test_fitness = cache_test_set[ind.phenotype]
+                    ind.levi_errors = cache_levi_errors[ind.phenotype]
                     eval_ind = False
 
                 elif params['LOOKUP_BAD_FITNESS']:
                     # Give the individual a bad default fitness.
                     ind.fitness = params['FITNESS_FUNCTION'].default_fitness
                     ind.levi_test_fitness = params['FITNESS_FUNCTION'].default_fitness
+                    ind.levi_errors = None
                     eval_ind = False
 
                 elif params['MUTATE_DUPLICATES']:
@@ -90,6 +93,7 @@ def evaluate_fitness(individuals):
             # Add the evaluated individual to the cache.
             cache[ind.phenotype] = ind.fitness
             cache_test_set[ind.phenotype] = ind.levi_test_fitness
+            cache_levi_errors[ind.phenotype] = ind.levi_errors
 
             # Check if individual had a runtime error.
             if ind.runtime_error:
@@ -143,3 +147,7 @@ def eval_or_append(ind, results, pool):
                     np.isnan(ind.levi_test_fitness)):
                 # All fitnesses are valid.
                 cache_test_set[ind.phenotype] = ind.levi_test_fitness
+
+            if ind.levi_errors is None or (ind.levi_errors is not None and isinstance(ind.levi_errors, list)):
+                # All fitnesses are valid.
+                cache_levi_errors[ind.phenotype] = ind.levi_errors
