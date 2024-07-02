@@ -113,7 +113,7 @@ class progimpr(base_ff):
         worker = Process(target=progimpr.exec_single_program, args=args)
         worker.start()
         try:
-            worker.join(timeout=1.0)
+            worker.join(timeout=2.0)
             if worker.is_alive():
                 worker.terminate()
                 raise Exception('Process timed out')

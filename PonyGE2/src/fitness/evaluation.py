@@ -54,7 +54,7 @@ def evaluate_fitness(individuals):
             eval_ind = True
 
             # Valid individuals can be evaluated.
-            if params['CACHE'] and ind.phenotype in cache:
+            if params['CACHE'] and ind.phenotype in cache and ind.phenotype in cache_test_set and ind.phenotype in cache_levi_errors:
                 # The individual has been encountered before in
                 # the utilities.trackers.cache.
 
@@ -161,21 +161,22 @@ def update_ind_cache(ind):
         # in the cache, it must be evaluated and added to the
         # cache.
 
-        if (isinstance(ind.fitness, list) and not
+        if ( 
+            (isinstance(ind.fitness, list) and not
         any([np.isnan(i) for i in ind.fitness])) or \
                 (not isinstance(ind.fitness, list) and not
-                np.isnan(ind.fitness)):
-            # All fitnesses are valid.
-            cache[ind.phenotype] = ind.fitness
-
-        if (isinstance(ind.levi_test_fitness, list) and not
+                np.isnan(ind.fitness)) 
+            ) and \
+            (
+                (isinstance(ind.levi_test_fitness, list) and not
         any([np.isnan(i) for i in ind.levi_test_fitness])) or \
                 (not isinstance(ind.levi_test_fitness, list) and not
-                np.isnan(ind.levi_test_fitness)):
+                np.isnan(ind.levi_test_fitness))
+            ) and \
+                ( 
+                    ind.levi_errors is None or (ind.levi_errors is not None and isinstance(ind.levi_errors, list))
+                ):
             # All fitnesses are valid.
+            cache[ind.phenotype] = ind.fitness
             cache_test_set[ind.phenotype] = ind.levi_test_fitness
-
-        if ind.levi_errors is None or (ind.levi_errors is not None and isinstance(ind.levi_errors, list)):
-            # All fitnesses are valid.
             cache_levi_errors[ind.phenotype] = ind.levi_errors
-    

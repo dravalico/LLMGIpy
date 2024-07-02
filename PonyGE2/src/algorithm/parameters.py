@@ -171,7 +171,7 @@ params = {
     'CACHE': False,
     # Uses the cache to look up the fitness of duplicate individuals. CACHE
     # must be set to True if you want to use this.
-    'LOOKUP_FITNESS': True,
+    'LOOKUP_FITNESS': False,
     # Uses the cache to give a bad fitness to duplicate individuals. CACHE
     # must be True if you want to use this (obviously)
     'LOOKUP_BAD_FITNESS': False,
