@@ -15,7 +15,9 @@ from stats.stats import get_stats
 from algorithm.parameters import params, set_params
 import sys
 import time
-
+import warnings
+warnings.filterwarnings("ignore", category=SyntaxWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 def mane():
     """ Run program """

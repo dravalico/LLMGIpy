@@ -5,6 +5,9 @@ import editdistance
 import statistics
 from collections.abc import Callable
 import math
+import warnings
+warnings.filterwarnings("ignore", category=SyntaxWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 import numpy as np
 from multiprocessing import Process, Queue
 from fitness.progimpr import progimpr

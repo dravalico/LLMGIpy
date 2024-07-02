@@ -2,7 +2,9 @@ import numpy as np
 
 from algorithm.mapper import mapper
 from algorithm.parameters import params
-
+import warnings
+warnings.filterwarnings("ignore", category=SyntaxWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 class Individual(object):
     """

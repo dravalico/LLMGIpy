@@ -1,6 +1,8 @@
 import os
 import numpy as np
-
+import warnings
+warnings.filterwarnings("ignore", category=SyntaxWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 from algorithm.parameters import params
 from stats.stats import stats
 from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache

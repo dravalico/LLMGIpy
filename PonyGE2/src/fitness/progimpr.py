@@ -5,7 +5,9 @@ import threading
 import concurrent.futures as cf
 import sys
 from os import path
-
+import warnings
+warnings.filterwarnings("ignore", category=SyntaxWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 curr_path = [sss for sss in sys.path]
 sys.path.append('../../src/scripts')
 from json_data_io import read_json # type: ignore
