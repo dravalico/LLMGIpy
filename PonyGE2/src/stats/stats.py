@@ -202,31 +202,31 @@ def get_soo_stats(individuals, end, execution_time_in_minutes):
             temp_ind_levi_test_fitness = trackers.best_ever.levi_test_fitness
             temp_ind_levi_errors = trackers.best_ever.levi_errors
 
-            args = (trackers.best_ever, Queue())
-            worker = Process(target=__compute_classic_progimpr_fitness_on_best_ever, args=args)
-            worker.start()
-            try:
-                worker.join(timeout=1.0)
-                if worker.is_alive():
-                    worker.terminate()
-                    raise Exception('Process timed out')
-                worker_res = args[1].get()
-                if isinstance(worker_res, str):
-                    trackers.best_ever.num_not_passed_cases_train = params['NUM_TRAIN_EXAMPLES']
-                    trackers.best_ever.num_not_passed_cases_test = params['NUM_TEST_EXAMPLES']
-                else:
-                    trackers.best_ever.num_not_passed_cases_train = worker_res[0]
-                    trackers.best_ever.num_not_passed_cases_test = worker_res[1]
-            except Exception as e:
-                trackers.best_ever.num_not_passed_cases_train = params['NUM_TRAIN_EXAMPLES']
-                trackers.best_ever.num_not_passed_cases_test = params['NUM_TEST_EXAMPLES']
+            # args = (trackers.best_ever, Queue())
+            # worker = Process(target=__compute_classic_progimpr_fitness_on_best_ever, args=args)
+            # worker.start()
+            # try:
+            #     worker.join(timeout=1.0)
+            #     if worker.is_alive():
+            #         worker.terminate()
+            #         raise Exception('Process timed out')
+            #     worker_res = args[1].get()
+            #     if isinstance(worker_res, str):
+            #         trackers.best_ever.num_not_passed_cases_train = params['NUM_TRAIN_EXAMPLES']
+            #         trackers.best_ever.num_not_passed_cases_test = params['NUM_TEST_EXAMPLES']
+            #     else:
+            #         trackers.best_ever.num_not_passed_cases_train = worker_res[0]
+            #         trackers.best_ever.num_not_passed_cases_test = worker_res[1]
+            # except Exception as e:
+            #     trackers.best_ever.num_not_passed_cases_train = params['NUM_TRAIN_EXAMPLES']
+            #     trackers.best_ever.num_not_passed_cases_test = params['NUM_TEST_EXAMPLES']
             
-            #params['FITNESS_FILE'] = 'fitness_cases.txt'
-            #temp_fitness_class_instance = progimpr()
-            #rubber_train = temp_fitness_class_instance(trackers.best_ever, dist='training')
-            #rubber_test = temp_fitness_class_instance(trackers.best_ever, dist='test')
-            #trackers.best_ever.num_not_passed_cases_train = rubber_train
-            #trackers.best_ever.num_not_passed_cases_test = rubber_test
+            params['FITNESS_FILE'] = 'fitness_cases.txt'
+            temp_fitness_class_instance = progimpr()
+            rubber_train = temp_fitness_class_instance(trackers.best_ever, dist='training')
+            rubber_test = temp_fitness_class_instance(trackers.best_ever, dist='test')
+            trackers.best_ever.num_not_passed_cases_train = rubber_train
+            trackers.best_ever.num_not_passed_cases_test = rubber_test
 
             params['FITNESS_FILE'] = temp_fitness_file
             trackers.best_ever.fitness = temp_ind_fitness

@@ -4,7 +4,7 @@ import numpy as np
 from algorithm.parameters import params
 from stats.stats import stats
 from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache
-from utilities.algorithm.parallel import process_pool_parallelize
+from utilities.algorithm.parallel import process_pool_parallelize, thread_pool_parallelize
 
 
 def evaluate_fitness(individuals):
@@ -86,10 +86,10 @@ def evaluate_fitness(individuals):
                 #results = eval_or_append(ind, results, pool)
             almost_new_individuals.append((ind, eval_ind))
     
-    new_individuals = process_pool_parallelize(
+    new_individuals = thread_pool_parallelize(
         eval_or_append,
         [{'ind': ind, 'results': [], 'pool': None, 'eval_ind': eval_ind} for ind, eval_ind in almost_new_individuals],
-        num_workers=os.cpu_count() // 2,
+        num_workers=os.cpu_count(),
         chunksize=1,
         timeout=None
     )
@@ -142,7 +142,10 @@ def eval_or_append(ind, results, pool, eval_ind=True):
     else:
         if eval_ind:
             # Evaluate the individual.
-            ind.evaluate()
+            try:
+                ind.evaluate()
+            except MemoryError:
+                pass
             #update_ind_cache(ind)
         return ind, eval_ind
     

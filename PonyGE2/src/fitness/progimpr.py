@@ -1,6 +1,6 @@
 import json
 from subprocess import Popen, PIPE
-from multiprocessing import Queue
+from multiprocessing import Queue, Process
 import threading
 import concurrent.futures as cf
 import sys
@@ -107,14 +107,23 @@ class progimpr(base_ff):
             self.eval = self.create_eval_process()
         '''
         result = {}
+        args = (program, Queue())
+        worker = Process(target=progimpr.exec_single_program, args=args)
+        worker.start()
         try:
-            result = thread_pool_parallelize(
-                progimpr.exec_single_program,
-                [{'program': program}],
-                num_workers=1,
-                chunksize=1,
-                timeout=0.8
-            )[0]
+            worker.join(timeout=1.0)
+            if worker.is_alive():
+                worker.terminate()
+                raise Exception('Process timed out')
+            worker_res = args[1].get()
+            result = worker_res
+            # result = thread_pool_parallelize(
+            #     progimpr.exec_single_program,
+            #     [{'program': program}],
+            #     num_workers=1,
+            #     chunksize=1,
+            #     timeout=0.8
+            # )[0]
         except Exception as e:
             result = {}
 
@@ -130,12 +139,16 @@ class progimpr(base_ff):
         return result['quality']
 
     @staticmethod
-    def exec_single_program(program):
+    def exec_single_program(*args):
+        program = args[0]
+        queue = args[1]
         try:
             exec(program, globals())
-            return {'quality': quality, 'caseQuality': caseQuality} # type: ignore
+            result = {'quality': quality, 'caseQuality': caseQuality} # type: ignore
+            queue.put(result)
         except Exception as e:
-            return {}
+            result = {}
+            queue.put(result)
 
     @staticmethod
     def create_eval_process():
