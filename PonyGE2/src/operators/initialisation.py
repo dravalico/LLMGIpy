@@ -1,7 +1,9 @@
 from math import floor
 from os import getcwd, listdir, path
 from random import randint, shuffle
-
+import sys
+import subprocess
+import multiprocessing
 from algorithm.parameters import params
 from representation import individual
 from representation.derivation import generate_tree, pi_grow
@@ -10,6 +12,11 @@ from representation.latent_tree import latent_tree_random_ind
 from representation.tree import Tree
 from scripts import GE_LR_parser
 from utilities.representation.python_filter import python_filter
+
+curr_path = [sss for sss in sys.path]
+sys.path.append('../../src/scripts')
+from json_data_io import read_json # type: ignore
+sys.path = curr_path
 
 
 def initialisation(size):
@@ -493,8 +500,39 @@ def load_population(target):
         # Add new ind to the list of seed individuals.
         seed_inds.append(ind)
 
+    if params['FITNESS_FUNCTION'].__class__.__name__ == 'progimpr' and all([ind.invalid for ind in seed_inds]):
+        seed_inds = []
+        llm_data = read_json(
+                        full_path='../../results/',
+                        model_name=params['MODEL_NAME'],
+                        problem_benchmark=params['BENCHMARK_NAME'],
+                        problem_id=params['PROBLEM_INDEX'],
+                        reask=False,
+                        iterations=params['LLM_ITERATIONS'],
+                        repeatitions=0,
+                        train_size=params['NUM_TRAIN_EXAMPLES'],
+                        test_size=params['NUM_TEST_EXAMPLES']
+                    )
+        n_inputs = llm_data['n_inputs']
+        final_ind = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
+        new_genotypes = []
+        args = [("scripts/GE_LR_parser.py", ["--grammar_file", params['GRAMMAR_FILE'], "--reverse_mapping_target", p])
+                              for p in [final_ind]]
+        with multiprocessing.Pool(processes=len(args)) as pool:
+            new_genotypes = [r for r in pool.starmap(_worker_function_script_path_script_args_initialisation, args) if r is not None]
+        seed_inds.append(Individual(eval(new_genotypes[0]), None))
+
     return seed_inds
 
+def _worker_function_script_path_script_args_initialisation(script_path, script_args):
+    try:
+        process = subprocess.Popen(["python", script_path] + script_args,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, _ = process.communicate()
+        if "Genome" in stdout:
+            return stdout[stdout.index('['): stdout.index(']') + 1]
+    except:
+        pass
 
 def LTGE_initialisation(size):
     """Initialise a population in the LTGE representation."""

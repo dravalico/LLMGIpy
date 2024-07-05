@@ -68,9 +68,9 @@ def lexicase(population):
     else:
         available = [i for i in population if not i.invalid]
 
-    worst_fitness = 1e+10
+    worst_fitness = params['WORST_POSSIBLE_FITNESS']
     if params['FITNESS_FUNCTION'].maximise:
-        worst_fitness = -1e+10
+        worst_fitness = -params['WORST_POSSIBLE_FITNESS']
 
     n_samples = params['NUM_TRAIN_EXAMPLES']
     data_indices = list(range(n_samples))

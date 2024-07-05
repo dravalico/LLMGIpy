@@ -61,11 +61,11 @@ class progsys(base_ff):
             self.eval = self.create_eval_process()
             
         if 'quality' in	result:
-            if result['quality'] > 1e+10:
-                result['quality'] = 1e+10
+            if result['quality'] > params['WORST_POSSIBLE_FITNESS']:
+                result['quality'] = params['WORST_POSSIBLE_FITNESS']
 
         if 'quality' not in result:
-            result['quality'] = 1e+10
+            result['quality'] = params['WORST_POSSIBLE_FITNESS']
         return result['quality']
 
     @staticmethod

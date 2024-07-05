@@ -5,6 +5,7 @@ curr_path = [sss for sss in sys.path]
 sys.path.append('../src')
 from utilities.fitness.typed_fitness import get_actual_size # type: ignore
 from utilities.fitness.typed_fitness import compare_based_on_type # type: ignore
+from algorithm.parameters import params
 sys.path = curr_path
 
 <insertImports>
@@ -31,12 +32,12 @@ def fitness():
   cases = []
   max_val = max([get_actual_size(ooo[0]) for ooo in outval])
   for (i, o) in zip(inval, outval):
-    values = [min(fitnessTrainingCase(i, o, max_val=max_val)[0], 1e+10)]
+    values = [min(fitnessTrainingCase(i, o, max_val=max_val)[0], params['WORST_POSSIBLE_FITNESS'])]
     error.extend(values)
     cases.append(all(v < 0.000000001 for v in values))
   return error, cases
 
 
-quality = 1e+10
+quality = params['WORST_POSSIBLE_FITNESS']
 caseQuality, cases = fitness()
 quality = sum(caseQuality)

@@ -1,8 +1,5 @@
-import json
 from subprocess import Popen, PIPE
 from multiprocessing import Queue, Process
-import threading
-import concurrent.futures as cf
 import sys
 from os import path
 import warnings
@@ -54,6 +51,7 @@ class progimpr(base_ff):
 
     def evaluate(self, ind, **kwargs):
         dist = kwargs.get('dist', None)
+        timeout = kwargs.get('timeout', 2.0)
         if dist is None:
             raise ValueError(f'dist is None. It must be either training or test to select the correct dataset type.')
         n_actual_train_examples = params['NUM_TRAIN_EXAMPLES']
@@ -113,7 +111,7 @@ class progimpr(base_ff):
         worker = Process(target=progimpr.exec_single_program, args=args)
         worker.start()
         try:
-            worker.join(timeout=2.0)
+            worker.join(timeout=timeout)
             if worker.is_alive():
                 worker.terminate()
                 raise Exception('Process timed out')
@@ -130,11 +128,11 @@ class progimpr(base_ff):
             result = {}
 
         if 'quality' in result:
-            if result['quality'] > 1e+10:
-                result['quality'] = 1e+10
+            if result['quality'] > params['WORST_POSSIBLE_FITNESS']:
+                result['quality'] = params['WORST_POSSIBLE_FITNESS']
 
         if 'quality' not in result:
-            result['quality'] = 1e+10
+            result['quality'] = params['WORST_POSSIBLE_FITNESS']
 
         if dist == 'training':
             ind.levi_errors = result['caseQuality'] if 'caseQuality' in result else None

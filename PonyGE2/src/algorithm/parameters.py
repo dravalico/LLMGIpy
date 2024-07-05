@@ -11,6 +11,7 @@ params = {
     'SEARCH_LOOP': 'search_loop',
     'STEP': 'step',
     'DYNAMIC_BNF': False, # ? realy needed
+    'WORST_POSSIBLE_FITNESS': 1e+10,
 
     # Evolutionary Parameters
     'POPULATION_SIZE': 500,
