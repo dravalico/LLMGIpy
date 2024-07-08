@@ -4,6 +4,8 @@ from typing import Any
 from os import getcwd, makedirs, path
 from shutil import rmtree
 
+import pandas as pd
+
 from algorithm.parameters import params
 from utilities.stats import trackers
 
@@ -46,6 +48,23 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
         os.makedirs(results_folder_path)
 
     return results_folder_path
+
+def read_ponyge_results(base_path: str, params: dict[str, Any], include_seed: bool) -> dict:
+    path: str = create_results_folder_path(base_path=base_path, params=params, include_seed=include_seed, make_dirs=False)
+    if not path.endswith('/'):
+        path += '/'
+    executed_gens: list[int] = sorted([int(file[:file.index('.txt')]) for file in os.listdir(path) if file.endswith('.txt') and file[:file.index('.txt')].isdigit()])
+    stats: pd.DataFrame = pd.read_csv(path + 'stats.tsv', sep='\t', header=0)
+    res = {'stats': stats, 'gens': []}
+    for gen in executed_gens:
+        with open(path + str(gen) + '.txt', 'r') as f:
+            lines = [line.strip() for line in f.readlines() if line.strip() != '']
+        gen_dict = {}
+        for i in range(0, len(lines), 2):
+            gen_dict[lines[i]] = lines[i + 1]
+        res['gens'].append(gen_dict)
+
+    return res
 
 def save_stats_to_file(stats, end=False):
     """

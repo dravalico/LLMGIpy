@@ -130,7 +130,7 @@ params = {
     'SAVE_ALL': False,
     # Save a plot of the evolution of the best fitness result for each
     # generation.
-    'SAVE_PLOTS': True,
+    'SAVE_PLOTS': False,
 
     # MULTIPROCESSING
     # Multi-core parallel processing of phenotype evaluations.
