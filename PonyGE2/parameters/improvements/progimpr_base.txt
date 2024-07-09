@@ -4,9 +4,11 @@ PROBLEM_INDEX:          <problemIndex>
 LLM_ITERATIONS:         <llmIterations>
 
 CACHE:                  True
+LOOKUP_FITNESS:         True
 DEBUG:                  False
 VERBOSE:                False
 SAVE_ALL:               True
+SAVE_PLOTS:             False
 
 GRAMMAR_FILE:           dynamic/<bnf>
 DATASET_TRAIN:          <train>/Train.txt
