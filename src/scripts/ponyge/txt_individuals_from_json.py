@@ -56,16 +56,17 @@ def load_phenotypes_from_json(
             final_ind = final_ind.replace('\\S', '\S')
         else:
             final_ind: str = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
-        phenotypes.append(final_ind)
         if 'tests_results' in data[i] and 'passed' in data[i]["tests_results"] and int(data[i]["tests_results"]["passed"]) == train_size:
             num_iter_solved += 1
+        else:
+            phenotypes.append(final_ind)
     if num_iter_solved == len(data):
         already_solved = True
     return phenotypes, already_solved, num_iter_solved, len(data)
 
 
 def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bool, only_impr: bool) -> List[List[str]]:
-    if only_impr:
+    if only_impr or already_solved:
         return []
     if len(phenotypes) == 0:
         e: str = "You must specify at least one individual phenotype."
@@ -73,9 +74,8 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
     genotypes: List[Any] = []
     args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
                               for p in orderering_preserving_duplicates_elimination(phenotypes)]
-    if not already_solved:
-        with multiprocessing.Pool(processes=len(args)) as pool:
-            genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
+    with multiprocessing.Pool(processes=len(args)) as pool:
+        genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
     return genotypes
 
 
