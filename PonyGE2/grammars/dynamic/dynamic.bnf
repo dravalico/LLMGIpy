@@ -5,7 +5,7 @@
                <vars> | "'"<STRINGS>"'" | <nums> | <var_list> | <var_expr> |
                <vars> | "'"<STRINGS>"'" | <nums> <vars> | "'"<STRINGS>"'" | <nums> | "None" | "("<vars>")" | "[]" | <index_list> | <fstring>
 <vars> ::= <var> | <var>", "<vars> | <var> | <var> | <var> | <var> | <var> | <var> | <var>", "<all_vars> | <var> | <var> | <all_vars>", "<all_vars>
-<var_list> ::= <var><index_list> | <var>"['"<STRINGS>"']" | <var><index_list><method> | <var>"['"<STRINGS>"']"<method> | <all_vars><index_list>
+<var_list> ::= <var><index_list> | <var>"['"<STRINGS>"']" | <var><index_list><method> | <var>"['"<STRINGS>"']"<method> | <all_vars><index_list> | "["<all_vars>"]"
 <index_list> ::= "["<all_vars>"]" | "["<all_vars>":]" | "["<all_vars>":"<all_vars>"]" | "[:"<all_vars>"]" | "["<all_vars>"::"<all_vars>"]" | "[::"<all_vars>"]" | "["<all_vars>"::]"
 <var_fuction> ::= <FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method> | <all_vars><method><var_fuction>
 <var_expr> ::= <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> | "("<var_expr>")" | <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars>
