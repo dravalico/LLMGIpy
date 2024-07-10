@@ -6,7 +6,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 from algorithm.parameters import params
 from stats.stats import stats
 from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache
-from utilities.algorithm.parallel import process_pool_parallelize, thread_pool_parallelize
+from utilities.algorithm.parallel import process_pool_parallelize, thread_pool_parallelize, fake_parallelize
 
 
 def evaluate_fitness(individuals):

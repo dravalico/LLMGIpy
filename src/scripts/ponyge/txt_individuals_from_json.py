@@ -60,7 +60,7 @@ def load_phenotypes_from_json(
             num_iter_solved += 1
         else:
             phenotypes.append(final_ind)
-    if num_iter_solved == len(data):
+    if num_iter_solved > 0:
         already_solved = True
     return phenotypes, already_solved, num_iter_solved, len(data)
 
