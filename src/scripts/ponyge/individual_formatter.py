@@ -8,35 +8,85 @@ def substitute_tabs_and_newlines_with_pony_encode(code: str) -> str:
     start_tab: str = "{:"
     end_tab: str = ":}"
     newline: str = '#'
-    tab_counter: int = 0
-    tmp_tab_counter: int = 0
-    res: List[Any] = []
+    previous_tab_counter: int = 0
+    final_code: List[Any] = []
     index: int = 0
     for line in code.split('\n'):
-        tmp_tab_counter = line.count('\t')
+        tab_counter = line.count('\t')
         line = line.replace('\t', '')
-        if tmp_tab_counter > tab_counter:
+        if tab_counter > previous_tab_counter:
             if index != 0:
-                res[index - 1] = res[index - 1].replace('\n', start_tab + '\n')
-                res.append(line)
+                final_code[index - 1] = final_code[index - 1].replace('\n', start_tab + '\n')
+                final_code.append(line)
             else:
-                res.append(line + start_tab + '\n')
-        if tmp_tab_counter < tab_counter:
-            res[index - 1] += end_tab  # NOTE + '\n' probably not correct
-            res.append(line)
-        if tmp_tab_counter == tab_counter:
-            res.append(line)
-        res += '\n'
-        tab_counter = tmp_tab_counter
+                final_code.append(line + start_tab + '\n')
+        if tab_counter < previous_tab_counter:
+            for _ in range(previous_tab_counter - tab_counter):
+                final_code[index - 1] += end_tab
+            final_code.append(line)
+        if tab_counter == previous_tab_counter:
+            final_code.append(line)
+        final_code += '\n'
+        previous_tab_counter = tab_counter
         index = index + 2
-    # res.append(end_tab)
-    # res.insert(0, start_tab)
-    # res.insert(1, '\n')
-    temp_res: str = ''.join(res)
-    missing_tabs: int = temp_res.count(start_tab) - temp_res.count(end_tab)
+    temp_final_code: str = ''.join(final_code)
+    missing_tabs: int = temp_final_code.count(start_tab) - temp_final_code.count(end_tab)
     for _ in range(missing_tabs):
-        res.append(end_tab)
-    return ''.join(res).replace('\n', newline)
+        final_code.append(end_tab)
+    return ''.join(final_code).replace('\n', newline)
+
+
+def convert_main_func_to_pony_ind(code: str) -> str:
+    final_ind: str = ''
+
+    start_tab: str = "{:"
+    end_tab: str = ":}"
+    newline: str = '#'
+
+    code_lines: list[str] = code.split('\n')
+    final_ind += code_lines[0].strip()
+    code_lines = code_lines[1:]
+
+    indent_size: int = len(code_lines[0]) - len(code_lines[0].lstrip())
+    code_lines = [line[indent_size:] for line in code_lines]
+
+    final_ind = final_ind + start_tab + newline + __convert_main_func_to_pony_ind_recursive(code_lines) + end_tab
+    final_ind = final_ind.replace(newline + start_tab, start_tab + newline)
+
+    return final_ind
+
+
+def __convert_main_func_to_pony_ind_recursive(code_lines: list[str]) -> str:
+    if code_lines == []:
+        return ''
+
+    final_ind: str = ''
+
+    start_tab: str = "{:"
+    end_tab: str = ":}"
+    newline: str = '#'
+
+    i: int = 0
+    while i < len(code_lines):
+        indent_size: int = len(code_lines[i]) - len(code_lines[i].lstrip())
+        if indent_size == 0:
+            final_ind += code_lines[i]
+            final_ind += newline
+            i += 1
+        else:
+            sub_code_lines: list[str] = []
+            j: int = i
+            while j < len(code_lines):
+                sub_indent_size: int = len(code_lines[j]) - len(code_lines[j].lstrip())
+                if sub_indent_size > 0:
+                    sub_code_lines.append(code_lines[j][indent_size:])
+                    j += 1
+                else:
+                    break
+            final_ind += start_tab + __convert_main_func_to_pony_ind_recursive(sub_code_lines) + end_tab
+            i = j
+
+    return final_ind
 
 
 def import_manipulation(imports):

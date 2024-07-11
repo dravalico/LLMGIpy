@@ -383,7 +383,7 @@ class ModelTester():
             for i in imports:
                 imports_pony += i + '#'
             used_names = element['possible_vars']
-            ind = imports_pony + substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])  # imports_pony ??
+            ind = substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])
             json_element = {
                 'iteration': it,
                 'repetition': rep,
@@ -399,6 +399,7 @@ class ModelTester():
                 'supports': element['sup_funcs'],
                 'imports_and_supports': element['imports_and_supports'],
                 'variables_names': used_names,
+                'renamed_main_func': element['renamed_main_func'],
                 'final_individual': ind,
                 'tests_results': element['tests_results']
             }

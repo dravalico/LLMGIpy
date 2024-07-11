@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import warnings
+from copy import deepcopy
+from fitness.progimpr import progimpr
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 from algorithm.parameters import params
@@ -87,16 +89,34 @@ def evaluate_fitness(individuals):
             #if eval_ind:
                 #results = eval_or_append(ind, results, pool)
             almost_new_individuals.append((ind, eval_ind))
-    
-    new_individuals = thread_pool_parallelize(
-        eval_or_append,
-        [{'ind': ind, 'results': [], 'pool': None, 'eval_ind': eval_ind} for ind, eval_ind in almost_new_individuals],
-        num_workers=os.cpu_count(),
-        chunksize=1,
-        timeout=None
-    )
 
-    for ind, eval_ind in new_individuals:
+    try:
+        new_individuals = process_pool_parallelize(
+            eval_or_append,
+            [{'index': i, 'ind': deepcopy(almost_new_individuals[i][0]), 'results': [], 'pool': None, 'eval_ind': almost_new_individuals[i][1]} for i in range(len(almost_new_individuals))],
+            num_workers=os.cpu_count() // 2,
+            chunksize=1,
+            timeout=None
+        )
+    except RuntimeError as e:
+        new_individuals = fake_parallelize(
+            eval_or_append,
+            [{'index': i, 'ind': deepcopy(almost_new_individuals[i][0]), 'results': [], 'pool': None, 'eval_ind': almost_new_individuals[i][1]} for i in range(len(almost_new_individuals))],
+            num_workers=os.cpu_count(),
+            chunksize=1,
+            timeout=None
+        )
+
+    brand_new_individuals = []
+    for i in range(len(new_individuals)):
+        index, train_fitness, test_fitness, levi_errors = new_individuals[i]
+        ind, eval_ind = almost_new_individuals[index]
+        ind.fitness = train_fitness
+        ind.levi_test_fitness = test_fitness
+        ind.levi_errors = levi_errors
+        brand_new_individuals.append((ind, eval_ind))
+
+    for ind, eval_ind in brand_new_individuals:
         if eval_ind:
             update_ind_cache(ind)
 
@@ -118,10 +138,10 @@ def evaluate_fitness(individuals):
             if ind.runtime_error:
                 runtime_error_cache.append(ind.phenotype)
 
-    return [ind for ind, _ in new_individuals]
+    return [ind for ind, _ in brand_new_individuals]
 
 
-def eval_or_append(ind, results, pool, eval_ind=True):
+def eval_or_append(index, ind, results, pool, eval_ind=True):
     """
     Evaluates an individual if sequential evaluation is being used. If
     multi-core parallel evaluation is being used, adds the individual to the
@@ -136,21 +156,29 @@ def eval_or_append(ind, results, pool, eval_ind=True):
     evaluated.
     """
 
-    if params['MULTICORE']:
-        # Add the individual to the pool of jobs.
-        results.append(pool.apply_async(ind.evaluate, ()))
-        return results
+    train_fitness = ind.fitness
+    test_fitness = ind.levi_test_fitness
+    levi_errors = ind.levi_errors
 
-    else:
-        if eval_ind:
-            # Evaluate the individual.
-            try:
-                ind.evaluate()
-            except MemoryError:
-                pass
-            #update_ind_cache(ind)
-        return ind, eval_ind
+    #if params['MULTICORE']:
+    #    # Add the individual to the pool of jobs.
+    #    results.append(pool.apply_async(ind.evaluate, ()))
+    #    return results
+
+    #else:
+
+    if eval_ind:
+        # Evaluate the individual.
+        try:
+            temp_fitness_class_instance = progimpr()
+            train_fitness = temp_fitness_class_instance(ind, dist='training')
+            test_fitness = temp_fitness_class_instance(ind, dist='test')
+            levi_errors = ind.levi_errors
+        except Exception as e:
+            pass
     
+    return index, train_fitness, test_fitness, levi_errors
+
 def update_ind_cache(ind):
     # Check if individual had a runtime error.
     if ind.runtime_error:

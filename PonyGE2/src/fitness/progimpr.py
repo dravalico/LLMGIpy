@@ -1,6 +1,7 @@
 from subprocess import Popen, PIPE
 from multiprocessing import Queue, Process
 import sys
+import traceback
 from os import path
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
@@ -51,7 +52,7 @@ class progimpr(base_ff):
 
     def evaluate(self, ind, **kwargs):
         dist = kwargs.get('dist', None)
-        timeout = kwargs.get('timeout', 2.0)
+        timeout = kwargs.get('timeout', 3.0)
         if dist is None:
             raise ValueError(f'dist is None. It must be either training or test to select the correct dataset type.')
         n_actual_train_examples = params['NUM_TRAIN_EXAMPLES']
@@ -125,7 +126,7 @@ class progimpr(base_ff):
             #     timeout=0.8
             # )[0]
         except Exception as e:
-            result = {}
+            result = {'exception': str(traceback.format_exc())}
 
         if 'quality' in result:
             if result['quality'] > params['WORST_POSSIBLE_FITNESS']:
@@ -147,7 +148,7 @@ class progimpr(base_ff):
             result = {'quality': quality, 'caseQuality': caseQuality} # type: ignore
             queue.put(result)
         except Exception as e:
-            result = {}
+            result = {'exception': str(traceback.format_exc())}
             queue.put(result)
 
     @staticmethod

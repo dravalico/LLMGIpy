@@ -481,7 +481,15 @@ def load_population(target):
         if genotype:
             # Generate individual from genome.
             ind = Individual(genotype, None)
-            
+            while ind is None:
+                params['MAX_TREE_DEPTH'] += 10
+                if params['MAX_TREE_DEPTH'] >= 90: # SET TO 90 DUE TO PYTHON EVAL() STACK LIMIT.
+                    params['MAX_TREE_DEPTH'] = 90
+                    ind = Individual(genotype, None)
+                    break
+                else:
+                    ind = Individual(genotype, None)
+
             if phenotype and ind.phenotype != phenotype:
                 s = "scripts.seed_PonyGE2.load_population\n" \
                     "Error: Specified genotype from file " + file_name + \

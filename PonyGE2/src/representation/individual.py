@@ -35,6 +35,7 @@ class Individual(object):
 
         self.fitness = params['FITNESS_FUNCTION'].default_fitness
         self.levi_test_fitness = params['FITNESS_FUNCTION'].default_fitness
+        self.levi_errors = None
         self.runtime_error = False
         self.name = None
 
