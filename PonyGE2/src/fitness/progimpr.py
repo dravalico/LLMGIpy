@@ -52,7 +52,7 @@ class progimpr(base_ff):
 
     def evaluate(self, ind, **kwargs):
         dist = kwargs.get('dist', None)
-        timeout = kwargs.get('timeout', 3.0)
+        timeout = kwargs.get('timeout', params['PROGRAM_EVAL_TIMEOUT'])
         if dist is None:
             raise ValueError(f'dist is None. It must be either training or test to select the correct dataset type.')
         n_actual_train_examples = params['NUM_TRAIN_EXAMPLES']

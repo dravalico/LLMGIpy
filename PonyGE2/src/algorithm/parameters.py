@@ -77,6 +77,8 @@ params = {
     'SELECTION': "operators.selection.tournament",
     # For tournament selection
     'TOURNAMENT_SIZE': 2,
+    # For lexicase selection
+    'LEXICASE_SAMPLE_SIZE': 50,
     # For truncation selection
     'SELECTION_PROPORTION': 0.5,
     # Allow for selection of invalid individuals during selection process.
@@ -180,6 +182,8 @@ params = {
     # with mutated versions of the original individual. Hopefully this will
     # encourage diversity in the population.
     'MUTATE_DUPLICATES': False,
+    # Timeout to set when evaluating a program
+    'PROGRAM_EVAL_TIMEOUT': 3.0,
 
     # MULTI-AGENT Parameters
     # True or False for multi-agent

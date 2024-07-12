@@ -17,6 +17,7 @@ NUM_TRAIN_EXAMPLES:     <numTrainExamples>
 NUM_TEST_EXAMPLES:      <numTestExamples>
 FITNESS_FILE:           <fitnessFile>
 FITNESS_FUNCTION:       progimpr
+PROGRAM_EVAL_TIMEOUT:   3.0
 
 INITIALISATION:         seed_individuals
 TARGET_SEED_FOLDER:     <seedFolder>
@@ -38,6 +39,7 @@ ERROR_METRIC:           mse
 REPLACEMENT:            generational
 SELECTION:              <selection>
 TOURNAMENT_SIZE:        <tournamentSize>
+LEXICASE_SAMPLE_SIZE:   <lexicaseSampleSize>
 INVALID_SELECTION:      False
 
 RANDOM_SEED:            <randomSeed>

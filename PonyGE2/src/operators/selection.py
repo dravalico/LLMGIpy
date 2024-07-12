@@ -79,7 +79,7 @@ def lexicase(population):
     if params['FITNESS_FUNCTION'].maximise:
         errors_for_each_ind = [[-aaa for aaa in er_] for er_ in errors_for_each_ind]
 
-    num_samples_restricted = min(n_samples, 50)
+    num_samples_restricted = min(n_samples, params['LEXICASE_SAMPLE_SIZE'])
     shuffle(data_indices)
     data_indices = data_indices[:num_samples_restricted]
     for _ in range(params['GENERATION_SIZE']):
