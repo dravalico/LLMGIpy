@@ -128,6 +128,11 @@ class progimpr(base_ff):
         except Exception as e:
             result = {'exception': str(traceback.format_exc())}
 
+        if 'quality' in result and 'caseQuality' in result:
+            if params['FITNESS_FILE'].endswith('penalty.txt'):
+                max_error = float(max(result['caseQuality']))
+                result['quality'] += max_error * sum([1 if error > 0 else 0 for error in result['caseQuality']])
+
         if 'quality' in result:
             if result['quality'] > params['WORST_POSSIBLE_FITNESS']:
                 result['quality'] = params['WORST_POSSIBLE_FITNESS']
