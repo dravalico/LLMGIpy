@@ -59,7 +59,7 @@ class progimpr(base_ff):
         n_actual_test_examples = params['NUM_TEST_EXAMPLES']
         program = self.format_program(ind.phenotype,
                                       self.embed_header, self.embed_footer)
-        
+
         if dist == "training":
             data = self.training
             data = '\n'.join([ss_data for ss_data in data.split('\n')])
@@ -130,15 +130,16 @@ class progimpr(base_ff):
 
         if 'quality' in result and 'caseQuality' in result:
             if params['FITNESS_FILE'].endswith('penalty.txt'):
-                max_error = float(max(result['caseQuality']))
-                result['quality'] += max_error * sum([1 if error > 0 else 0 for error in result['caseQuality']])
+                #max_error = float(max(result['caseQuality']))
+                result['quality'] = min(result['quality'], params['WORST_POSSIBLE_FITNESS'])
+                result['quality'] += params['WORST_POSSIBLE_FITNESS'] * sum([1 if error > 0 else 0 for error in result['caseQuality']])
 
         if 'quality' in result:
-            if result['quality'] > params['WORST_POSSIBLE_FITNESS']:
-                result['quality'] = params['WORST_POSSIBLE_FITNESS']
+            if result['quality'] > params['WORST_POSSIBLE_FITNESS'] * 1000 * 5:
+                result['quality'] = params['WORST_POSSIBLE_FITNESS'] * 1000 * 5
 
         if 'quality' not in result:
-            result['quality'] = params['WORST_POSSIBLE_FITNESS']
+            result['quality'] = params['WORST_POSSIBLE_FITNESS'] * 1000 * 5
 
         if dist == 'training':
             ind.levi_errors = result['caseQuality'] if 'caseQuality' in result else None
