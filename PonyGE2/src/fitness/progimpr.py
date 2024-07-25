@@ -11,7 +11,6 @@ sys.path.append('../../src/scripts')
 from json_data_io import read_json # type: ignore
 sys.path = curr_path
 
-from utilities.algorithm.parallel import thread_pool_parallelize
 from algorithm.parameters import params
 from fitness.base_ff_classes.base_ff import base_ff
 
@@ -90,23 +89,6 @@ class progimpr(base_ff):
 
         program = "{}\n{}\n".format(data, program)
 
-        # BE CAREFUL WITH TIMEOUT, IF EVOLUTION TAKES LONG CONSIDER DECREASING IT.
-        # IF TIMEOUT OCCURRED THEN YOU WILL HAVE MAXSIZE AS FITNESS.
-        '''
-        eval_json = json.dumps({'script': program, 'timeout': 0.8,
-                                'variables': ['cases', 'caseQuality',
-                                              'quality']})
-
-        self.eval.stdin.write((eval_json + '\n').encode())
-        self.eval.stdin.flush()
-        result_json = self.eval.stdout.readline()
-
-        result = json.loads(result_json.decode())
-
-        if 'exception' in result and 'JSONDecodeError' in result['exception']:
-            self.eval.stdin.close()
-            self.eval = self.create_eval_process()
-        '''
         result = {}
         args = (program, Queue())
         worker = Process(target=progimpr.exec_single_program, args=args)
@@ -118,28 +100,20 @@ class progimpr(base_ff):
                 raise Exception('Process timed out')
             worker_res = args[1].get()
             result = worker_res
-            # result = thread_pool_parallelize(
-            #     progimpr.exec_single_program,
-            #     [{'program': program}],
-            #     num_workers=1,
-            #     chunksize=1,
-            #     timeout=0.8
-            # )[0]
         except Exception as e:
             result = {'exception': str(traceback.format_exc())}
 
         if 'quality' in result and 'caseQuality' in result:
             if params['FITNESS_FILE'].endswith('penalty.txt'):
-                #max_error = float(max(result['caseQuality']))
                 result['quality'] = min(result['quality'], params['WORST_POSSIBLE_FITNESS'])
-                result['quality'] += params['WORST_POSSIBLE_FITNESS'] * sum([1 if error > 0 else 0 for error in result['caseQuality']])
+                result['quality'] += params['WORST_POSSIBLE_FITNESS'] * sum([int(error > 0) for error in result['caseQuality']])
 
         if 'quality' in result:
-            if result['quality'] > params['WORST_POSSIBLE_FITNESS'] * 1000 * 5:
-                result['quality'] = params['WORST_POSSIBLE_FITNESS'] * 1000 * 5
+            if result['quality'] > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
+                result['quality'] = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
 
         if 'quality' not in result:
-            result['quality'] = params['WORST_POSSIBLE_FITNESS'] * 1000 * 5
+            result['quality'] = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
 
         if dist == 'training':
             ind.levi_errors = result['caseQuality'] if 'caseQuality' in result else None

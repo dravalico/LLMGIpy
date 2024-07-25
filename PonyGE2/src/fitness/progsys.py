@@ -61,11 +61,11 @@ class progsys(base_ff):
             self.eval = self.create_eval_process()
             
         if 'quality' in	result:
-            if result['quality'] > params['WORST_POSSIBLE_FITNESS']:
-                result['quality'] = params['WORST_POSSIBLE_FITNESS']
+            if result['quality'] > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
+                result['quality'] = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
 
         if 'quality' not in result:
-            result['quality'] = params['WORST_POSSIBLE_FITNESS']
+            result['quality'] = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
         return result['quality']
 
     @staticmethod

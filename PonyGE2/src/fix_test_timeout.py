@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 def mane_post():
     set_params(sys.argv[1:])  # exclude the fix_test_timeout.py arg itself
 
-    worst_possible_fitness = float(params['WORST_POSSIBLE_FITNESS'])
+    worst_possible_fitness = float(params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER'])
     res = read_ponyge_results(base_path=BASE_PATH, params=params, include_seed=True)
     gens = res['gens']
     for gen in gens:
@@ -29,8 +29,13 @@ def mane_post():
             genotype = eval(gen['Genotype:'])
             ind = Individual(genotype, None)
             while ind is None:
-                params['MAX_TREE_DEPTH'] += 20
-                ind = Individual(genotype, None)
+                params['MAX_TREE_DEPTH'] += 10
+                if params['MAX_TREE_DEPTH'] >= 90: # SET TO 90 DUE TO PYTHON EVAL() STACK LIMIT.
+                    params['MAX_TREE_DEPTH'] = 90
+                    ind = Individual(genotype, None)
+                    break
+                else:
+                    ind = Individual(genotype, None)
             ind.phenotype = gen['Phenotype:']
             ind.levi_errors = None
 

@@ -199,6 +199,9 @@ params = {
     'MACHINE': machine_name
 }
 
+"""Algorithm parameters that use other initialized parameters"""
+params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER'] = params['WORST_POSSIBLE_FITNESS'] * 1000 * 5
+
 
 def load_params(file_name):
     """
