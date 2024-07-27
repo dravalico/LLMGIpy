@@ -126,7 +126,7 @@ def all_pony_params(json_params):
     pony_params = json_params['pony_params']
     l = [pony_params['fitness_files'], pony_params['selections'], pony_params['pop_gens'], pony_params['crossovers'], pony_params['crossover_probabilities'], pony_params['mutations'], pony_params['mutation_probabilities']]
     l = [el for el in itertools.product(*l)]
-    l = [{'fitness_file': el[0], 'selection': el[1], 'pop_size': el[2][0], 'num_gen': el[2][1], 'crossover': el[3], 'crossover_probability': el[4], 'mutation': el[5], 'mutation_probability': el[6]} for el in l]
+    l = [{'fitness_file': el[0], 'selection': el[1][0], 'selection_sample_size': el[1][1], 'pop_size': el[2][0], 'num_gen': el[2][1], 'crossover': el[3], 'crossover_probability': el[4], 'mutation': el[5], 'mutation_probability': el[6]} for el in l]
     return l
 
 

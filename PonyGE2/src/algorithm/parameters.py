@@ -77,8 +77,8 @@ params = {
     'SELECTION': "operators.selection.tournament",
     # For tournament selection
     'TOURNAMENT_SIZE': 2,
-    # For lexicase selection
-    'LEXICASE_SAMPLE_SIZE': 50,
+    # For selection (sample size of test cases in the training data to sample at each generation)
+    'SELECTION_SAMPLE_SIZE': 50,
     # For truncation selection
     'SELECTION_PROPORTION': 0.5,
     # Allow for selection of invalid individuals during selection process.

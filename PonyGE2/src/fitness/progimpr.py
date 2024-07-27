@@ -104,9 +104,7 @@ class progimpr(base_ff):
             result = {'exception': str(traceback.format_exc())}
 
         if 'quality' in result and 'caseQuality' in result:
-            if params['FITNESS_FILE'].endswith('penalty.txt'):
-                result['quality'] = min(result['quality'], params['WORST_POSSIBLE_FITNESS'])
-                result['quality'] += params['WORST_POSSIBLE_FITNESS'] * sum([int(error > 0) for error in result['caseQuality']])
+            result['quality'] = progimpr.eventually_compute_penalty(result['quality'], result['caseQuality'])
 
         if 'quality' in result:
             if result['quality'] > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
@@ -130,6 +128,14 @@ class progimpr(base_ff):
         except Exception as e:
             result = {'exception': str(traceback.format_exc())}
             queue.put(result)
+
+    @staticmethod
+    def eventually_compute_penalty(base_fitness, errors):
+        if params['FITNESS_FILE'].endswith('penalty.txt'):
+            fitness = min(base_fitness, params['WORST_POSSIBLE_FITNESS'])
+            fitness += params['WORST_POSSIBLE_FITNESS'] * sum([int(error > 0) for error in errors])
+            return fitness
+        return base_fitness
 
     @staticmethod
     def create_eval_process():

@@ -236,10 +236,10 @@ def parse_cmd_args(arguments):
                         type=int,
                         help='Sets the number of individuals to contest tournament,'
                              ' requires int.')
-    parser.add_argument('--lexicase_sample_size',
-                        dest='LEXICASE_SAMPLE_SIZE',
+    parser.add_argument('--selection_sample_size',
+                        dest='SELECTION_SAMPLE_SIZE',
                         type=int,
-                        help='Sets the number of training cases to sample at each generation for the down-sampled lexicase selection.')
+                        help='Sets the number of training cases to sample at each generation for computing the fitness in the selection.')
     parser.add_argument('--selection_proportion',
                         dest='SELECTION_PROPORTION',
                         action=FloatAction,

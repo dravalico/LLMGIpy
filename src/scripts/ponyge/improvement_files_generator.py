@@ -293,7 +293,7 @@ MUTATION_TAG: str = "<mutation>"
 MUTATION_PROBABILITY_TAG: str = "<mutationProbability>"
 SELECTION_TAG: str = "<selection>"
 TOURNAMENT_SIZE_TAG: str = "<tournamentSize>"
-LEXICASE_SAMPLE_SIZE_TAG: str = "<lexicaseSampleSize>"
+SELECTION_SAMPLE_SIZE_TAG: str = "<selectionSampleSize>"
 RANDOM_SEED_TAG: str = "<randomSeed>"
 
 
@@ -319,12 +319,11 @@ def create_params_file(
             prob_name: int = impr_prob_name[1]
             sel_alg: str = pony_param['selection']
             tourn_size: int = 2
-            lexicase_sample_size: int = 50
+            selection_sample_size: int = pony_param['selection_sample_size']
             if sel_alg.startswith('tournament'):
                 tourn_size = int(sel_alg[len('tournament'):])
                 sel_alg = 'tournament'
             elif sel_alg.startswith('lexicase'):
-                lexicase_sample_size = int(sel_alg[len('lexicase'):])
                 sel_alg = 'lexicase'
             else:
                 raise AttributeError(f'Invalid selection method ({sel_alg}).')
@@ -339,7 +338,7 @@ def create_params_file(
                     'NUM_TEST_EXAMPLES': int(llm_param['test_size']),
                     'SELECTION': sel_alg,
                     'TOURNAMENT_SIZE': tourn_size,
-                    'LEXICASE_SAMPLE_SIZE': lexicase_sample_size,
+                    'SELECTION_SAMPLE_SIZE': selection_sample_size,
                     'POPULATION_SIZE': int(pony_param['pop_size']),
                     'GENERATIONS': int(pony_param['num_gen']),
                     'CROSSOVER': pony_param['crossover'],
@@ -373,7 +372,7 @@ def create_params_file(
             impr_file = impr_file.replace(MUTATION_PROBABILITY_TAG, str(pony_param['mutation_probability']))
             impr_file = impr_file.replace(SELECTION_TAG, sel_alg)
             impr_file = impr_file.replace(TOURNAMENT_SIZE_TAG, str(tourn_size))
-            impr_file = impr_file.replace(LEXICASE_SAMPLE_SIZE_TAG, str(lexicase_sample_size))
+            impr_file = impr_file.replace(SELECTION_SAMPLE_SIZE_TAG, str(selection_sample_size))
             impr_file = impr_file.replace(RANDOM_SEED_TAG, str(random_seed))
 
             if params_dir_path.endswith('/'):

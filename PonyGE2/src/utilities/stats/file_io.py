@@ -28,9 +28,11 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
         full_path += params['FITNESS_FUNCTION'].__class__.__name__ + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '/'
     
     if isinstance(params['SELECTION'], str):
-        full_path += f'{params["SELECTION"]}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'] == 'tournament' else ( f'{params["SELECTION"]}{params["LEXICASE_SAMPLE_SIZE"]}' if params['SELECTION'] == 'lexicase' else f'{params["SELECTION"]}' )
+        full_path += f'{params["SELECTION"]}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'] == 'tournament' else f'{params["SELECTION"]}'
     else:
-        full_path += f'{params["SELECTION"].__name__}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'].__name__ == 'tournament' else ( f'{params["SELECTION"].__name__}{params["LEXICASE_SAMPLE_SIZE"]}' if params['SELECTION'].__name__ == 'lexicase' else f'{params["SELECTION"].__name__}' )
+        full_path += f'{params["SELECTION"].__name__}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'].__name__ == 'tournament' else f'{params["SELECTION"].__name__}'
+    full_path += '_'
+    full_path += f'selsamplesize{params["SELECTION_SAMPLE_SIZE"]}'
     full_path += '_'
     
     if isinstance(params['CROSSOVER'], str) and isinstance(params['MUTATION'], str):

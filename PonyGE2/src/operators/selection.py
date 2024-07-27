@@ -3,6 +3,7 @@ from random import shuffle
 import random
 import sys
 from algorithm.parameters import params
+from fitness.progimpr import progimpr
 from utilities.fitness.get_data import read_dataset_input_output_from_txt_with_inval_outval_as_str_list
 from utilities.algorithm.NSGA2 import compute_pareto_metrics, \
     crowded_comparison_operator
@@ -38,13 +39,41 @@ def tournament(population):
     else:
         available = [i for i in population if not i.invalid]
 
+    worst_fitness = params['WORST_POSSIBLE_FITNESS']
+    if params['FITNESS_FUNCTION'].maximise:
+        worst_fitness = -params['WORST_POSSIBLE_FITNESS']
+
+    n_samples = params['NUM_TRAIN_EXAMPLES']
+    data_indices = list(range(n_samples))
+    errors_for_each_ind = [i.levi_errors if i.levi_errors is not None else [worst_fitness]*n_samples for i in available]
+
+    if params['FITNESS_FUNCTION'].maximise:
+        errors_for_each_ind = [[-aaa for aaa in er_] for er_ in errors_for_each_ind]
+
+    num_samples_restricted = min(n_samples, params['SELECTION_SAMPLE_SIZE'])
+    shuffle(data_indices)
+    data_indices = data_indices[:num_samples_restricted]
+
+    indexed_available = [(i, available[i]) for i in range(len(available))]
+
     while len(winners) < params['GENERATION_SIZE']:
         # Randomly choose TOURNAMENT_SIZE competitors from the given
         # population. Allows for re-sampling of individuals.
-        competitors = sample(available, params['TOURNAMENT_SIZE'])
+        competitors = sample(indexed_available, params['TOURNAMENT_SIZE'])
+        best = competitors[0][1]
+        best_fit = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+        for index, competitor in competitors:
+            all_errors = errors_for_each_ind[index]
+            actual_errors = [all_errors[i] for i in range(len(all_errors)) if i in data_indices]
+            fitness = progimpr.eventually_compute_penalty(sum(actual_errors), actual_errors)
+            if fitness > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
+                fitness = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+            if fitness < best_fit:
+                best = competitor
+                best_fit = fitness
 
         # Return the single best competitor.
-        winners.append(max(competitors))
+        winners.append(best)
 
     # Return the population of tournament winners.
     return winners
@@ -79,7 +108,7 @@ def lexicase(population):
     if params['FITNESS_FUNCTION'].maximise:
         errors_for_each_ind = [[-aaa for aaa in er_] for er_ in errors_for_each_ind]
 
-    num_samples_restricted = min(n_samples, params['LEXICASE_SAMPLE_SIZE'])
+    num_samples_restricted = min(n_samples, params['SELECTION_SAMPLE_SIZE'])
     shuffle(data_indices)
     data_indices = data_indices[:num_samples_restricted]
     for _ in range(params['GENERATION_SIZE']):
