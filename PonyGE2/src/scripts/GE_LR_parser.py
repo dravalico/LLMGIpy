@@ -2,7 +2,7 @@ from sys import path
 import os
 
 path.append("../src")
-
+import ast
 from utilities.algorithm.general import check_python_version
 
 check_python_version()
@@ -330,7 +330,7 @@ def parse_target_string():
     return ind
 
 
-def main():
+def main(dynamic_bnf: bool = False):
     """
     Run all functions to parse a target string into a GE individual.
 
@@ -347,22 +347,35 @@ def main():
     parse_terminals(params['REVERSE_MAPPING_TARGET'])
 
     # Iterate over the solution list until the target string is parsed.
-    solution = parse_target_string()
-    if params['DYNAMIC_BNF'] is True:
-        my_bnf_tag_list = extract_dynamic_bnf(trackers.snippets[f"[0, {len(params['REVERSE_MAPPING_TARGET'])}] <predefined>"].get_node_labels({"<predefined>"}))
-        create_tag_dynamic_bnf(params['GRAMMAR_FILE'], my_bnf_tag_list, "aaa.bnf", False)
-        params['BNF_GRAMMAR'] = grammar.Grammar(os.path.join("..", "grammars", "aaa.bnf"))
-        parse_terminals(params['REVERSE_MAPPING_TARGET'])
-        # Iterate over the solution list until the target string is parsed.
-        solution = parse_target_string()
+    if dynamic_bnf is True:
+        list_of_phenotypes = ast.literal_eval(params['ALL_PHENOTYPES'])
+        my_bnf_tag_list = []
+        for p in list_of_phenotypes:
+            try:
+                # Parse the terminals in the target string.
+                params['REVERSE_MAPPING_TARGET'] = p
+                params['REVERSE_MAPPING_TARGET'] = params['REVERSE_MAPPING_TARGET'].replace("\\n", "\n") 
+                parse_terminals(params['REVERSE_MAPPING_TARGET'])
+                solution = parse_target_string()
+                check_ind_from_parser(solution, params['REVERSE_MAPPING_TARGET'])
+                my_bnf_tag_list.extend(extract_dynamic_bnf(trackers.snippets[f"[0, {len(p)}] <predefined>"].get_node_labels({"<predefined>"})))
+            except:
+                pass
 
+        my_bnf_tag_list = list(set(my_bnf_tag_list))
+        create_tag_dynamic_bnf(params['GRAMMAR_FILE'], my_bnf_tag_list, False)
+    if os.path.exists(os.path.join("..", "grammars", params['GRAMMAR_FILE'].replace('.bnf', '_complete_dynamic.bnf'))):
+        params['BNF_GRAMMAR'] = grammar.Grammar(os.path.join("..", "grammars", params['GRAMMAR_FILE'].replace('.bnf', '_complete_dynamic.bnf')))
+    else:
+        params['BNF_GRAMMAR'] = grammar.Grammar(os.path.join("..", "grammars", params['GRAMMAR_FILE']))
+    
+    parse_terminals(params['REVERSE_MAPPING_TARGET']) 
+
+    solution = parse_target_string()
     # Check the mapping of the solution and all aspects to ensure it is valid.
     check_ind_from_parser(solution, params['REVERSE_MAPPING_TARGET'])
     return solution
 
-
-def create_complte_dynamic_bnf(list_of_tags, original_file_name, new_file_name = "bbb.bnf"):
-    pass
 
 def extract_dynamic_bnf(tag_tree_set):
     extracted_elements = []
