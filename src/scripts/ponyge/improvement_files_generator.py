@@ -31,6 +31,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
     iterations: int = int(llm_param['iterations'])
     train_size: int = int(llm_param['train_size'])
     test_size: int = int(llm_param['test_size'])
+    dynamic_bnf: str = str(llm_param['dynamic_bnf'])
 
     for problem_index in range(start_problem, end_problem + 1):
         try:
@@ -60,7 +61,8 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
                 test_size=test_size,
                 only_impr=only_impr,
                 grammar_file=bnf_filename[bnf_filename.rindex('dynamic'):],
-                output_dir_name=bnf_filename[bnf_filename.rindex('dynamic') + len('dynamic') + 1:bnf_filename.rindex('.bnf')] + '/'
+                output_dir_name=bnf_filename[bnf_filename.rindex('dynamic') + len('dynamic') + 1:bnf_filename.rindex('.bnf')] + '/',
+                dynamic_bnf=dynamic_bnf
             )
             print(f"'problem {problem_index}' leads to a valid seed for improvement")
             impr_prob_names.append((problem_index, problem_name))
