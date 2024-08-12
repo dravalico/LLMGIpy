@@ -263,8 +263,13 @@ def set_params(command_line_args, create_files=True):
     from utilities.algorithm.command_line_parser import parse_cmd_args
     from utilities.stats import trackers, clean_stats
     from representation import grammar
+    
+    import os
 
     cmd_args, unknown = parse_cmd_args(command_line_args)
+    
+    if os.path.exists(os.path.join('../grammars', command_line_args[command_line_args.index('--grammar_file') + 1].replace('.bnf', '_complete_dynamic.bnf'))):
+        command_line_args[command_line_args.index('--grammar_file') + 1] = command_line_args[command_line_args.index('--grammar_file') + 1].replace('.bnf', '_complete_dynamic.bnf')
 
     if unknown:
         # We currently do not parse unknown parameters. Raise error.
@@ -389,4 +394,7 @@ def set_params(command_line_args, create_files=True):
             from scripts import GE_LR_parser
 
             # Parse seed individual and store in params.
-            params['SEED_INDIVIDUALS'] = [GE_LR_parser.main()]
+            if "--all_phenotypes" in command_line_args:
+                params['SEED_INDIVIDUALS'] = [GE_LR_parser.main(True)]
+            else:
+                params['SEED_INDIVIDUALS'] = [GE_LR_parser.main()]
