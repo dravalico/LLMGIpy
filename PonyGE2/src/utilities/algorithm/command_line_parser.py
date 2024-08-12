@@ -447,6 +447,14 @@ def parse_cmd_args(arguments):
                         help='Specify a target seed folder in the "seeds" '
                              'directory that contains a population of '
                              'individuals with which to seed a run.')
+    
+    # ALL PHENOTYPE
+    parser.add_argument('--all_phenotypes',
+                        dest='ALL_PHENOTYPES',
+                        type=str,
+                        default=None,
+                        help='specifies the entire phenotype list of a problem to be passed,'
+                              'it is used by the parser to create the fully dynamic grammar.')
 
     # STATE SAVING/LOADING
     parser.add_argument('--save_state',
