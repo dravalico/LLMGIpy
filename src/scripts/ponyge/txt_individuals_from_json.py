@@ -65,15 +65,25 @@ def load_phenotypes_from_json(
     return phenotypes, already_solved, num_iter_solved, len(data)
 
 
-def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bool, only_impr: bool) -> List[List[str]]:
-    if only_impr or already_solved:
+def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bool, only_impr: bool, dynamic_bnf: str) -> List[List[str]]:
+    if only_impr or already_solved: # ! if already solve the dynamic grammar is not generated
         return []
     if len(phenotypes) == 0:
         e: str = "You must specify at least one individual phenotype."
         raise Exception(e)
-    genotypes: List[Any] = []
-    args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
-                              for p in orderering_preserving_duplicates_elimination(phenotypes)]
+    genotypes: List[Any] = [] 
+    if dynamic_bnf == "True":
+        args_for_dynamic_bnf: List[Any] = ["--grammar_file", grammar_file, "--reverse_mapping_target", phenotypes[0], "--all_phenotypes", str(phenotypes)]
+        worker_function("scripts/GE_LR_parser.py", args_for_dynamic_bnf)
+        if os.path.exists(os.path.join('../grammars', grammar_file.replace('.bnf', '_complete_dynamic.bnf'))):
+            args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file.replace('.bnf', '_complete_dynamic.bnf'), "--reverse_mapping_target", p])
+                                        for p in orderering_preserving_duplicates_elimination(phenotypes)]
+        else:
+            args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
+                                        for p in orderering_preserving_duplicates_elimination(phenotypes)]
+    else:
+        args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
+                                    for p in orderering_preserving_duplicates_elimination(phenotypes)]
     with multiprocessing.Pool(processes=len(args)) as pool:
         genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
     return genotypes
@@ -154,7 +164,8 @@ def txt_population(
         test_size: int,
         only_impr: bool,
         grammar_file: str,
-        output_dir_name: str
+        output_dir_name: str,
+        dynamic_bnf: str
     ) -> None:
     cwd: str = os.getcwd()
     os.chdir("../PonyGE2/src")
@@ -168,7 +179,7 @@ def txt_population(
             train_size=train_size,
             test_size=test_size
         )
-        genotypes: List[List[str]] = parse_genotypes(phenotypes, grammar_file, already_solved, only_impr)
+        genotypes: List[List[str]] = parse_genotypes(phenotypes, grammar_file, already_solved, only_impr, dynamic_bnf)
         create_txt_foreach_ind(output_dir_name, genotypes, already_solved, num_iter_solved, data_length, only_impr)
     finally:
         os.chdir(cwd)
