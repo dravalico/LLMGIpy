@@ -2,7 +2,7 @@ import os
 import json
 from typing import Dict
 
-BASE_PATH: str = "../results/"
+BASE_PATH: str = "../llm_results/"
 ALREADY_SOLVED_STRING: str = 'ALREADY_SOLVED'
 NOT_PARSED_STRING: str = 'NOT_PARSED'
 

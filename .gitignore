@@ -1,6 +1,6 @@
 .DS_Store
 src/datasets/
-results/
+llm_results/
 __pycache__/
 .env
 src/.env

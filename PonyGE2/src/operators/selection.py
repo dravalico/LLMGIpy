@@ -60,14 +60,16 @@ def tournament(population):
         # Randomly choose TOURNAMENT_SIZE competitors from the given
         # population. Allows for re-sampling of individuals.
         competitors = sample(indexed_available, params['TOURNAMENT_SIZE'])
-        best = competitors[0][1]
-        best_fit = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+        best = None
+        best_fit = None
         for index, competitor in competitors:
             all_errors = errors_for_each_ind[index]
             actual_errors = [all_errors[i] for i in range(len(all_errors)) if i in data_indices]
             fitness = progimpr.eventually_compute_penalty(sum(actual_errors), actual_errors)
-            if fitness > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
-                fitness = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+            fitness = progimpr.cap_globally_very_large_fitness(fitness)
+            if best is None or best_fit is None:
+                best = competitor
+                best_fit = fitness
             if fitness < best_fit:
                 best = competitor
                 best_fit = fitness

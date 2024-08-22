@@ -267,8 +267,8 @@ def set_params(command_line_args, create_files=True):
     import os
 
     cmd_args, unknown = parse_cmd_args(command_line_args)
-    
-    if os.path.exists(os.path.join('../grammars', command_line_args[command_line_args.index('--grammar_file') + 1].replace('.bnf', '_complete_dynamic.bnf'))):
+
+    if '--grammar_file' in command_line_args and os.path.exists(os.path.join('../grammars', command_line_args[command_line_args.index('--grammar_file') + 1].replace('.bnf', '_complete_dynamic.bnf'))):
         command_line_args[command_line_args.index('--grammar_file') + 1] = command_line_args[command_line_args.index('--grammar_file') + 1].replace('.bnf', '_complete_dynamic.bnf')
 
     if unknown:

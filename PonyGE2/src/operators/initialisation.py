@@ -511,7 +511,7 @@ def load_population(target):
     if params['FITNESS_FUNCTION'].__class__.__name__ == 'progimpr' and all([ind.invalid for ind in seed_inds]):
         seed_inds = []
         llm_data = read_json(
-                        full_path='../../results/',
+                        full_path='../../llm_results/',
                         model_name=params['MODEL_NAME'],
                         problem_benchmark=params['BENCHMARK_NAME'],
                         problem_id=params['PROBLEM_INDEX'],

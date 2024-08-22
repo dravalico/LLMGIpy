@@ -2,6 +2,7 @@ from subprocess import Popen, PIPE
 from multiprocessing import Queue, Process
 import sys
 import traceback
+import numpy as np
 from os import path
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
@@ -38,6 +39,8 @@ class progimpr(base_ff):
     def __init__(self):
         # Initialise base fitness function class.
         super().__init__()
+
+        self.default_fitness = progimpr.set_default_fitness(self.default_fitness)
 
         self.fitness_function = self.get_fitness_eval(params['FITNESS_FILE'])
         self.training, self.test, self.embed_header, self.embed_footer = \
@@ -107,11 +110,10 @@ class progimpr(base_ff):
             result['quality'] = progimpr.eventually_compute_penalty(result['quality'], result['caseQuality'])
 
         if 'quality' in result:
-            if result['quality'] > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
-                result['quality'] = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+            result['quality'] = progimpr.cap_globally_very_large_fitness(result['quality'])
 
         if 'quality' not in result:
-            result['quality'] = params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+            result['quality'] = progimpr.set_globally_very_large_fitness()
 
         if dist == 'training':
             ind.levi_errors = result['caseQuality'] if 'caseQuality' in result else None
@@ -131,11 +133,45 @@ class progimpr(base_ff):
 
     @staticmethod
     def eventually_compute_penalty(base_fitness, errors):
+        num_test_cases_not_passed = sum([int(error > 0) for error in errors])
         if params['FITNESS_FILE'].endswith('penalty.txt'):
             fitness = min(base_fitness, params['WORST_POSSIBLE_FITNESS'])
-            fitness += params['WORST_POSSIBLE_FITNESS'] * sum([int(error > 0) for error in errors])
+            fitness += params['WORST_POSSIBLE_FITNESS'] * num_test_cases_not_passed
             return fitness
-        return base_fitness
+        elif params['FITNESS_FILE'].endswith('lexi.txt'):
+            return [num_test_cases_not_passed, base_fitness]
+        else:
+            return base_fitness
+
+    @staticmethod
+    def set_default_fitness(default_fitness):
+        if params['FITNESS_FILE'].endswith('lexi.txt'):
+            return [np.inf, np.inf]
+        else:
+            return default_fitness
+
+    @staticmethod
+    def set_globally_very_large_fitness():
+        if params['FITNESS_FILE'].endswith('lexi.txt'):
+            return [params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER'], params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']]
+        else:
+            return params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+
+    @staticmethod
+    def cap_globally_very_large_fitness(fitness):
+        if params['FITNESS_FILE'].endswith('lexi.txt'):
+            new_fitness = []
+            for f in fitness:
+                if f > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
+                    new_fitness.append(params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER'])
+                else:
+                    new_fitness.append(f)
+            return new_fitness
+        else:
+            if fitness > params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']:
+                return params['WORST_POSSIBLE_FITNESS_GLOBALLY_EVER']
+            else:
+                return fitness
 
     @staticmethod
     def create_eval_process():
@@ -225,7 +261,7 @@ class progimpr(base_ff):
             embed_header = embed_code[:insert]
 
             llm_data = read_json(
-                full_path='../../results/',
+                full_path='../../llm_results/',
                 model_name=params['MODEL_NAME'],
                 problem_benchmark=params['BENCHMARK_NAME'],
                 problem_id=params['PROBLEM_INDEX'],

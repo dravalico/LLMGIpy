@@ -3,8 +3,6 @@ import json
 import random
 from typing import List, Tuple, Any
 
-from scripts.seed_util import quadratic_seed
-
 
 class DatasetLoader():
     def __init__(self, dataset: str, train_size: int, test_size: int = 1000) -> None:
@@ -35,7 +33,7 @@ class DatasetLoader():
         if len(inval) != len(outval):
             raise ValueError(f'Length mismatch between inval ({len(inval)}) and outval ({len(outval)}).')
         indices: list[int] = list(range(len(inval)))
-        random.Random(quadratic_seed(24, n_iter, True)).shuffle(indices)
+        random.Random(24 + 31 * n_iter * n_iter).shuffle(indices)
         new_inval = []
         new_outval = []
         for i in indices[:self.__train_size]:

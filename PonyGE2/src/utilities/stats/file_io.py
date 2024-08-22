@@ -14,6 +14,24 @@ BASE_PATH: str = "../results/"
 
 
 def create_results_folder_path(base_path: str, params: dict[str, Any], include_seed: bool, make_dirs: bool) -> str:
+    # What keys are needed to be available in params dict? Here's the list:
+    # BENCHMARK_NAME
+    # MODEL_NAME
+    # FITNESS_FUNCTION
+    # FITNESS_FILE
+    # NUM_TRAIN_EXAMPLES
+    # NUM_TEST_EXAMPLES
+    # SELECTION
+    # TOURNAMENT_SIZE
+    # SELECTION_SAMPLE_SIZE
+    # CROSSOVER
+    # MUTATION
+    # POPULATION_SIZE
+    # GENERATIONS
+    # CROSSOVER_PROBABILITY
+    # MUTATION_PROBABILITY
+    # PROBLEM_INDEX
+    # RANDOM_SEED
     if not os.path.isdir(base_path):
         os.mkdir(base_path)
 
