@@ -7,8 +7,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 
 class HuggingFaceLLM(AbstractLanguageModel):
-    def __init__(self, model_name: str, problem_bench: str) -> None:
-        super().__init__(model_name, problem_bench)
+    def __init__(self, model_name: str, problem_bench: str, prompt_type: str) -> None:
+        super().__init__(model_name=model_name, problem_bench=problem_bench, prompt_type=prompt_type)
 
     def ask(self, prompts: list[str]) -> str:
         torch.cuda.empty_cache()

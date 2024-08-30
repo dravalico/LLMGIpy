@@ -16,6 +16,7 @@ def set_parser() -> ArgumentParser:
     argparser: ArgumentParser = ArgumentParser(description="LLM response extraction and processing")
     argparser.add_argument("--model", type=str, help=f"The LLM's name: {models.models_list}")
     argparser.add_argument("--dataset", type=str, help=f"The dataset to use for tests: {testers.datasets_list}")
+    argparser.add_argument("--prompt_type", type=str, help=f"The type of prompt.")
     argparser.add_argument("--train_size", type=int, help="Length of the test dataset")
     argparser.add_argument("--iterations",
                            type=int,
@@ -37,9 +38,9 @@ def set_parser() -> ArgumentParser:
     return argparser
 
 
-def create_instance_of_class(model_name: str, problem_bench: str, **kwargs) -> Any:
+def create_instance_of_class(model_name: str, problem_bench: str, prompt_type: str, **kwargs) -> Any:
     category_llm = models.ALL_LLMs[model_name][0]
-    return eval(category_llm)(model_name=model_name, problem_bench=problem_bench, **kwargs)
+    return eval(category_llm)(model_name=model_name, problem_bench=problem_bench, prompt_type=prompt_type, **kwargs)
 
 
 def main():
@@ -50,16 +51,20 @@ def main():
         raise Exception(f"Model '{cmd_args.model}' not valid.")
     if (cmd_args.dataset not in testers.datasets_list) or (cmd_args.dataset is None):
         raise Exception(f"Dataset '{cmd_args.dataset}' not valid.")
+    if cmd_args.prompt_type is None:
+        raise Exception(f"Prompt type must be inserted.")
     if cmd_args.train_size is None:
         raise Exception(f"Train Size '{cmd_args.train_size}' must be inserted.")
     if cmd_args.train_size is not None and cmd_args.train_size > 1000:
         raise Exception(f"Train Size '{cmd_args.train_size}' is greater than 1000, It is too large!")
     model: AbstractLanguageModel = create_instance_of_class(
         model_name=cmd_args.model,
-        problem_bench=cmd_args.dataset
+        problem_bench=cmd_args.dataset,
+        prompt_type=cmd_args.prompt_type
     )
     loader: DatasetLoader = DatasetLoader(
         dataset=cmd_args.dataset,
+        prompt_type=cmd_args.prompt_type,
         train_size=cmd_args.train_size,
         test_size=1000
     )

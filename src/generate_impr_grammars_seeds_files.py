@@ -118,7 +118,7 @@ def all_llm_params(json_params):
     llm_params = json_params['llm_params']
     l = [llm_params['model_names'], llm_params['benchmark_names'], llm_params['iterations'], llm_params['train_sizes'], llm_params['test_sizes'], llm_params['dynamic_bnf']]
     l = [el for el in itertools.product(*l)]
-    l = [{'model_name': el[0], 'benchmark_name': el[1][0], 'start_problem': el[1][1], 'end_problem': el[1][2], 'iterations': el[2], 'train_size': el[3], 'test_size': el[4], 'dynamic_bnf': el[5]} for el in l]
+    l = [{'model_name': el[0], 'benchmark_name': el[1][0], 'start_problem': el[1][1], 'end_problem': el[1][2], 'benchmark_type': el[1][3], 'iterations': el[2], 'train_size': el[3], 'test_size': el[4], 'dynamic_bnf': el[5]} for el in l]
     return l
 
 

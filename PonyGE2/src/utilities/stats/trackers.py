@@ -33,6 +33,11 @@ time_list = []
 # time_list stores the system time after each generation has been completed.
 # Useful for keeping track of how long each generation takes.
 
+train_time_list = []
+# train_time_list stores the system time after each generation has been completed.
+# Useful for keeping track of how long each generation takes.
+# Only accounts for the fitness evaluations on the training set for each generation and ignores computation of additional statistics.
+
 stats_list = []
 # List for storing stats at each generation
 # Used when verbose mode is off to speed up program

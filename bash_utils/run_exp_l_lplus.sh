@@ -16,11 +16,11 @@ do
 		for model in ${models[@]}
 		do
 			start=$(date +%s)
-			python3 main.py --model ${model} --dataset ${problem_benchmark} --train_size ${train_size}  --iterations 10
+			python3 main.py --model ${model} --dataset ${problem_benchmark} --prompt_type "text" --train_size ${train_size}  --iterations 10
 			end=$(date +%s)
 			echo "${problem_benchmark} ${train_size} ${model} 0 $(( end - start ))" >> ../bash_utils/timings.txt
 			start=$(date +%s)
-            python3 main.py --model ${model} --dataset ${problem_benchmark} --train_size ${train_size}  --iterations 10 --repeatitions 10 --reask
+            python3 main.py --model ${model} --dataset ${problem_benchmark} --prompt_type "text" --train_size ${train_size}  --iterations 10 --repeatitions 10 --reask
 			end=$(date +%s)
             echo "${problem_benchmark} ${train_size} ${model} 1 $(( end - start ))" >> ../bash_utils/timings.txt
 		done

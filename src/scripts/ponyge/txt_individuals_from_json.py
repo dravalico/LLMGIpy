@@ -2,6 +2,7 @@ import os
 import subprocess
 from typing import Any, List, Dict, Tuple
 import multiprocessing
+from scripts.ponyge.improvement_files_generator import compute_bnf_type_from_dynamic_bnf_param
 from scripts.function_util import orderering_preserving_duplicates_elimination
 from scripts.json_data_io import read_json, create_dir_path_string, ALREADY_SOLVED_STRING, NOT_PARSED_STRING
 
@@ -10,6 +11,7 @@ def load_phenotypes_from_json(
         json_path: str,
         model_name: str,
         benchmark_name: str,
+        benchmark_type: str,
         problem_index: int,
         iterations: int,
         train_size: int,
@@ -19,6 +21,7 @@ def load_phenotypes_from_json(
         full_path=json_path,
         model_name=model_name,
         problem_benchmark=benchmark_name,
+        problem_benchmark_type=benchmark_type,
         problem_id=problem_index,
         reask=False,
         iterations=iterations,
@@ -66,13 +69,14 @@ def load_phenotypes_from_json(
 
 
 def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bool, only_impr: bool, dynamic_bnf: str) -> List[List[str]]:
+    bnf_type = compute_bnf_type_from_dynamic_bnf_param(dynamic_bnf)
     if only_impr or already_solved: # ! if already solve the dynamic grammar is not generated
         return []
     if len(phenotypes) == 0:
         e: str = "You must specify at least one individual phenotype."
         raise Exception(e)
     genotypes: List[Any] = [] 
-    if dynamic_bnf == "True":
+    if bnf_type == "dynamicbnf":
         args_for_dynamic_bnf: List[Any] = ["--grammar_file", grammar_file, "--reverse_mapping_target", phenotypes[0], "--all_phenotypes", str(phenotypes)]
         worker_function("scripts/GE_LR_parser.py", args_for_dynamic_bnf)
         if os.path.exists(os.path.join('../grammars', grammar_file.replace('.bnf', '_complete_dynamic.bnf'))):
@@ -81,9 +85,11 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
         else:
             args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
                                         for p in orderering_preserving_duplicates_elimination(phenotypes)]
-    else:
+    elif bnf_type == "staticbnf":
         args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
                                     for p in orderering_preserving_duplicates_elimination(phenotypes)]
+    else:
+        raise ValueError(f"bnf_type {bnf_type} unrecognized in parse_genotypes.")
     with multiprocessing.Pool(processes=len(args)) as pool:
         genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
     return genotypes
@@ -158,6 +164,7 @@ def txt_population(
         json_path: str,
         model_name: str,
         benchmark_name: str,
+        benchmark_type: str,
         problem_index: int,
         iterations: int,
         train_size: int,
@@ -174,12 +181,13 @@ def txt_population(
             json_path=json_path,
             model_name=model_name,
             benchmark_name=benchmark_name,
+            benchmark_type=benchmark_type,
             problem_index=problem_index,
             iterations=iterations,
             train_size=train_size,
             test_size=test_size
         )
-        genotypes: List[List[str]] = parse_genotypes(phenotypes, grammar_file, already_solved, only_impr, dynamic_bnf)
-        create_txt_foreach_ind(output_dir_name, genotypes, already_solved, num_iter_solved, data_length, only_impr)
+        genotypes: List[List[str]] = parse_genotypes(phenotypes, grammar_file, already_solved=already_solved, only_impr=only_impr, dynamic_bnf=dynamic_bnf)
+        create_txt_foreach_ind(output_dir_name, genotypes, already_solved, num_iter_solved, data_length, only_impr=only_impr)
     finally:
         os.chdir(cwd)

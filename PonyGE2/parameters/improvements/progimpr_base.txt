@@ -1,5 +1,7 @@
 MODEL_NAME:             <modelName>
 BENCHMARK_NAME:         <benchmarkName>
+BENCHMARK_TYPE:         <benchmarkType>
+BNF_TYPE:               <bnfType>
 PROBLEM_INDEX:          <problemIndex>
 LLM_ITERATIONS:         <llmIterations>
 

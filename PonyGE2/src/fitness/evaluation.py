@@ -1,13 +1,14 @@
 import os
 import numpy as np
 import warnings
+import time
 from copy import deepcopy
 from fitness.progimpr import progimpr
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 from algorithm.parameters import params
 from stats.stats import stats
-from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache
+from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache, train_time_list
 from utilities.algorithm.parallel import process_pool_parallelize, thread_pool_parallelize, fake_parallelize
 
 
@@ -40,6 +41,7 @@ def evaluate_fitness(individuals):
 
     almost_new_individuals = []
 
+    start_time = time.time()
     for name, ind in enumerate(individuals):
         ind.name = name
 
@@ -89,6 +91,8 @@ def evaluate_fitness(individuals):
             #if eval_ind:
                 #results = eval_or_append(ind, results, pool)
             almost_new_individuals.append((ind, eval_ind))
+    end_time = time.time()
+    time_slot = end_time - start_time
 
     try:
         new_individuals = process_pool_parallelize(
@@ -109,7 +113,8 @@ def evaluate_fitness(individuals):
 
     brand_new_individuals = []
     for i in range(len(new_individuals)):
-        index, train_fitness, test_fitness, levi_errors = new_individuals[i]
+        index, train_fitness, test_fitness, levi_errors, eval_time = new_individuals[i]
+        time_slot += eval_time
         ind, eval_ind = almost_new_individuals[index]
         ind.fitness = train_fitness
         ind.levi_test_fitness = test_fitness
@@ -138,6 +143,7 @@ def evaluate_fitness(individuals):
             if ind.runtime_error:
                 runtime_error_cache.append(ind.phenotype)
 
+    train_time_list.append(time_slot)
     return [ind for ind, _ in brand_new_individuals]
 
 
@@ -159,6 +165,7 @@ def eval_or_append(index, ind, results, pool, eval_ind=True):
     train_fitness = ind.fitness
     test_fitness = ind.levi_test_fitness
     levi_errors = ind.levi_errors
+    eval_time = 0.0
 
     #if params['MULTICORE']:
     #    # Add the individual to the pool of jobs.
@@ -170,14 +177,17 @@ def eval_or_append(index, ind, results, pool, eval_ind=True):
     if eval_ind:
         # Evaluate the individual.
         try:
+            start_time = time.time()
             temp_fitness_class_instance = progimpr()
             train_fitness = temp_fitness_class_instance(ind, dist='training')
+            end_time = time.time()
+            eval_time = end_time - start_time
             test_fitness = temp_fitness_class_instance(ind, dist='test')
             levi_errors = ind.levi_errors
         except Exception as e:
             pass
     
-    return index, train_fitness, test_fitness, levi_errors
+    return index, train_fitness, test_fitness, levi_errors, eval_time
 
 def update_ind_cache(ind):
     # Check if individual had a runtime error.

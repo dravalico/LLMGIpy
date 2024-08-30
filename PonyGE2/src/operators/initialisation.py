@@ -514,6 +514,7 @@ def load_population(target):
                         full_path='../../llm_results/',
                         model_name=params['MODEL_NAME'],
                         problem_benchmark=params['BENCHMARK_NAME'],
+                        problem_benchmark_type=params['BENCHMARK_TYPE'],
                         problem_id=params['PROBLEM_INDEX'],
                         reask=False,
                         iterations=params['LLM_ITERATIONS'],

@@ -338,6 +338,7 @@ class ModelTester():
             {
                 'model_name': self.__model.name,
                 'problem_benchmark': self.__dataset_loader.dataset,
+                'problem_benchmark_type': self.__dataset_loader.prompt_type,
                 'problem_name': prob_name,
                 'n_inputs': self.__dataset_loader.get_n_inputs(prob_name),
                 'problem_description': self.__problems['Description'][n_prob],

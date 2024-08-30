@@ -15,6 +15,14 @@ from utilities.stats.file_io import create_results_folder_path # type: ignore
 sys.path = curr_path
 from models.GrammarGeneratorLLM import GrammarGeneratorLLM
 
+
+def compute_bnf_type_from_dynamic_bnf_param(dynamic_bnf: str) -> str:
+    if dynamic_bnf not in ("True", "False"):
+        raise ValueError(f'Unrecognized {dynamic_bnf} as dynamic_bnf, can be either True or False (as string).')
+    bnf_type = "dynamicbnf" if dynamic_bnf == "True" else "staticbnf"
+    return bnf_type
+
+
 # def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator: str | None = None) -> Any:
 def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str, Any], only_impr: bool, task_llm_grammar_generator = None) -> Any:
     impr_prob_names: List[Tuple[int, str]] = []
@@ -26,6 +34,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
     
     model_name: str = llm_param['model_name']
     benchmark_name: str = llm_param['benchmark_name']
+    benchmark_type: str = llm_param['benchmark_type']
     start_problem: int = int(llm_param['start_problem'])
     end_problem: int = int(llm_param['end_problem'])
     iterations: int = int(llm_param['iterations'])
@@ -40,10 +49,12 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
                 problem_index=problem_index,
                 model_name=model_name,
                 benchmark_name=benchmark_name,
+                benchmark_type=benchmark_type,
                 iterations=iterations,
                 train_size=train_size,
                 test_size=test_size,
                 only_impr=only_impr,
+                dynamic_bnf=dynamic_bnf,
                 grammarGenerator=grammarGenerator
             )
         except Exception as e:
@@ -55,18 +66,19 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
                 json_path=jsons_dir_path,
                 model_name=model_name,
                 benchmark_name=benchmark_name,
+                benchmark_type=benchmark_type,
                 problem_index=problem_index,
                 iterations=iterations,
                 train_size=train_size,
                 test_size=test_size,
                 only_impr=only_impr,
-                grammar_file=bnf_filename[bnf_filename.rindex('dynamic'):],
-                output_dir_name=bnf_filename[bnf_filename.rindex('dynamic') + len('dynamic') + 1:bnf_filename.rindex('.bnf')] + '/',
+                grammar_file=bnf_filename[bnf_filename.rindex('dynamic/'):],
+                output_dir_name=bnf_filename[bnf_filename.rindex('dynamic/') + len('dynamic/'):bnf_filename.rindex('.bnf')] + '/',
                 dynamic_bnf=dynamic_bnf
             )
             print(f"'problem {problem_index}' leads to a valid seed for improvement")
             impr_prob_names.append((problem_index, problem_name))
-            grammars_filenames.append(bnf_filename[bnf_filename.rindex('dynamic') + len('dynamic') + 1:])
+            grammars_filenames.append(bnf_filename[bnf_filename.rindex('dynamic/') + len('dynamic/'):])
         except Exception as e:
             print(e)
             print(f"'problem {problem_index}' raises an exception; no population generated")
@@ -82,22 +94,29 @@ def create_grammar_from(
         problem_index,
         model_name,
         benchmark_name,
+        benchmark_type,
         iterations,
         train_size,
         test_size,
         only_impr,
+        dynamic_bnf,
         grammarGenerator
     ) -> Tuple[str, str]:
+    bnf_type = compute_bnf_type_from_dynamic_bnf_param(dynamic_bnf)
     cwd: str = os.getcwd()
     chdir("../PonyGE2/grammars")
     if not os.path.isdir("dynamic"):
         os.mkdir("dynamic")
     chdir("dynamic")
+    if not os.path.isdir(bnf_type):
+        os.mkdir(bnf_type)
+    chdir(bnf_type)
     
     json_file: dict[str, Any] = read_json(
         full_path=json_path,
         model_name=model_name,
         problem_benchmark=benchmark_name,
+        problem_benchmark_type=benchmark_type,
         problem_id=problem_index,
         reask=False,
         iterations=iterations,
@@ -195,6 +214,7 @@ def create_grammar_from(
         full_path=os.getcwd() + '/',
         model_name=model_name,
         problem_benchmark=benchmark_name,
+        problem_benchmark_type=benchmark_type,
         problem_id=problem_index,
         reask=False,
         iterations=iterations,
@@ -278,6 +298,8 @@ def extract_strings(code: str) -> List[str]:
 # NOTE maybe ponyge related things can be enucleated
 MODEL_NAME_TAG: str = "<modelName>"
 BENCHMARK_NAME_TAG: str = "<benchmarkName>"
+BENCHMARK_TYPE_TAG: str = "<benchmarkType>"
+BNF_TYPE_TAG: str = "<bnfType>"
 PROBLEM_INDEX_TAG: str = "<problemIndex>"
 LLM_ITERATIONS_TAG: str = "<llmIterations>"
 BNF_GRAMMAR_TAG: str = "<bnf>"
@@ -305,6 +327,8 @@ def create_params_file(
         llm_param: dict[str, Any],
         pony_param: dict[str, Any]
     ) -> List[str]:
+    dynamic_bnf: str = str(llm_param['dynamic_bnf'])
+    bnf_type: str = compute_bnf_type_from_dynamic_bnf_param(dynamic_bnf)
     cwd: str = os.getcwd()
     chdir("../PonyGE2/parameters")
     improvement_dir: str = "improvements"
@@ -321,7 +345,7 @@ def create_params_file(
             prob_name: int = impr_prob_name[1]
             sel_alg: str = pony_param['selection']
             tourn_size: int = 2
-            selection_sample_size: int = pony_param['selection_sample_size']
+            selection_sample_size: int = min(int(llm_param['train_size']), int(pony_param['selection_sample_size']))
             if sel_alg.startswith('tournament'):
                 tourn_size = int(sel_alg[len('tournament'):])
                 sel_alg = 'tournament'
@@ -333,6 +357,8 @@ def create_params_file(
                 base_path=improvement_dir + '/',
                 params={
                     'BENCHMARK_NAME': llm_param['benchmark_name'],
+                    'BENCHMARK_TYPE': llm_param['benchmark_type'],
+                    'BNF_TYPE': bnf_type,
                     'MODEL_NAME': llm_param['model_name'],
                     'FITNESS_FUNCTION': 'progimpr',
                     'FITNESS_FILE': pony_param['fitness_file'],
@@ -361,6 +387,8 @@ def create_params_file(
             
             impr_file = impr_file.replace(MODEL_NAME_TAG, llm_param['model_name'])
             impr_file = impr_file.replace(BENCHMARK_NAME_TAG, llm_param['benchmark_name'])
+            impr_file = impr_file.replace(BENCHMARK_TYPE_TAG, llm_param['benchmark_type'])
+            impr_file = impr_file.replace(BNF_TYPE_TAG, bnf_type)
             impr_file = impr_file.replace(PROBLEM_INDEX_TAG, str(prob_index))
             impr_file = impr_file.replace(LLM_ITERATIONS_TAG, str(llm_param['iterations']))
             impr_file = impr_file.replace(NUM_TRAIN_EXAMPLES_TAG, str(llm_param['train_size']))

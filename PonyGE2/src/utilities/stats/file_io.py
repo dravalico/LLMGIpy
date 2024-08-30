@@ -16,6 +16,8 @@ BASE_PATH: str = "../results/"
 def create_results_folder_path(base_path: str, params: dict[str, Any], include_seed: bool, make_dirs: bool) -> str:
     # What keys are needed to be available in params dict? Here's the list:
     # BENCHMARK_NAME
+    # BENCHMARK_TYPE
+    # BNF_TYPE
     # MODEL_NAME
     # FITNESS_FUNCTION
     # FITNESS_FILE
@@ -37,20 +39,20 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
 
     full_path: str = base_path
     full_path += 'GI' + '/'
-    full_path += params['BENCHMARK_NAME'] + '/'
+    full_path += params['BENCHMARK_NAME'] + '_' + params['BENCHMARK_TYPE'] + '/'
     full_path += params['MODEL_NAME'] + '/'
     
     if isinstance(params['FITNESS_FUNCTION'], str):
-        full_path += params['FITNESS_FUNCTION'] + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '/'
+        full_path += params['FITNESS_FUNCTION'] + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '_' + params['BNF_TYPE'] + '/'
     else:
-        full_path += params['FITNESS_FUNCTION'].__class__.__name__ + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '/'
+        full_path += params['FITNESS_FUNCTION'].__class__.__name__ + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '_' + params['BNF_TYPE'] + '/'
     
     if isinstance(params['SELECTION'], str):
         full_path += f'{params["SELECTION"]}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'] == 'tournament' else f'{params["SELECTION"]}'
     else:
         full_path += f'{params["SELECTION"].__name__}{params["TOURNAMENT_SIZE"]}' if params['SELECTION'].__name__ == 'tournament' else f'{params["SELECTION"].__name__}'
     full_path += '_'
-    full_path += f'selsamplesize{params["SELECTION_SAMPLE_SIZE"]}'
+    full_path += f'selsamplesize{min(params["NUM_TRAIN_EXAMPLES"], params["SELECTION_SAMPLE_SIZE"])}'
     full_path += '_'
     
     if isinstance(params['CROSSOVER'], str) and isinstance(params['MUTATION'], str):
@@ -147,6 +149,7 @@ def save_best_ind_to_file(stats, ind, end=False, name="best", execution_time_in_
     savefile = open(filename, 'w')
     if execution_time_in_minutes is not None:
         savefile.write("Execution time (min):\n" + str(execution_time_in_minutes) + "\n\n")
+    savefile.write("Training Execution time (min):\n" + str(sum(trackers.train_time_list) * (1 / 60)) + "\n\n")
     savefile.write("Generation:\n" + str(stats['gen']) + "\n\n")
     savefile.write("Phenotype:\n" + str(ind.phenotype) + "\n\n")
     savefile.write("Genotype:\n" + str(ind.genome) + "\n")

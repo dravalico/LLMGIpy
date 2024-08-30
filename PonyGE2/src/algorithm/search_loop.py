@@ -1,5 +1,5 @@
 from multiprocessing import Pool
-
+import time
 from algorithm.parameters import params
 from fitness.evaluation import evaluate_fitness
 from operators.initialisation import initialisation
@@ -23,10 +23,15 @@ def search_loop():
                               initargs=(params,))  # , maxtasksperchild=1)
 
     # Initialise population
+    start_time = time.time()
     individuals = initialisation(params['POPULATION_SIZE'])
+    end_time = time.time()
 
+    initialization_time = end_time - start_time
+    
     # Evaluate initial population
     individuals = evaluate_fitness(individuals)
+    trackers.train_time_list[-1] = trackers.train_time_list[-1] + initialization_time
 
     # Generate statistics for run so far
     get_stats(individuals)

@@ -5,12 +5,20 @@ from typing import List, Tuple, Any
 
 
 class DatasetLoader():
-    def __init__(self, dataset: str, train_size: int, test_size: int = 1000) -> None:
+    def __init__(self, dataset: str, prompt_type: str, train_size: int, test_size: int = 1000) -> None:
         self.__train_size: int = train_size
         self.__test_size: int = test_size
         self.__dataset: str = dataset
+        self.__prompt_type: str = prompt_type
         self.__dataset_folder: str = f"../PonyGE2/datasets/progsys/{dataset}-bench/"
-        self.__problems: pd.DataFrame = pd.read_json(self.__dataset_folder + 'descr.json', orient='records')
+        
+        path_of_prompt: str = ''
+        if self.__prompt_type == 'text':
+            path_of_prompt = 'descr.json'
+        else:
+            raise AttributeError(f'The prompt type {self.__prompt_type} is invalid.')
+        self.__problems: pd.DataFrame = pd.read_json(self.__dataset_folder + path_of_prompt, orient='records')
+        
         with open(self.__dataset_folder + 'n_inputs.json', 'r') as json_file:
             n_inputs = json.load(json_file)
         self.__n_inputs: dict[str, int] = {key: int(n_inputs[key]) for key in n_inputs}
@@ -51,6 +59,10 @@ class DatasetLoader():
     @property
     def problems(self) -> pd.DataFrame:
         return self.__problems
+    
+    @property
+    def prompt_type(self) -> str:
+        return self.__prompt_type
 
     @property
     def train_size(self) -> int:

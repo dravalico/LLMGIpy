@@ -10,7 +10,6 @@ params = {
     # Set default step and search loop functions
     'SEARCH_LOOP': 'search_loop',
     'STEP': 'step',
-    'DYNAMIC_BNF': False, # ? realy needed
     'WORST_POSSIBLE_FITNESS': 1e+10,
 
     # Evolutionary Parameters
@@ -36,6 +35,9 @@ params = {
     'NUM_TRAIN_EXAMPLES': None,
     'NUM_TEST_EXAMPLES': None,
     'ACTIVATE_FINAL_EVALUATION_ON_TEST_SET': True,
+    'BENCHMARK_NAME': None,
+    'BENCHMARK_TYPE': None,
+    'BNF_TYPE': None,
 
     # Set grammar file
     'GRAMMAR_FILE': "supervised_learning/Vladislavleva4.bnf",
@@ -78,7 +80,7 @@ params = {
     # For tournament selection
     'TOURNAMENT_SIZE': 2,
     # For selection (sample size of test cases in the training data to sample at each generation)
-    'SELECTION_SAMPLE_SIZE': 50,
+    'SELECTION_SAMPLE_SIZE': 1000,
     # For truncation selection
     'SELECTION_PROPORTION': 0.5,
     # Allow for selection of invalid individuals during selection process.

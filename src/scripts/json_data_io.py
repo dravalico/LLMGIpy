@@ -18,7 +18,7 @@ def create_and_save_json(filename: str, data: Dict[str, any]) -> str:
     else:
         full_path += 'L' + '/'
     
-    full_path += data['problem_benchmark'] + '/'
+    full_path += data['problem_benchmark'] + '_' + data['problem_benchmark_type'] + '/'
     full_path += data['model_name'] + '/'
 
     if data['reask']:
@@ -46,6 +46,7 @@ def create_dir_path_string(
     full_path: str,
     model_name: str,
     problem_benchmark: str,
+    problem_benchmark_type: str,
     problem_id: int,
     reask: bool,
     iterations: int,
@@ -61,7 +62,7 @@ def create_dir_path_string(
     else:
         full_path += 'L' + '/'
     
-    full_path += problem_benchmark + '/'
+    full_path += problem_benchmark + '_' + problem_benchmark_type + '/'
     full_path += model_name + '/'
 
     if reask:
@@ -81,6 +82,7 @@ def read_json(
     full_path: str,
     model_name: str,
     problem_benchmark: str,
+    problem_benchmark_type: str,
     problem_id: int,
     reask: bool,
     iterations: int,
@@ -93,6 +95,7 @@ def read_json(
         full_path=full_path,
         model_name=model_name,
         problem_benchmark=problem_benchmark,
+        problem_benchmark_type=problem_benchmark_type,
         problem_id=problem_id,
         reask=reask,
         iterations=iterations,

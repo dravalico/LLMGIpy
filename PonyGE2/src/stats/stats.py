@@ -81,6 +81,7 @@ stats = {
     "best_fitness": 0,
     "test_fitness_of_the_best": 0,
     "time_taken": 0,
+    "train_time": 0,
     "total_time": 0,
     "time_adjust": 0
 }
@@ -383,6 +384,7 @@ def update_stats(individuals, end):
                               trackers.time_list[-2]
         stats['total_time'] = trackers.time_list[-1] - \
                               trackers.time_list[0]
+        stats['train_time'] = trackers.train_time_list[-1]
 
     # Population Stats
     stats['total_inds'] = params['POPULATION_SIZE'] * (stats['gen'] + 1)
