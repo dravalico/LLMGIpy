@@ -84,7 +84,7 @@ def LAHC_search_loop():
     individuals = params['INITIALISATION'](params['POPULATION_SIZE'])
 
     # Evaluate initial population
-    individuals = evaluate_fitness(individuals)
+    individuals, time_slot = evaluate_fitness(individuals)
 
     # Generate statistics for run so far
     get_stats(individuals)
@@ -202,7 +202,7 @@ def SCHC_search_loop():
     individuals = params['INITIALISATION'](params['POPULATION_SIZE'])
 
     # Evaluate initial population
-    individuals = evaluate_fitness(individuals)
+    individuals, time_slot = evaluate_fitness(individuals)
 
     # Generate statistics for run so far
     get_stats(individuals)

@@ -31,7 +31,7 @@ def evaluate_fitness(individuals):
            process.
 
     :param individuals: A population of individuals to be evaluated.
-    :return: A population of fully evaluated individuals.
+    :return: A population of fully evaluated individuals along with the time taken to eval individuals on the training set.
     """
 
     results, pool = [], None
@@ -91,9 +91,7 @@ def evaluate_fitness(individuals):
             #if eval_ind:
                 #results = eval_or_append(ind, results, pool)
             almost_new_individuals.append((ind, eval_ind))
-    end_time = time.time()
-    time_slot = end_time - start_time
-
+    
     try:
         new_individuals = process_pool_parallelize(
             eval_or_append,
@@ -110,16 +108,44 @@ def evaluate_fitness(individuals):
             chunksize=1,
             timeout=None
         )
+    end_time = time.time()
+    time_slot = end_time - start_time
 
-    brand_new_individuals = []
+    almost_new_individuals_2 = []
     for i in range(len(new_individuals)):
-        index, train_fitness, test_fitness, levi_errors, eval_time = new_individuals[i]
-        time_slot += eval_time
+        index, train_fitness, levi_errors = new_individuals[i]
         ind, eval_ind = almost_new_individuals[index]
         ind.fitness = train_fitness
-        ind.levi_test_fitness = test_fitness
         ind.levi_errors = levi_errors
+        almost_new_individuals_2.append((ind, eval_ind))
+
+    ############################################################
+
+    try:
+        new_individuals_2 = process_pool_parallelize(
+            eval_or_append_test,
+            [{'index': i, 'ind': deepcopy(almost_new_individuals_2[i][0]), 'results': [], 'pool': None, 'eval_ind': almost_new_individuals_2[i][1]} for i in range(len(almost_new_individuals_2))],
+            num_workers=os.cpu_count() // 2,
+            chunksize=1,
+            timeout=None
+        )
+    except RuntimeError as e:
+        new_individuals_2 = fake_parallelize(
+            eval_or_append_test,
+            [{'index': i, 'ind': deepcopy(almost_new_individuals_2[i][0]), 'results': [], 'pool': None, 'eval_ind': almost_new_individuals_2[i][1]} for i in range(len(almost_new_individuals_2))],
+            num_workers=os.cpu_count(),
+            chunksize=1,
+            timeout=None
+        )
+
+    brand_new_individuals = []
+    for i in range(len(new_individuals_2)):
+        index, test_fitness = new_individuals_2[i]
+        ind, eval_ind = almost_new_individuals_2[index]
+        ind.levi_test_fitness = test_fitness
         brand_new_individuals.append((ind, eval_ind))
+
+    ############################################################
 
     for ind, eval_ind in brand_new_individuals:
         if eval_ind:
@@ -143,8 +169,7 @@ def evaluate_fitness(individuals):
             if ind.runtime_error:
                 runtime_error_cache.append(ind.phenotype)
 
-    train_time_list.append(time_slot)
-    return [ind for ind, _ in brand_new_individuals]
+    return [ind for ind, _ in brand_new_individuals], time_slot
 
 
 def eval_or_append(index, ind, results, pool, eval_ind=True):
@@ -163,31 +188,47 @@ def eval_or_append(index, ind, results, pool, eval_ind=True):
     """
 
     train_fitness = ind.fitness
-    test_fitness = ind.levi_test_fitness
     levi_errors = ind.levi_errors
-    eval_time = 0.0
-
-    #if params['MULTICORE']:
-    #    # Add the individual to the pool of jobs.
-    #    results.append(pool.apply_async(ind.evaluate, ()))
-    #    return results
-
-    #else:
 
     if eval_ind:
         # Evaluate the individual.
         try:
-            start_time = time.time()
             temp_fitness_class_instance = progimpr()
             train_fitness = temp_fitness_class_instance(ind, dist='training')
-            end_time = time.time()
-            eval_time = end_time - start_time
-            test_fitness = temp_fitness_class_instance(ind, dist='test')
             levi_errors = ind.levi_errors
         except Exception as e:
             pass
     
-    return index, train_fitness, test_fitness, levi_errors, eval_time
+    return index, train_fitness, levi_errors
+
+
+def eval_or_append_test(index, ind, results, pool, eval_ind=True):
+    """
+    Evaluates an individual if sequential evaluation is being used. If
+    multi-core parallel evaluation is being used, adds the individual to the
+    pool to be evaluated.
+
+    :param ind: An individual to be evaluated.
+    :param results: A list of individuals to be evaluated by the multicore
+    pool of workers.
+    :param pool: A pool of workers for multicore evaluation.
+    :param eval_ind: A bool telling whether to evaluate the individual from scratch or not.
+    :return: The evaluated individual or the list of individuals to be
+    evaluated.
+    """
+
+    test_fitness = ind.levi_test_fitness
+
+    if eval_ind:
+        # Evaluate the individual.
+        try:
+            temp_fitness_class_instance = progimpr()
+            test_fitness = temp_fitness_class_instance(ind, dist='test')
+        except Exception as e:
+            pass
+    
+    return index, test_fitness
+
 
 def update_ind_cache(ind):
     # Check if individual had a runtime error.

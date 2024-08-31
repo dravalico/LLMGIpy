@@ -5,7 +5,7 @@ from typing import List, Any, Dict, Tuple
 from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
-from scripts.function_util import orderering_preserving_duplicates_elimination
+from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param
 from scripts.json_data_io import read_json, create_dir_path_string
 import sys
 import traceback
@@ -14,13 +14,6 @@ sys.path.append('../PonyGE2/src')
 from utilities.stats.file_io import create_results_folder_path # type: ignore
 sys.path = curr_path
 from models.GrammarGeneratorLLM import GrammarGeneratorLLM
-
-
-def compute_bnf_type_from_dynamic_bnf_param(dynamic_bnf: str) -> str:
-    if dynamic_bnf not in ("True", "False"):
-        raise ValueError(f'Unrecognized {dynamic_bnf} as dynamic_bnf, can be either True or False (as string).')
-    bnf_type = "dynamicbnf" if dynamic_bnf == "True" else "staticbnf"
-    return bnf_type
 
 
 # def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator: str | None = None) -> Any:
@@ -177,7 +170,7 @@ def create_grammar_from(
             extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
             nums.append(extract_numbers_from_string(json_file["problem_description"]))
             variables.append(e["variables_names"])
-    
+
     temp0 = []
     temp = []
     flat_list = sorted([item for sublist in extracted_functions_from_individuals for item in sublist])
@@ -222,15 +215,16 @@ def create_grammar_from(
         train_size=train_size,
         test_size=test_size
     )
+
     last_slash_index: int = actual_grammar_path.rindex('/')
     prefix_actual_grammar_path: str = actual_grammar_path[:last_slash_index + 1]
     if not os.path.isdir(prefix_actual_grammar_path):
         os.makedirs(prefix_actual_grammar_path)
-    
+
     if not only_impr:
-        with open("dynamic.bnf", 'rb') as source_file, open(actual_grammar_path.replace(".json", ".bnf"), 'wb') as dest_file:
+        with open("../dynamic.bnf", 'rb') as source_file, open(actual_grammar_path.replace(".json", ".bnf"), 'wb') as dest_file:
             dest_file.write(source_file.read())
-        
+
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:
             if temp != "":
                 bnf.write("<FUNC> ::= " + temp + '\n')

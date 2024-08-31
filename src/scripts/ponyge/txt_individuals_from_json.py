@@ -2,8 +2,7 @@ import os
 import subprocess
 from typing import Any, List, Dict, Tuple
 import multiprocessing
-from scripts.ponyge.improvement_files_generator import compute_bnf_type_from_dynamic_bnf_param
-from scripts.function_util import orderering_preserving_duplicates_elimination
+from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param
 from scripts.json_data_io import read_json, create_dir_path_string, ALREADY_SOLVED_STRING, NOT_PARSED_STRING
 
 

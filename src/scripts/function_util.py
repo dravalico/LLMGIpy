@@ -5,6 +5,13 @@ import re
 from re import Match
 
 
+def compute_bnf_type_from_dynamic_bnf_param(dynamic_bnf: str) -> str:
+    if dynamic_bnf not in ("True", "False"):
+        raise ValueError(f'Unrecognized {dynamic_bnf} as dynamic_bnf, can be either True or False (as string).')
+    bnf_type = "dynamicbnf" if dynamic_bnf == "True" else "staticbnf"
+    return bnf_type
+
+
 def orderering_preserving_duplicates_elimination(local_vars):
     actual_local_vars = []
     for local_var in local_vars:

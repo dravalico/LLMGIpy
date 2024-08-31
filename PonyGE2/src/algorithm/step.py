@@ -30,18 +30,19 @@ def step(individuals):
     # Mutate the new population.
     new_pop = mutation(cross_pop)
     end_time = time.time()
-    time_slot = end_time - start_time
+    mut_time = end_time - start_time
 
     # Evaluate the fitness of the new population.
-    new_pop = evaluate_fitness(new_pop)
-    trackers.train_time_list[-1] = trackers.train_time_list[-1] + time_slot
+    new_pop, time_slot = evaluate_fitness(new_pop)
+    time_slot = time_slot + mut_time
 
     start_time = time.time()
     # Replace the old population with the new population.
     individuals = replacement(new_pop, individuals)
     end_time = time.time()
-    repalcement_time = end_time - start_time
-    trackers.train_time_list[-1] = trackers.train_time_list[-1] + repalcement_time
+    replacement_time = end_time - start_time
+    time_slot = time_slot + replacement_time
+    trackers.train_time_list.append(time_slot)
 
     # Generate statistics for run so far
     get_stats(individuals)

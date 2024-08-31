@@ -28,7 +28,7 @@ class Agent:
         self.individual = initialisation(1)
 
         # Evaluate the fitness for the the individual    
-        self.individual = evaluate_fitness(self.individual)
+        self.individual, time_slot = evaluate_fitness(self.individual)
 
         # Flag which store the boolean value for other neighbouring agents
         # found or not
@@ -83,7 +83,7 @@ class Agent:
             new_pop = mutation(cross_pop)
 
             # Evaluate the fitness of the new population.
-            new_pop = evaluate_fitness(new_pop)
+            new_pop, time_slot = evaluate_fitness(new_pop)
 
             # Replace the old population with the new population.
             individuals = replacement(new_pop, individuals)

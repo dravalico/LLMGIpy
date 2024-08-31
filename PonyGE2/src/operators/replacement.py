@@ -88,7 +88,7 @@ def steady_state(individuals):
             new_pop = mutation(cross_pop)
 
             # Evaluate the fitness of the new population.
-            new_pop = evaluate_fitness(new_pop)
+            new_pop, time_slot = evaluate_fitness(new_pop)
 
             # Sort the original population
             individuals.sort(reverse=True)

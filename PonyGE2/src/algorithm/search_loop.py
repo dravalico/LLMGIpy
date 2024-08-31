@@ -30,9 +30,10 @@ def search_loop():
     initialization_time = end_time - start_time
     
     # Evaluate initial population
-    individuals = evaluate_fitness(individuals)
-    trackers.train_time_list[-1] = trackers.train_time_list[-1] + initialization_time
-
+    individuals, time_slot = evaluate_fitness(individuals)
+    time_slot = time_slot + initialization_time
+    trackers.train_time_list.append(time_slot)
+    
     # Generate statistics for run so far
     get_stats(individuals)
 
