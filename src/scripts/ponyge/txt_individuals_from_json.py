@@ -74,7 +74,11 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
     if len(phenotypes) == 0:
         e: str = "You must specify at least one individual phenotype."
         raise Exception(e)
+    
+    # REMEMBER TO REPLICATE THE FOLLOWING CODE ALSO IN THE METHOD load_population OF initialisation.py IN PonyGE2
+    
     genotypes: List[Any] = [] 
+    
     if bnf_type == "dynamicbnf":
         args_for_dynamic_bnf: List[Any] = ["--grammar_file", grammar_file, "--reverse_mapping_target", phenotypes[0], "--all_phenotypes", str(phenotypes)]
         worker_function("scripts/GE_LR_parser.py", args_for_dynamic_bnf)
@@ -89,8 +93,10 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
                                     for p in orderering_preserving_duplicates_elimination(phenotypes)]
     else:
         raise ValueError(f"bnf_type {bnf_type} unrecognized in parse_genotypes.")
+    
     with multiprocessing.Pool(processes=len(args)) as pool:
         genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
+    
     return genotypes
 
 

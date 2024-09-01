@@ -1,5 +1,6 @@
 from math import floor
 from os import getcwd, listdir, path
+import os
 from random import randint, shuffle
 import sys
 import subprocess
@@ -524,11 +525,27 @@ def load_population(target):
                     )
         n_inputs = llm_data['n_inputs']
         final_ind = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
+        
         new_genotypes = []
-        args = [("scripts/GE_LR_parser.py", ["--grammar_file", params['GRAMMAR_FILE'], "--reverse_mapping_target", p])
-                              for p in [final_ind]]
+        
+        if params['BNF_TYPE'] == "dynamicbnf":
+            args_for_dynamic_bnf = ["--grammar_file", params['GRAMMAR_FILE'], "--reverse_mapping_target", final_ind, "--all_phenotypes", str([final_ind])]
+            _worker_function_script_path_script_args_initialisation("scripts/GE_LR_parser.py", args_for_dynamic_bnf)
+            if os.path.exists(os.path.join('../grammars', params['GRAMMAR_FILE'].replace('.bnf', '_complete_dynamic.bnf'))):
+                args = [("scripts/GE_LR_parser.py", ["--grammar_file", params['GRAMMAR_FILE'].replace('.bnf', '_complete_dynamic.bnf'), "--reverse_mapping_target", p])
+                                            for p in [final_ind]]
+            else:
+                args = [("scripts/GE_LR_parser.py", ["--grammar_file", params['GRAMMAR_FILE'], "--reverse_mapping_target", p])
+                                            for p in [final_ind]]
+        elif params['BNF_TYPE'] == "staticbnf":
+            args = [("scripts/GE_LR_parser.py", ["--grammar_file", params['GRAMMAR_FILE'], "--reverse_mapping_target", p])
+                                        for p in [final_ind]]
+        else:
+            raise ValueError(f"bnf_type {params['BNF_TYPE']} unrecognized in parse_genotypes ponyge2.")
+        
         with multiprocessing.Pool(processes=len(args)) as pool:
             new_genotypes = [r for r in pool.starmap(_worker_function_script_path_script_args_initialisation, args) if r is not None]
+        
         seed_inds.append(Individual(eval(new_genotypes[0]), None))
 
     return seed_inds
