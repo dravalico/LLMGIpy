@@ -5,7 +5,7 @@ from typing import List, Any, Dict, Tuple
 from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
-from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param
+from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING
 from scripts.json_data_io import read_json, create_dir_path_string
 import sys
 import traceback
@@ -375,7 +375,7 @@ def create_params_file(
             )
             path_no_ext: str = grammar_filename[:grammar_filename.rindex('.bnf')]
             impr_file: str = impr_base_file.replace(SEED_FOLDER_TAG, path_no_ext)
-            impr_file = impr_file.replace(BNF_GRAMMAR_TAG, grammar_filename)
+            impr_file = impr_file.replace(BNF_GRAMMAR_TAG, grammar_filename.replace('.bnf', '_complete_dynamic.bnf') if bnf_type == DYNAMICBNF_AS_STRING else grammar_filename)
             impr_file = impr_file.replace(TRAIN_DATASET_TAG, llm_param['benchmark_name'] + '-bench' + '/' + prob_name)
             impr_file = impr_file.replace(TEST_DATASET_TAG, llm_param['benchmark_name'] + '-bench' + '/' + prob_name)
             
