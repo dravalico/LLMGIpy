@@ -118,6 +118,7 @@ def create_grammar_from(
         test_size=test_size
     )
 
+    kwarg_variable_name_regex: str = "[a-zA-Z_][a-zA-Z0-9_]*="
     data: List[Dict[str, Any]] = json_file["data_preprocess"]
     n_inputs: int = int(json_file["n_inputs"])
     problem_name: str = json_file["problem_name"]
@@ -146,6 +147,7 @@ def create_grammar_from(
         e["main_func"] = e["main_func"].replace('\\D', '\D')
         e["main_func"] = e["main_func"].replace('\\W', '\W')
         e["main_func"] = e["main_func"].replace('\\S', '\S')
+        e["main_func"] = re.sub(kwarg_variable_name_regex, "", e["main_func"])
 
         try:
             funs_and_meths = extract_functions_and_methods(e["main_func"])
@@ -273,6 +275,17 @@ def extract_functions_and_methods(code: str) -> List[str]:
                     father_methods.append(curr_value_name.attr)
                     curr_value_name = curr_value_name.value
                 function_and_method_names.append(('' if len(father_methods) == 0 else '.') + '.'.join(father_methods[::-1]) + f".{method_name}")
+        elif isinstance(node, ast.Attribute):
+            father_methods = []
+            a = node
+            father_methods.append(a.attr)
+            while True:
+                try:
+                    a = a.value
+                    father_methods.append(a.attr)
+                except:
+                    break
+            function_and_method_names.append('.' + '.'.join(father_methods[::-1]))
     return orderering_preserving_duplicates_elimination(function_and_method_names)
 
 

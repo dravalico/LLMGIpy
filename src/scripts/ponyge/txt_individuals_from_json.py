@@ -1,5 +1,6 @@
 import os
 import subprocess
+import re
 from typing import Any, List, Dict, Tuple
 import multiprocessing
 from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING
@@ -29,6 +30,7 @@ def load_phenotypes_from_json(
         test_size=test_size
     )
 
+    kwarg_variable_name_regex: str = "[a-zA-Z_][a-zA-Z0-9_]*="
     data: List[Dict[str, Any]] = json_file["data_preprocess"]
     n_inputs: int = int(json_file["n_inputs"])
 
@@ -56,6 +58,7 @@ def load_phenotypes_from_json(
             final_ind = final_ind.replace('\\D', '\D')
             final_ind = final_ind.replace('\\W', '\W')
             final_ind = final_ind.replace('\\S', '\S')
+            final_ind = re.sub(kwarg_variable_name_regex, "", final_ind)
         else:
             final_ind: str = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
         if 'tests_results' in data[i] and 'passed' in data[i]["tests_results"] and int(data[i]["tests_results"]["passed"]) == train_size:
