@@ -58,7 +58,7 @@
           "for ("<var>", "<var>") in "<all_vars>":{:"<NEWLINE><code>":}" |
           "for "<var>" in "<all_vars>":{:"<NEWLINE><code>":}" 
 
-<while> ::= "while "<var>":{:"<NEWLINE><code>":}" | "while "<var>" "<op>" "<all_vars>":{:"<NEWLINE><code>":}"
+<while> ::= "while "<var>":{:"<NEWLINE><code>":}" | "while "<condition>":{:"<NEWLINE><code>":}"
 
 <inline_for> ::= "for "<all_vars>" in "<all_vars> | "if "<condition>" else "<all_vars>" for "<all_vars>" in "<all_vars> | "for "<all_vars>" in "<all_vars>" if "<condition>
 

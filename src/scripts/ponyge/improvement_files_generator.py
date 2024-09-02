@@ -188,6 +188,8 @@ def create_grammar_from(
     for i in flat_list1:
         if f'"{i}"' not in temp1:
             temp1.append(f'"{i}"')
+    temp1.append('\"\'\'\"')
+    temp1.append('\'""\'')
     temp1 = ' | '.join(temp1)
     temp2 = []
     flat_list2 = sorted([item for sublist in variables for item in sublist])
@@ -234,10 +236,7 @@ def create_grammar_from(
                 bnf.write("<METHOD> ::= " + temp0 + '\n')
             else:
                 bnf.write("<METHOD> ::= " + '""' + '\n')
-            if temp1 != "":
-                bnf.write("<STRINGS> ::= " + temp1 + '\n')
-            else:
-                bnf.write("<STRINGS> ::= " + '""' + '\n')
+            bnf.write("<STRINGS> ::= " + temp1 + '\n')
             if temp2 != "":
                 bnf.write("<var> ::= " + temp2 + '\n')
             else:
