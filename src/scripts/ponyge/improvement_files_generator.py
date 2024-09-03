@@ -196,8 +196,7 @@ def create_grammar_from(
             temp0.append(f'"{i}"')
         elif "." not in i and f'"{i}"' not in temp:
             temp.append(f'"{i}"')
-    temp0 = ' | '.join(temp0)
-    temp = ' | '.join(temp)
+    
     temp1 = []
     flat_list1 = sorted([item for sublist in extracted_strings_from_individuals for item in sublist])
     flat_list1 = [item if item != '\n' else '\\n' for item in flat_list1]
@@ -207,20 +206,44 @@ def create_grammar_from(
             temp1.append(f'"{i}"')
     temp1.append('\"\'\'\"')
     temp1.append('\'""\'')
-    temp1 = ' | '.join(temp1)
+    
     temp2 = []
     flat_list2 = sorted([item for sublist in variables for item in sublist])
     for i in flat_list2:
         if f'"{i}"' not in temp2:
             temp2.append(f'"{i}"')
-    temp2 = ' | '.join(temp2)
-    temp2 += ' | "a0" | "a1" | "a2"'
+    
     temp4 = []
     flat_list4 = sorted([item for sublist in nums for item in sublist])
     for i in flat_list4:
         if f'"{i}"' not in temp4:
             temp4.append(f'"{i}"')
+    
+
+    renamed_main_func = e["renamed_main_func"]
+    tree_v = ast.parse(renamed_main_func)
+    function_defs_v = [node_v for node_v in ast.walk(tree_v) if isinstance(node_v, ast.FunctionDef)]
+    if len(function_defs_v) != 0:
+        first_function_v = function_defs_v[0]
+        local_vars_v = []
+        for node_v in ast.walk(first_function_v):
+            if isinstance(node_v, ast.Name) and node_v.id not in temp2 and node_v.id not in temp0 and node_v.id not in temp1 and node_v.id not in temp and node_v.id not in temp4:
+                local_vars_v.append(node_v.id)
+        
+        local_vars_v = orderering_preserving_duplicates_elimination(local_vars_v)
+    else:
+        local_vars_v = []
+
+    temp2.extend(local_vars_v)
+    temp2 = orderering_preserving_duplicates_elimination(temp2)
+
+    temp0 = ' | '.join(temp0)
+    temp = ' | '.join(temp)
+    temp1 = ' | '.join(temp1)
+    temp2 = ' | '.join(temp2)
+    temp2 += ' | "a0" | "a1" | "a2"'
     temp4 = ' | '.join(temp4)
+
 
     actual_grammar_path: str = create_dir_path_string(
         full_path=os.getcwd() + '/',
@@ -245,6 +268,7 @@ def create_grammar_from(
             dest_file.write(source_file.read())
 
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:
+            bnf.write("\n")
             if kwargsnames != []:
                 bnf.write("<KWARGNAMES> ::= " + ' | '.join(kwargsnames) + '\n')
             else:
