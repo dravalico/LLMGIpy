@@ -147,7 +147,9 @@ def create_grammar_from(
         e["main_func"] = e["main_func"].replace('\\D', '\D')
         e["main_func"] = e["main_func"].replace('\\W', '\W')
         e["main_func"] = e["main_func"].replace('\\S', '\S')
-        e["main_func"] = re.sub(kwarg_variable_name_regex, "", e["main_func"])
+        #e["main_func"] = re.sub(kwarg_variable_name_regex, "", e["main_func"])
+
+        kwargsnames = [el[:-1] for el in re.findall(kwarg_variable_name_regex, e["main_func"])]
 
         try:
             funs_and_meths = extract_functions_and_methods(e["main_func"])
@@ -230,6 +232,8 @@ def create_grammar_from(
             dest_file.write(source_file.read())
 
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:
+            if kwargsnames != []:
+                bnf.write("<KWARGNAMES> ::= " + ' | '.join(kwargsnames) + '\n')
             if temp != "":
                 bnf.write("<FUNC> ::= " + temp + '\n')
             else:
