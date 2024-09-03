@@ -91,20 +91,25 @@ def extract_numbers_from_string(prompt):
     """
     words = prompt.split()
     numbers = []
-    for string in re.findall(r'\d+', prompt):
+    
+    for string in re.findall(r'\d+\.\d+', prompt):
         try:
-            string = int(string)
+            _ = float(string.strip().lower())  # Try converting to a float
+            numbers.append(string.strip().lower())
         except ValueError:
-            try:
-                string = float(string)  # Try converting to a float
-            except ValueError:
-                string = None  # Couldn't convert to either int or float
-        numbers.append(string)
+            pass  # Couldn't convert to either int or float
+    
+    for string in re.findall(r'-?\d*\.?\d+(?:[eE][-+]?\d+)?', prompt):
+        try:
+            _ = int(string.strip().lower())
+            numbers.append(string.strip().lower())
+        except ValueError:
+            pass  # Couldn't convert to either int or float
 
     for word in words:
         try:
             number = w2n.word_to_num(word)
-            numbers.append(number)
+            numbers.append(str(number))
         except ValueError:
             pass  # Ignore words that are not recognized as numbers
     return orderering_preserving_duplicates_elimination(numbers)

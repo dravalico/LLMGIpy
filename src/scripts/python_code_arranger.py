@@ -9,7 +9,7 @@ from scripts.json_data_io import read_json
 def add_global_declarations_before_function_definitions(s: str) -> str:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
     l: list[str] = s.split('\n')
-    t = [(i, re.findall(r'def (.+)\(', l[i])[0], len(l[i]) - len(l[i].lstrip())) for i in range(len(l)) if p.match(l[i])][::-1]
+    t = [(i, l[i][l[i].index('def ') + len('def '):l[i].index('(')], len(l[i]) - len(l[i].lstrip())) for i in range(len(l)) if p.match(l[i])][::-1]
     for i, function_name, num_lead_spaces in t:
         l.insert(i, f'{" " * num_lead_spaces}global {function_name}')
     return '\n'.join(l)
@@ -155,7 +155,7 @@ def extract_single_function(l: list[str]) -> list[str]:
 
 def remove_nested_functions(l: list[str]) -> list[str]:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
-    t = [(i, re.findall(r'def (.+)\(', l[i])[0], len(l[i]) - len(l[i].lstrip()), len(l[i]) - len(l[i].lstrip()) != 0) for i in range(1, len(l)) if p.match(l[i])]
+    t = [(i, l[i][l[i].index('def ') + len('def '):l[i].index('(')], len(l[i]) - len(l[i].lstrip()), len(l[i]) - len(l[i].lstrip()) != 0) for i in range(1, len(l)) if p.match(l[i])]
     idx_to_remove: set[int] = set()
     
     for i in range(len(t)):
@@ -284,7 +284,7 @@ def extract_distinct_functions(l: list[str], remove_syntax_errors: bool, potenti
     outer_indent_size: int = min([len(l[i]) - len(l[i].lstrip()) for i in range(len(l)) if p.match(l[i])])
     l_copy: list[str] = [line[outer_indent_size:] for line in l]
 
-    t = [(i, re.findall(r'def (.+)\(', l_copy[i])[0], len(l_copy[i]) - len(l_copy[i].lstrip()), len(l_copy[i]) - len(l_copy[i].lstrip()) != 0) for i in range(len(l_copy)) if p.match(l_copy[i])]
+    t = [(i, l_copy[i][l_copy[i].index('def ') + len('def '):l_copy[i].index('(')], len(l_copy[i]) - len(l_copy[i].lstrip()), len(l_copy[i]) - len(l_copy[i].lstrip()) != 0) for i in range(len(l_copy)) if p.match(l_copy[i])]
     
     # PICK LAST NON-NESTED FUNCTION (THE MAIN CODE FUNCTION)
     last_non_nested_function = t[-1]

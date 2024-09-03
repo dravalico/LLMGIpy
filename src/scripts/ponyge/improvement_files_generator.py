@@ -149,7 +149,20 @@ def create_grammar_from(
         e["main_func"] = e["main_func"].replace('\\S', '\S')
         #e["main_func"] = re.sub(kwarg_variable_name_regex, "", e["main_func"])
 
-        kwargsnames = [el[:-1] for el in re.findall(kwarg_variable_name_regex, e["main_func"])]
+        kwargsnames = orderering_preserving_duplicates_elimination([elem[:-1] for elem in re.findall(kwarg_variable_name_regex, e["main_func"])])
+        kwargsnames_pairs = []
+        for kw in kwargsnames:
+            all_kw_indices = [sss.start() for sss in re.finditer(kw + '=', e["main_func"])]
+            for kw_i in all_kw_indices:
+                from_the_value_on = e["main_func"][kw_i + len(kw + '='):]
+                value = ''
+                for ch_i, ch in enumerate(from_the_value_on, 0):
+                    if ch == ',' or ch == ')':
+                        value = from_the_value_on[:ch_i]
+                        break
+                if value != '':
+                    kwargsnames_pairs.append(kw + '=' + value)
+        kwargsnames_pairs = orderering_preserving_duplicates_elimination(kwargsnames_pairs)
 
         try:
             funs_and_meths = extract_functions_and_methods(e["main_func"])
@@ -234,6 +247,8 @@ def create_grammar_from(
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:
             if kwargsnames != []:
                 bnf.write("<KWARGNAMES> ::= " + ' | '.join(kwargsnames) + '\n')
+            if kwargsnames_pairs != []:
+                bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join(kwargsnames_pairs) + '\n')
             if temp != "":
                 bnf.write("<FUNC> ::= " + temp + '\n')
             else:
