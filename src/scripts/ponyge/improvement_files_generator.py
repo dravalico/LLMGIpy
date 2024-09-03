@@ -177,7 +177,7 @@ def create_grammar_from(
             code_of_supports = [lol.split('\n')[0] for lol in e["supports"]]
             for support_code_def in code_of_supports:
                 if p_s.match(support_code_def):
-                    support_code_def_entry_point = re.findall(r'def (.+)\(', support_code_def)[0]
+                    support_code_def_entry_point = support_code_def[support_code_def.index('def ') + len('def '):support_code_def.index('(')]
                     if support_code_def_entry_point not in funs_and_meths:
                         funs_and_meths.append(support_code_def_entry_point)
             extracted_functions_from_individuals.append(funs_and_meths)
@@ -247,8 +247,12 @@ def create_grammar_from(
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:
             if kwargsnames != []:
                 bnf.write("<KWARGNAMES> ::= " + ' | '.join(kwargsnames) + '\n')
+            else:
+                bnf.write("<KWARGNAMES> ::= " + '""' + '\n')
             if kwargsnames_pairs != []:
                 bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join(kwargsnames_pairs) + '\n')
+            else:
+                bnf.write("<KWARGNAMESVALUES> ::= " + '""' + '\n')
             if temp != "":
                 bnf.write("<FUNC> ::= " + temp + '\n')
             else:
@@ -257,7 +261,10 @@ def create_grammar_from(
                 bnf.write("<METHOD> ::= " + temp0 + '\n')
             else:
                 bnf.write("<METHOD> ::= " + '""' + '\n')
-            bnf.write("<STRINGS> ::= " + temp1 + '\n')
+            if temp1 != "":
+                bnf.write("<STRINGS> ::= " + temp1 + '\n')
+            else:
+                bnf.write("<STRINGS> ::= " + '""' + '\n')
             if temp2 != "":
                 bnf.write("<var> ::= " + temp2 + '\n')
             else:

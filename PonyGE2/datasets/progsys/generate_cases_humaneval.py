@@ -55,7 +55,7 @@ def add_zero_for_single_digit(n: int) -> str:
 def add_global_declarations_before_function_definitions(s: str) -> str:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
     l: list[str] = s.split('\n')
-    t = [(i, re.findall(r'def (.+)\(', l[i])[0], len(l[i]) - len(l[i].lstrip())) for i in range(len(l)) if p.match(l[i])][::-1]
+    t = [(i, l[i][l[i].index('def ') + len('def '):l[i].index('(')], len(l[i]) - len(l[i].lstrip())) for i in range(len(l)) if p.match(l[i])][::-1]
     for i, function_name, num_lead_spaces in t:
         l.insert(i, f'{" " * num_lead_spaces}global {function_name}')
     return '\n'.join(l)
