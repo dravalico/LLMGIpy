@@ -64,7 +64,6 @@ py-itree==0.0.19
 pyarrow==11.0.0
 pycodestyle==2.11.1
 Pygments==2.15.1
-pyllama==0.0.9
 pyparsing==3.0.9
 python-dateutil==2.8.2
 python-dotenv==1.0.0
@@ -80,7 +79,7 @@ safetensors==0.4.3
 scikit-learn==1.2.2
 scipy==1.10.1
 sentence-transformers==2.2.2
-sentencepiece==0.1.97
+sentencepiece==0.1.98
 six==1.16.0
 snakeviz==2.2.0
 sympy==1.11.1
