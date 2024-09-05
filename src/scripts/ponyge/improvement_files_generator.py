@@ -51,6 +51,7 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
                 grammarGenerator=grammarGenerator
             )
         except Exception as e:
+            print(str(traceback.format_exc()))
             print(e)
             print(f"'problem {problem_index}' raises an exception; no population generated")
             continue
@@ -125,7 +126,7 @@ def create_grammar_from(
     extracted_functions_from_individuals: List[List[str]] = []
     extracted_strings_from_individuals: List[List[str]] = []
     variables: List[List[str]] = []
-    nums = [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
+    nums = [["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]]
     
     for e in data:
         if "main_func" not in e:
@@ -214,7 +215,7 @@ def create_grammar_from(
             temp2.append(f'"{i}"')
     
     temp4 = []
-    flat_list4 = sorted([item for sublist in nums for item in sublist])
+    flat_list4 = sorted([item for sublist in nums for item in sublist]) 
     for i in flat_list4:
         if f'"{i}"' not in temp4:
             temp4.append(f'"{i}"')
@@ -298,7 +299,7 @@ def create_grammar_from(
         if grammarGenerator is not None:
             for i, e in enumerate(data): # where data = json_file["data_preprocess"]
                generated_bnfs = grammarGenerator.ask_just_grammar(prompt=json_file["problem_description"], code=e["main_func"], grammar_path=actual_grammar_path.replace(".json", ".bnf"))
-               with open(json_path.split('/')[-1].replace(".json", f"_generated_iteration{i}.bnf"), 'w') as bnf_generated: # ! add a folder where put the files
+               with open(json_path.split('/')[-1].replace(".json", f"_generated_iteration{i}.bnf"), 'w') as bnf_generated:
                     bnf_generated.write(generated_bnfs)
     
     chdir(cwd)
