@@ -192,7 +192,7 @@ class ModelTester():
         except Exception as e:
             result_queue.put(str(e))
 
-    def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int, eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None, all_eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None) -> Tuple[bool, Any, List[Dict[str, Any]]]:
+    def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int, eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None, all_eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None, evaluate_in_parallel: bool = True) -> Tuple[bool, Any, List[Dict[str, Any]]]:
         responses_copy = [res for res in responses if 'exception' not in res]
         f_bodies: List[str] = [res['full_code'] for res in responses_copy]
         f_names: List[str] = [res['new_entry_point'] for res in responses_copy]
@@ -242,31 +242,54 @@ class ModelTester():
             if go_to_the_next:
                 workers.append(None)
                 continue
-            process = Process(target=self.__worker_function, args=args[i])
-            process.start()
-            workers.append(process)
-        for i, worker in enumerate(workers):
-            if worker is None:
-                continue
-            try:
-                worker.join(timeout=self.__iteration_timeout)
-                if worker.is_alive():
-                    worker.terminate()
-                    raise Exception('Process timed out')
+            if evaluate_in_parallel:
+                process = Process(target=self.__worker_function, args=args[i])
+                process.start()
+                workers.append(process)
+            else:
+                workers.append(True)
+
+        if evaluate_in_parallel:
+            for i, worker in enumerate(workers):
+                if worker is None:
+                    continue
+                try:
+                    worker.join(timeout=self.__iteration_timeout)
+                    if worker.is_alive():
+                        worker.terminate()
+                        raise Exception('Process timed out')
+                    print(f'Result obtained for repetition {rep}')
+                    worker_res = args[i][-1].get()
+                    if isinstance(worker_res, str):
+                        data[i]['tests_results'] = {'passed': 0, 'error': worker_res}
+                    else:
+                        data[i]['tests_results'] = worker_res[0]
+                except Exception as e:
+                    if self.__reask:
+                        print(f'Exception for repetition {rep}')
+                        data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
+                        exc = True
+                    else:
+                        print(f'Exception for iteration {i + 1}')
+                        data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
+        else:
+            for i in range(len(args)):
+                current_arg = args[i][:-1]
+                current_worker = workers[i]
+                if current_worker is None:
+                    continue
+                try:
+                    seq_res = self.__test_function(*current_arg)
+                except Exception as e:
+                    seq_res = str(e)
                 print(f'Result obtained for repetition {rep}')
-                worker_res = args[i][-1].get()
-                if isinstance(worker_res, str):
-                    data[i]['tests_results'] = {'passed': 0, 'error': worker_res}
+                if isinstance(seq_res, str):
+                    data[i]['tests_results'] = {'passed': 0, 'error': seq_res}
                 else:
-                    data[i]['tests_results'] = worker_res[0]
-            except Exception as e:
-                if self.__reask:
-                    print(f'Exception for repetition {rep}')
-                    data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
-                    exc = True
-                else:
-                    print(f'Exception for iteration {i + 1}')
-                    data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
+                    data[i]['tests_results'] = seq_res[0]
+                worker_res = seq_res
+
+
         return exc, worker_res, data
 
     def __test_function(self, f_body: str, f_name: str, prob_name: str, n_iter: int) -> Tuple[Dict[str, int], List[Tuple[Any, Any]]]:
