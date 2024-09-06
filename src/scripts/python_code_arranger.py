@@ -62,24 +62,23 @@ def extract_imports(l: list[str], remove_non_existing_import: bool) -> list[str]
     
     actual_imports_0 = actual_imports[:]
     actual_imports = []
-
-    for imp in actual_imports_0:
-        try:
-            exec(imp)
-            actual_imports.append(imp)
-        except SyntaxError:
-            pass
     
     if remove_non_existing_import:
         existing_imports: list[str] = []
-        for imp in actual_imports:
+        for imp in actual_imports_0:
             try:
                 exec(imp)
                 existing_imports.append(imp)
-            except ImportError:
+            except (ImportError, SyntaxError):
                 pass
         return existing_imports
     else:
+        for imp in actual_imports_0:
+            try:
+                exec(imp)
+                actual_imports.append(imp)
+            except SyntaxError:
+                pass
         return actual_imports
     
     
