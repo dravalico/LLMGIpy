@@ -5,6 +5,7 @@ ALL_LLMs: dict[str, tuple[str, str]] = {
     'LLaMA27B': ('HuggingFaceLLM', 'meta-llama/Llama-2-7b-chat-hf', 'assistant'),
     'LLaMA213B': ('HuggingFaceLLM', 'meta-llama/Llama-2-13b-chat-hf', 'assistant'),
     'LLaMA38B': ('HuggingFaceLLM', 'meta-llama/Meta-Llama-3-8B-Instruct', 'assistant'),
+    'LLaMA318B': ('HuggingFaceLLM', 'meta-llama/Meta-Llama-3.1-8B-Instruct', 'assistant'),
     'CodeLLaMA7B': ('HuggingFaceLLM', 'meta-llama/CodeLlama-7b-Instruct-hf', 'assistant'),
     'CodeLLaMA13B': ('HuggingFaceLLM', 'meta-llama/CodeLlama-13b-Instruct-hf', 'assistant'),
     'Mistral7B': ('HuggingFaceLLM', 'mistralai/Mistral-7B-Instruct-v0.2', 'assistant'),

@@ -40,9 +40,14 @@ class HuggingFaceLLM(AbstractLanguageModel):
 
         model_id = self.llm_id()
 
-        self.__tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.getenv('HF_TOKEN'))
+        self.__tokenizer = AutoTokenizer.from_pretrained(
+            model_id,
+            trust_remote_code=True,
+            token=os.getenv('HF_TOKEN')
+        )
         self.__model = AutoModelForCausalLM.from_pretrained(
             model_id,
+            trust_remote_code=True,
             torch_dtype=torch.float16,
             device_map="auto",
             token=os.getenv('HF_TOKEN'),
