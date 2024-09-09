@@ -389,44 +389,47 @@ class ModelTester():
         else:
             it = element['iteration'] + 1
 
+        # if 'exception' in element:
+        #     json_element = {
+        #         'iteration': it,
+        #         'repetition': rep,
+        #         'model_response': element['llm_answer'],
+        #         'time_minutes_model_response': element['time_minutes_llm_answer'],
+        #         'iter_id': element['iter_id'],
+        #         'prompt': element['prompt'],
+        #         'no_import_syntax_errors_in_vanilla': element['no_import_syntax_errors_in_vanilla'],
+        #         'exception': element['exception'],
+        #         'tests_results': element['tests_results'] if 'tests_results' in element else {}
+        #     }
+        # else:
+        imports: List[str] = element['imports']
+        imports_pony: str = ''
+        for i in imports:
+            imports_pony += i + '#'
+        used_names = element['possible_vars']
+        ind = substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])
+        json_element = {
+            'iteration': it,
+            'repetition': rep,
+            'model_response': element['llm_answer'],
+            'time_minutes_model_response': element['time_minutes_llm_answer'],
+            'iter_id': element['iter_id'],
+            'prompt': element['prompt'],
+            'no_import_syntax_errors_in_vanilla': element['no_import_syntax_errors_in_vanilla'],
+            'function_name': element['entry_point'],
+            'main_func': element['main_func'].replace(' ' + 'evolve' + '(', ' ' + element['entry_point'] + '('),
+            'code': element['full_code'].replace(' ' + 'evolve' + '(', ' ' + element['entry_point'] + '('),
+            'imports': imports,
+            'supports': element['sup_funcs'],
+            'imports_and_supports': element['imports_and_supports'],
+            'variables_names': used_names,
+            'renamed_main_func': element['renamed_main_func'],
+            'final_individual': ind,
+            'tests_results': element['tests_results']
+        }
+        
         if 'exception' in element:
-            json_element = {
-                'iteration': it,
-                'repetition': rep,
-                'model_response': element['llm_answer'],
-                'time_minutes_model_response': element['time_minutes_llm_answer'],
-                'iter_id': element['iter_id'],
-                'prompt': element['prompt'],
-                'no_import_syntax_errors_in_vanilla': element['no_import_syntax_errors_in_vanilla'],
-                'exception': element['exception'],
-                'tests_results': element['tests_results'] if 'tests_results' in element else {}
-            }
-        else:
-            imports: List[str] = element['imports']
-            imports_pony: str = ''
-            for i in imports:
-                imports_pony += i + '#'
-            used_names = element['possible_vars']
-            ind = substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])
-            json_element = {
-                'iteration': it,
-                'repetition': rep,
-                'model_response': element['llm_answer'],
-                'time_minutes_model_response': element['time_minutes_llm_answer'],
-                'iter_id': element['iter_id'],
-                'prompt': element['prompt'],
-                'no_import_syntax_errors_in_vanilla': element['no_import_syntax_errors_in_vanilla'],
-                'function_name': element['entry_point'],
-                'main_func': element['main_func'].replace(' ' + 'evolve' + '(', ' ' + element['entry_point'] + '('),
-                'code': element['full_code'].replace(' ' + 'evolve' + '(', ' ' + element['entry_point'] + '('),
-                'imports': imports,
-                'supports': element['sup_funcs'],
-                'imports_and_supports': element['imports_and_supports'],
-                'variables_names': used_names,
-                'renamed_main_func': element['renamed_main_func'],
-                'final_individual': ind,
-                'tests_results': element['tests_results']
-            }
+            json_element['exception'] = element['exception']
         
         return json_element
     
