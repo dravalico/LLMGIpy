@@ -227,14 +227,15 @@ def remove_single_comments(l: list[str]) -> list[str]:
 
 
 def remove_multi_comments(l: list[str]) -> list[str]:
+    l0: list[str] = l[:]
     idx_to_remove: set[int] = set()
     to_be_removed_1: bool = False
     to_be_removed_2: bool = False
     pairs_of_multiline_comments_1_start: Optional[int] = None 
     pairs_of_multiline_comments_2_start: Optional[int] = None
 
-    for i in range(len(l)):
-        line: str = l[i]
+    for i in range(len(l0)):
+        line: str = l0[i]
         if to_be_removed_1:
             idx_to_remove.add(i)
             if line.strip().endswith("'''"):
@@ -254,9 +255,25 @@ def remove_multi_comments(l: list[str]) -> list[str]:
                 idx_to_remove.add(i)
                 to_be_removed_2 = not to_be_removed_2
                 pairs_of_multiline_comments_2_start = i
+            elif "'''" in line.strip():
+                comment_index = line.strip().index("'''")
+                last_comment_index = line.strip().rindex("'''")
+                new_line = line.strip()[:comment_index]
+                l0[i] = new_line
+                if comment_index == last_comment_index:
+                    to_be_removed_1 = not to_be_removed_1
+                    pairs_of_multiline_comments_1_start = i
+            elif '"""' in line.strip():
+                comment_index = line.strip().index('"""')
+                last_comment_index = line.strip().rindex('"""')
+                new_line = line.strip()[:comment_index]
+                l0[i] = new_line
+                if comment_index == last_comment_index:
+                    to_be_removed_2 = not to_be_removed_2
+                    pairs_of_multiline_comments_2_start = i
 
     idx_to_remove_l: list[int] = sorted(list(idx_to_remove), reverse=True)
-    l_copy = l[:]
+    l_copy = l0[:]
     
     #if not (pairs_of_multiline_comments_1_start is None and pairs_of_multiline_comments_2_start is None):
     #    single_inds: list[int] = []
@@ -397,6 +414,11 @@ def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool
 
 
 def try_main():
+    # with open('problem64.json', 'r') as f:
+    #     j = json.load(f)
+    # res = properly_arrange_code_with_imports_functions(j['data_preprocess'][0]['model_response'], False, 'evolve', True, True, 1, True)
+    # print(res)
+    # quit()
     s = 'import numpy as np\nimport numpy as np\nimport math\nimport string\nprint("---")\n#A comment\n# Another comment here\ndef incr(x):\n    # inside a comment\n    return x + 1\nprint("---")\n"""\nmultiline\ncomment\nhere\n"""\n'
     s += "'''\n" + '"""\n' + 'comment\n' + 'comment\n' + '"""\n' + "'''\n"
     s += '"""\n' + "'''\n" + 'comment\n' + 'comment\n' + "'''\n" + '"""\n' 

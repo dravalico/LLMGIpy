@@ -193,7 +193,7 @@ class ModelTester():
             result_queue.put(str(e))
 
     def __run_all_workers_and_collect_results(self, responses: List[Dict[str, Any]], prob_name: str, n_prob: int, iteration: int, rep: int, eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None, all_eventual_responses_vanilla: Optional[List[Dict[str, Any]]] = None, evaluate_in_parallel: bool = True) -> Tuple[bool, Any, List[Dict[str, Any]]]:
-        responses_copy = [res for res in responses if 'exception' not in res]
+        responses_copy = [res for res in responses] #if 'exception' not in res]
         f_bodies: List[str] = [res['full_code'] for res in responses_copy]
         f_names: List[str] = [res['new_entry_point'] for res in responses_copy]
         f_ind: List[int] = list(range(len(f_bodies)))
@@ -211,14 +211,14 @@ class ModelTester():
             di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
             di['tests_results'] = {}
             data.append(di)
-        responses_exception = [res for res in responses if 'exception' in res]
-        for i, _ in enumerate(responses_exception):
-            di = {key: responses_exception[i][key] for key in responses_exception[i]}
-            di['problem_name'] = prob_name
-            di['problem_index'] = n_prob
-            di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
-            di['tests_results'] = {}
-            data.append(di)
+        # responses_exception = [res for res in responses if 'exception' in res]
+        # for i, _ in enumerate(responses_exception):
+        #     di = {key: responses_exception[i][key] for key in responses_exception[i]}
+        #     di['problem_name'] = prob_name
+        #     di['problem_index'] = n_prob
+        #     di['iteration'] = f'{iteration}.{rep}' if self.__reask else i
+        #     di['tests_results'] = {}
+        #     data.append(di)
         workers = []
         print('Testing...')
         exc: bool = False
