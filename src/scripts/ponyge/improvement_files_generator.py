@@ -271,11 +271,11 @@ def create_grammar_from(
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:
             bnf.write("\n")
             if kwargsnames != []:
-                bnf.write("<KWARGNAMES> ::= " + ' | '.join(kwargsnames) + '\n')
+                bnf.write("<KWARGNAMES> ::= " + ' | '.join([f'"{accio}"' for accio in kwargsnames]) + '\n')
             else:
                 bnf.write("<KWARGNAMES> ::= " + '""' + '\n')
             if kwargsnames_pairs != []:
-                bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join(kwargsnames_pairs) + '\n')
+                bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join([f'"{accio}"' for accio in kwargsnames_pairs]) + '\n')
             else:
                 bnf.write("<KWARGNAMESVALUES> ::= " + '""' + '\n')
             if temp != "":
