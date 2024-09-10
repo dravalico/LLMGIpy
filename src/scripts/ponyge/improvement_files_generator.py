@@ -196,6 +196,15 @@ def create_grammar_from(
             nums.append(extract_numbers_from_string(json_file["problem_description"]))
             variables.append(e["variables_names"])
 
+        lambda_indices = [sss.start() for sss in re.finditer('lambda ', e["main_func"])]
+        for lambda_index in lambda_indices:
+            sub_s = e["main_func"][lambda_index + len('lambda '):]
+            sub_s = sub_s[:sub_s.index(':')]
+            sub_s = sub_s.replace(' ', '')
+            lambda_vars = sub_s.split(',')
+            for lambda_var in lambda_vars:
+                variables.append(lambda_var)
+
     temp0 = []
     temp = []
     flat_list = sorted([item for sublist in extracted_functions_from_individuals for item in sublist])
