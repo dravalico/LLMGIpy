@@ -119,7 +119,7 @@ def generate_single_input_case(idx: int) -> list[Any]:
     elif idx == 14:
         return [''.join(random.choice(string.ascii_letters) for _ in range(random.randint(0, 20)))]
     elif idx == 15:
-        return [random.randint(0, 100)]
+        return [random.randint(0, 20)]
     elif idx == 16:
         return [''.join(random.choice(string.ascii_letters + blank_space()) for _ in range(random.randint(0, 40)))]
     elif idx == 17:
@@ -324,7 +324,7 @@ def generate_single_input_case(idx: int) -> list[Any]:
         return [[''.join(random.choice(string.ascii_letters + string.digits) for _ in range(random.randint(0, 40))) for _ in range(random.randint(0, 40))], [''.join(random.choice(string.ascii_letters + string.digits) for _ in range(random.randint(0, 40))) for _ in range(random.randint(0, 40))]]
     elif idx == 75:
         if random.random() < 0.65:
-            return [random.randint(0, 60)]
+            return [random.randint(0, 20)]
         else:
             l: list[int] = random.choice([[2, 2, 2], [3, 3, 3], [2, 2, 3], [3, 3, 2], [2, 2, 5], [3, 3, 5], [2, 3, 5], [2, 2, 7], [2, 3, 7], [2, 5, 5], [7, 3, 3], [13, 2, 2], [11, 2, 2], [11, 3, 2]])
             return [l[0] * l[1] * l[2]]
@@ -630,7 +630,7 @@ def generate_single_input_case(idx: int) -> list[Any]:
                 return [random.choice([n, str(n), str(n).replace('.', ',')]), random.choice([n, str(n), str(n).replace('.', ',')])]
     elif idx == 138:
         if random.random() < 0.95:
-            return [random.randint(0, 10000)]
+            return [random.randint(0, 50)]
         else:
             return [random.randint(0, 7)]
     elif idx == 139:
