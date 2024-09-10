@@ -136,15 +136,19 @@ def create_grammar_from(
         if "supports" not in e:
             e["supports"] = []
         e["main_func"] = e["main_func"].replace('\u2019', "\'")
+        e["main_func"] = e["main_func"].replace('\\\\b', '\b')
         e["main_func"] = e["main_func"].replace('\\\\d', '\d')
         e["main_func"] = e["main_func"].replace('\\\\w', '\w')
         e["main_func"] = e["main_func"].replace('\\\\s', '\s')
+        e["main_func"] = e["main_func"].replace('\\\\B', '\B')
         e["main_func"] = e["main_func"].replace('\\\\D', '\D')
         e["main_func"] = e["main_func"].replace('\\\\W', '\W')
         e["main_func"] = e["main_func"].replace('\\\\S', '\S')
+        e["main_func"] = e["main_func"].replace('\\b', '\b')
         e["main_func"] = e["main_func"].replace('\\d', '\d')
         e["main_func"] = e["main_func"].replace('\\w', '\w')
         e["main_func"] = e["main_func"].replace('\\s', '\s')
+        e["main_func"] = e["main_func"].replace('\\B', '\B')
         e["main_func"] = e["main_func"].replace('\\D', '\D')
         e["main_func"] = e["main_func"].replace('\\W', '\W')
         e["main_func"] = e["main_func"].replace('\\S', '\S')
@@ -167,6 +171,9 @@ def create_grammar_from(
 
         try:
             funs_and_meths = extract_functions_and_methods(e["main_func"])
+            if e["function_name"] in "\n".join(e["main_func"].split("\n")[1:]):
+                funs_and_meths = [aaaa for aaaa in funs_and_meths if aaaa != e["function_name"]]
+                funs_and_meths.append("evolve")
         except Exception as e:
             chdir(cwd)
             raise e
