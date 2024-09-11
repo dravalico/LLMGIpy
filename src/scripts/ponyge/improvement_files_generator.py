@@ -152,6 +152,9 @@ def create_grammar_from(
         e["main_func"] = e["main_func"].replace('\\D', '\D')
         e["main_func"] = e["main_func"].replace('\\W', '\W')
         e["main_func"] = e["main_func"].replace('\\S', '\S')
+        for slash_digit in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+            e["main_func"] = e["main_func"].replace(f'\\\\{slash_digit}', f'\{slash_digit}')
+            e["main_func"] = e["main_func"].replace(f'\\{slash_digit}', f'\{slash_digit}')
         #e["main_func"] = re.sub(kwarg_variable_name_regex, "", e["main_func"])
 
         kwargsnames = orderering_preserving_duplicates_elimination([elem[:-1] for elem in re.findall(kwarg_variable_name_regex, e["main_func"])])
@@ -193,7 +196,7 @@ def create_grammar_from(
             res_strings = extract_strings(e["main_func"])
             prompt_info_strings = extract_prompt_info_with_keybert(json_file["problem_description"])
             extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
-            nums.append(extract_numbers_from_string(json_file["problem_description"]))
+            nums.append(orderering_preserving_duplicates_elimination(extract_numbers_from_string(json_file["problem_description"]) + extract_numbers_from_string(e["main_func"])))
             variables.append(e["variables_names"])
 
         lambda_indices = [sss.start() for sss in re.finditer('lambda ', e["main_func"])]

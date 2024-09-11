@@ -62,6 +62,9 @@ def load_phenotypes_from_json(
             final_ind = final_ind.replace('\\D', '\D')
             final_ind = final_ind.replace('\\W', '\W')
             final_ind = final_ind.replace('\\S', '\S')
+            for slash_digit in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+                final_ind = final_ind.replace(f'\\\\{slash_digit}', f'\{slash_digit}')
+                final_ind = final_ind.replace(f'\\{slash_digit}', f'\{slash_digit}')
             #final_ind = re.sub(kwarg_variable_name_regex, "", final_ind)
         else:
             final_ind: str = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
