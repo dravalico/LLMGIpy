@@ -136,15 +136,19 @@ def create_grammar_from(
         if "supports" not in e:
             e["supports"] = []
         e["main_func"] = e["main_func"].replace('\u2019', "\'")
+        e["main_func"] = e["main_func"].replace('\\\\b', '\b')
         e["main_func"] = e["main_func"].replace('\\\\d', '\d')
         e["main_func"] = e["main_func"].replace('\\\\w', '\w')
         e["main_func"] = e["main_func"].replace('\\\\s', '\s')
+        e["main_func"] = e["main_func"].replace('\\\\B', '\B')
         e["main_func"] = e["main_func"].replace('\\\\D', '\D')
         e["main_func"] = e["main_func"].replace('\\\\W', '\W')
         e["main_func"] = e["main_func"].replace('\\\\S', '\S')
+        e["main_func"] = e["main_func"].replace('\\b', '\b')
         e["main_func"] = e["main_func"].replace('\\d', '\d')
         e["main_func"] = e["main_func"].replace('\\w', '\w')
         e["main_func"] = e["main_func"].replace('\\s', '\s')
+        e["main_func"] = e["main_func"].replace('\\B', '\B')
         e["main_func"] = e["main_func"].replace('\\D', '\D')
         e["main_func"] = e["main_func"].replace('\\W', '\W')
         e["main_func"] = e["main_func"].replace('\\S', '\S')
@@ -152,21 +156,24 @@ def create_grammar_from(
 
         kwargsnames = orderering_preserving_duplicates_elimination([elem[:-1] for elem in re.findall(kwarg_variable_name_regex, e["main_func"])])
         kwargsnames_pairs = []
-        for kw in kwargsnames:
-            all_kw_indices = [sss.start() for sss in re.finditer(kw + '=', e["main_func"])]
-            for kw_i in all_kw_indices:
-                from_the_value_on = e["main_func"][kw_i + len(kw + '='):]
-                value = ''
-                for ch_i, ch in enumerate(from_the_value_on, 0):
-                    if ch == ',' or ch == ')':
-                        value = from_the_value_on[:ch_i]
-                        break
-                if value != '':
-                    kwargsnames_pairs.append(kw + '=' + value)
+        # for kw in kwargsnames:
+        #     all_kw_indices = [sss.start() for sss in re.finditer(kw + '=', e["main_func"])]
+        #     for kw_i in all_kw_indices:
+        #         from_the_value_on = e["main_func"][kw_i + len(kw + '='):]
+        #         value = ''
+        #         for ch_i, ch in enumerate(from_the_value_on, 0):
+        #             if ch == ',' or ch == ')':
+        #                 value = from_the_value_on[:ch_i]
+        #                 break
+        #         if value != '':
+        #             kwargsnames_pairs.append(kw + '=' + value)
         kwargsnames_pairs = orderering_preserving_duplicates_elimination(kwargsnames_pairs)
 
         try:
             funs_and_meths = extract_functions_and_methods(e["main_func"])
+            if e["function_name"] in "\n".join(e["main_func"].split("\n")[1:]):
+                funs_and_meths = [aaaa for aaaa in funs_and_meths if aaaa != e["function_name"]]
+                funs_and_meths.append("evolve")
         except Exception as e:
             chdir(cwd)
             raise e
@@ -188,6 +195,15 @@ def create_grammar_from(
             extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
             nums.append(extract_numbers_from_string(json_file["problem_description"]))
             variables.append(e["variables_names"])
+
+        lambda_indices = [sss.start() for sss in re.finditer('lambda ', e["main_func"])]
+        for lambda_index in lambda_indices:
+            sub_s = e["main_func"][lambda_index + len('lambda '):]
+            sub_s = sub_s[:sub_s.index(':')]
+            sub_s = sub_s.replace(' ', '')
+            lambda_vars = sub_s.split(',')
+            for lambda_var in lambda_vars:
+                variables.append(lambda_var)
 
     temp0 = []
     temp = []
@@ -238,6 +254,13 @@ def create_grammar_from(
     temp2.extend(local_vars_v)
     temp2 = orderering_preserving_duplicates_elimination(temp2)
 
+
+    for variable_name in e["variables_names"]:
+        if variable_name + '(' in e["renamed_main_func"]:
+            if f'"{variable_name}"' not in temp:
+                temp.append(f'"{variable_name}"')
+
+
     temp0 = ' | '.join(temp0)
     temp = ' | '.join(temp)
     temp1 = ' | '.join(temp1)
@@ -271,13 +294,13 @@ def create_grammar_from(
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:
             bnf.write("\n")
             if kwargsnames != []:
-                bnf.write("<KWARGNAMES> ::= " + ' | '.join(kwargsnames) + '\n')
+                bnf.write("<KWARGNAMES> ::= " + ' | '.join([f'"{accio}"' for accio in kwargsnames]) + '\n')
             else:
                 bnf.write("<KWARGNAMES> ::= " + '""' + '\n')
-            if kwargsnames_pairs != []:
-                bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join(kwargsnames_pairs) + '\n')
-            else:
-                bnf.write("<KWARGNAMESVALUES> ::= " + '""' + '\n')
+            # if kwargsnames_pairs != []:
+            #     bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join([f'"{accio}"' for accio in kwargsnames_pairs]) + '\n')
+            # else:
+            #     bnf.write("<KWARGNAMESVALUES> ::= " + '""' + '\n')
             if temp != "":
                 bnf.write("<FUNC> ::= " + temp + '\n')
             else:

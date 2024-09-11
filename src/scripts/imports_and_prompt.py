@@ -101,8 +101,9 @@ def extract_numbers_from_string(prompt):
     
     for string in re.findall(r'-?\d*\.?\d+(?:[eE][-+]?\d+)?', prompt):
         try:
-            _ = int(string.strip().lower())
-            numbers.append(string.strip().lower())
+            temp = string.strip().lower()
+            _ = int(temp) if 'e' not in temp else temp
+            numbers.append(temp)
         except ValueError:
             pass  # Couldn't convert to either int or float
 
