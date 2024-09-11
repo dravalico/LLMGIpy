@@ -156,17 +156,17 @@ def create_grammar_from(
 
         kwargsnames = orderering_preserving_duplicates_elimination([elem[:-1] for elem in re.findall(kwarg_variable_name_regex, e["main_func"])])
         kwargsnames_pairs = []
-        for kw in kwargsnames:
-            all_kw_indices = [sss.start() for sss in re.finditer(kw + '=', e["main_func"])]
-            for kw_i in all_kw_indices:
-                from_the_value_on = e["main_func"][kw_i + len(kw + '='):]
-                value = ''
-                for ch_i, ch in enumerate(from_the_value_on, 0):
-                    if ch == ',' or ch == ')':
-                        value = from_the_value_on[:ch_i]
-                        break
-                if value != '':
-                    kwargsnames_pairs.append(kw + '=' + value)
+        # for kw in kwargsnames:
+        #     all_kw_indices = [sss.start() for sss in re.finditer(kw + '=', e["main_func"])]
+        #     for kw_i in all_kw_indices:
+        #         from_the_value_on = e["main_func"][kw_i + len(kw + '='):]
+        #         value = ''
+        #         for ch_i, ch in enumerate(from_the_value_on, 0):
+        #             if ch == ',' or ch == ')':
+        #                 value = from_the_value_on[:ch_i]
+        #                 break
+        #         if value != '':
+        #             kwargsnames_pairs.append(kw + '=' + value)
         kwargsnames_pairs = orderering_preserving_duplicates_elimination(kwargsnames_pairs)
 
         try:
@@ -254,6 +254,13 @@ def create_grammar_from(
     temp2.extend(local_vars_v)
     temp2 = orderering_preserving_duplicates_elimination(temp2)
 
+
+    for variable_name in e["variables_names"]:
+        if variable_name + '(' in e["renamed_main_func"]:
+            if f'"{variable_name}"' not in temp:
+                temp.append(f'"{variable_name}"')
+
+
     temp0 = ' | '.join(temp0)
     temp = ' | '.join(temp)
     temp1 = ' | '.join(temp1)
@@ -290,10 +297,10 @@ def create_grammar_from(
                 bnf.write("<KWARGNAMES> ::= " + ' | '.join([f'"{accio}"' for accio in kwargsnames]) + '\n')
             else:
                 bnf.write("<KWARGNAMES> ::= " + '""' + '\n')
-            if kwargsnames_pairs != []:
-                bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join([f'"{accio}"' for accio in kwargsnames_pairs]) + '\n')
-            else:
-                bnf.write("<KWARGNAMESVALUES> ::= " + '""' + '\n')
+            # if kwargsnames_pairs != []:
+            #     bnf.write("<KWARGNAMESVALUES> ::= " + ' | '.join([f'"{accio}"' for accio in kwargsnames_pairs]) + '\n')
+            # else:
+            #     bnf.write("<KWARGNAMESVALUES> ::= " + '""' + '\n')
             if temp != "":
                 bnf.write("<FUNC> ::= " + temp + '\n')
             else:
