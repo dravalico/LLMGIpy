@@ -71,6 +71,7 @@ def load_phenotypes_from_json(
                 final_ind = final_ind.replace(f'\\\\{slash_digit}', f'\{slash_digit}')
                 final_ind = final_ind.replace(f'\\{slash_digit}', f'\{slash_digit}')
             #final_ind = re.sub(kwarg_variable_name_regex, "", final_ind)
+            final_ind = final_ind.replace('\\', '\\\\')
         else:
             final_ind: str = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
         if 'tests_results' in data[i] and 'passed' in data[i]["tests_results"] and int(data[i]["tests_results"]["passed"]) == train_size:

@@ -158,6 +158,7 @@ def create_grammar_from(
                 e[func_string] = e[func_string].replace(f'\\\\{slash_digit}', f'\{slash_digit}')
                 e[func_string] = e[func_string].replace(f'\\{slash_digit}', f'\{slash_digit}')
             #e[func_string] = re.sub(kwarg_variable_name_regex, "", e[func_string])
+            e[func_string] = e[func_string].replace('\\', '\\\\')
 
         kwargsnames = orderering_preserving_duplicates_elimination([elem[:-1] for elem in re.findall(kwarg_variable_name_regex, e["main_func"])])
         kwargsnames_pairs = []
