@@ -137,7 +137,6 @@ def create_grammar_from(
             e["supports"] = []
         for func_string in ["main_func", "renamed_main_func"]:
             e[func_string] = e[func_string].replace('\u2019', "\'")
-            e[func_string] = e[func_string].replace('!', "\!")
             e[func_string] = e[func_string].replace('\\\\b', '\b')
             e[func_string] = e[func_string].replace('\\\\d', '\d')
             e[func_string] = e[func_string].replace('\\\\w', '\w')
@@ -157,7 +156,6 @@ def create_grammar_from(
             for slash_digit in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                 e[func_string] = e[func_string].replace(f'\\\\{slash_digit}', f'\{slash_digit}')
                 e[func_string] = e[func_string].replace(f'\\{slash_digit}', f'\{slash_digit}')
-            #e[func_string] = re.sub(kwarg_variable_name_regex, "", e[func_string])
             e[func_string] = e[func_string].replace('\\', '\\\\')
 
         kwargsnames = orderering_preserving_duplicates_elimination([elem[:-1] for elem in re.findall(kwarg_variable_name_regex, e["main_func"])])

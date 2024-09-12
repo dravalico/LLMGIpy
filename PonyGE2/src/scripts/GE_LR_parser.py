@@ -344,7 +344,7 @@ def main(dynamic_bnf: bool = False):
         raise Exception(s)
 
     # Parse the terminals in the target string.
-    params['REVERSE_MAPPING_TARGET'] = params['REVERSE_MAPPING_TARGET'].replace("\\n", "\n") 
+    params['REVERSE_MAPPING_TARGET'] = params['REVERSE_MAPPING_TARGET'].replace("\\n", "\n").replace('\!', '!')
     parse_terminals(params['REVERSE_MAPPING_TARGET'])
 
     # Iterate over the solution list until the target string is parsed.
@@ -352,6 +352,7 @@ def main(dynamic_bnf: bool = False):
         list_of_phenotypes = ast.literal_eval(params['ALL_PHENOTYPES'])
         my_bnf_tag_list = []
         for p in list_of_phenotypes:
+            p = p.replace('\!', '!')
             try:
                 # Parse the terminals in the target string.
                 params['REVERSE_MAPPING_TARGET'] = p
