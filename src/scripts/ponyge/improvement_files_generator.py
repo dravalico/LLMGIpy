@@ -208,8 +208,7 @@ def create_grammar_from(
             sub_s = sub_s[:sub_s.index(':')]
             sub_s = sub_s.replace(' ', '')
             lambda_vars = sub_s.split(',')
-            for lambda_var in lambda_vars:
-                variables.append(lambda_var)
+            variables.append(lambda_vars)
 
     temp0 = []
     temp = []
@@ -229,7 +228,7 @@ def create_grammar_from(
             temp1.append(f'"{i}"')
     temp1.append('\"\'\'\"')
     temp1.append('\'""\'')
-    
+
     temp2 = []
     flat_list2 = sorted([item for sublist in variables for item in sublist])
     for i in flat_list2:
@@ -261,11 +260,10 @@ def create_grammar_from(
     temp2 = orderering_preserving_duplicates_elimination(temp2)
 
 
-    for variable_name in e["variables_names"]:
-        if variable_name + '(' in renamed_main_func:
-            if f'"{variable_name}"' not in temp:
-                temp.append(f'"{variable_name}"')
-
+    # for variable_name in e["variables_names"]:
+    #     if variable_name + '(' in renamed_main_func:
+    #         if f'"{variable_name}"' not in temp:
+    #             temp.append(f'"{variable_name}"')
 
     temp0 = ' | '.join(temp0)
     temp = ' | '.join(temp)
@@ -308,9 +306,9 @@ def create_grammar_from(
             # else:
             #     bnf.write("<KWARGNAMESVALUES> ::= " + '""' + '\n')
             if temp != "":
-                bnf.write("<FUNC> ::= " + temp + '\n')
+                bnf.write("<FUNC> ::= " + temp + " | " + '<var>"["<var>"]" | <var>' + '\n')
             else:
-                bnf.write("<FUNC> ::= " + '""' + '\n')
+                bnf.write("<FUNC> ::= " + '""' + " | " + '<var>"["<var>"]" | <var>' + '\n')
             if temp0 != "":
                 bnf.write("<METHOD> ::= " + temp0 + '\n')
             else:
