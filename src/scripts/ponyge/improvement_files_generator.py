@@ -135,27 +135,29 @@ def create_grammar_from(
             e["variables_names"] = []
         if "supports" not in e:
             e["supports"] = []
-        e["main_func"] = e["main_func"].replace('\u2019', "\'")
-        e["main_func"] = e["main_func"].replace('\\\\b', '\b')
-        e["main_func"] = e["main_func"].replace('\\\\d', '\d')
-        e["main_func"] = e["main_func"].replace('\\\\w', '\w')
-        e["main_func"] = e["main_func"].replace('\\\\s', '\s')
-        e["main_func"] = e["main_func"].replace('\\\\B', '\B')
-        e["main_func"] = e["main_func"].replace('\\\\D', '\D')
-        e["main_func"] = e["main_func"].replace('\\\\W', '\W')
-        e["main_func"] = e["main_func"].replace('\\\\S', '\S')
-        e["main_func"] = e["main_func"].replace('\\b', '\b')
-        e["main_func"] = e["main_func"].replace('\\d', '\d')
-        e["main_func"] = e["main_func"].replace('\\w', '\w')
-        e["main_func"] = e["main_func"].replace('\\s', '\s')
-        e["main_func"] = e["main_func"].replace('\\B', '\B')
-        e["main_func"] = e["main_func"].replace('\\D', '\D')
-        e["main_func"] = e["main_func"].replace('\\W', '\W')
-        e["main_func"] = e["main_func"].replace('\\S', '\S')
-        for slash_digit in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
-            e["main_func"] = e["main_func"].replace(f'\\\\{slash_digit}', f'\{slash_digit}')
-            e["main_func"] = e["main_func"].replace(f'\\{slash_digit}', f'\{slash_digit}')
-        #e["main_func"] = re.sub(kwarg_variable_name_regex, "", e["main_func"])
+        for func_string in ["main_func", "renamed_main_func"]:
+            e[func_string] = e[func_string].replace('\u2019', "\'")
+            e[func_string] = e[func_string].replace('!', "\!")
+            e[func_string] = e[func_string].replace('\\\\b', '\b')
+            e[func_string] = e[func_string].replace('\\\\d', '\d')
+            e[func_string] = e[func_string].replace('\\\\w', '\w')
+            e[func_string] = e[func_string].replace('\\\\s', '\s')
+            e[func_string] = e[func_string].replace('\\\\B', '\B')
+            e[func_string] = e[func_string].replace('\\\\D', '\D')
+            e[func_string] = e[func_string].replace('\\\\W', '\W')
+            e[func_string] = e[func_string].replace('\\\\S', '\S')
+            e[func_string] = e[func_string].replace('\\b', '\b')
+            e[func_string] = e[func_string].replace('\\d', '\d')
+            e[func_string] = e[func_string].replace('\\w', '\w')
+            e[func_string] = e[func_string].replace('\\s', '\s')
+            e[func_string] = e[func_string].replace('\\B', '\B')
+            e[func_string] = e[func_string].replace('\\D', '\D')
+            e[func_string] = e[func_string].replace('\\W', '\W')
+            e[func_string] = e[func_string].replace('\\S', '\S')
+            for slash_digit in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
+                e[func_string] = e[func_string].replace(f'\\\\{slash_digit}', f'\{slash_digit}')
+                e[func_string] = e[func_string].replace(f'\\{slash_digit}', f'\{slash_digit}')
+            #e[func_string] = re.sub(kwarg_variable_name_regex, "", e[func_string])
 
         kwargsnames = orderering_preserving_duplicates_elimination([elem[:-1] for elem in re.findall(kwarg_variable_name_regex, e["main_func"])])
         kwargsnames_pairs = []
@@ -240,7 +242,7 @@ def create_grammar_from(
             temp4.append(f'"{i}"')
     
 
-    renamed_main_func = e["renamed_main_func"]
+    renamed_main_func = e["renamed_main_func"].replace(f' ({e["function_name"]}(', ' (evolve(').replace(f' {e["function_name"]}(', ' evolve(')
     tree_v = ast.parse(renamed_main_func)
     function_defs_v = [node_v for node_v in ast.walk(tree_v) if isinstance(node_v, ast.FunctionDef)]
     if len(function_defs_v) != 0:
@@ -259,7 +261,7 @@ def create_grammar_from(
 
 
     for variable_name in e["variables_names"]:
-        if variable_name + '(' in e["renamed_main_func"]:
+        if variable_name + '(' in renamed_main_func:
             if f'"{variable_name}"' not in temp:
                 temp.append(f'"{variable_name}"')
 

@@ -1,6 +1,9 @@
 import os
 import subprocess
 import re
+import datetime
+import uuid
+import json
 from typing import Any, List, Dict, Tuple
 import multiprocessing
 from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING
@@ -46,6 +49,8 @@ def load_phenotypes_from_json(
         if 'final_individual' in data[i]:
             final_ind: str = data[i]['final_individual'].replace('\u2019', "\'")
             final_ind = final_ind[final_ind.index('def evolve('):].replace('repeat=', '')
+            final_ind = final_ind.replace(f' ({data[i]["function_name"]}(', ' (evolve(').replace(f' {data[i]["function_name"]}(', ' evolve(')
+            final_ind = final_ind.replace('!', '\!')
             final_ind = final_ind.replace('\\\\b', '\b')
             final_ind = final_ind.replace('\\\\d', '\d')
             final_ind = final_ind.replace('\\\\w', '\w')
@@ -86,6 +91,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
         raise Exception(e)
     
     # REMEMBER TO REPLICATE THE FOLLOWING CODE ALSO IN THE METHOD load_population OF initialisation.py IN PonyGE2
+    # Sei in PonyGE2/src
     
     genotypes: List[Any] = [] 
     
