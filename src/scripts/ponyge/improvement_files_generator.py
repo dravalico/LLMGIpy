@@ -261,7 +261,7 @@ def create_grammar_from(
             first_function_v = function_defs_v[0]
             local_vars_v = []
             for node_v in ast.walk(first_function_v):
-                if isinstance(node_v, ast.Name) and f'"{node_v.id}"' not in temp2 and f'"{node_v.id}"' not in temp0 and f'"{node_v.id}"' not in temp1 and f'"{node_v.id}"' not in temp and f'"{node_v.id}"' not in temp4:
+                if isinstance(node_v, ast.Name) and f'"{node_v.id}"' not in temp2 and f'"{node_v.id}"' not in temp0 and f'"{node_v.id}"' not in temp1 and f'"{node_v.id}"' not in temp4:
                     local_vars_v.append(f'"{node_v.id}"')
             
             local_vars_v = orderering_preserving_duplicates_elimination(local_vars_v)
