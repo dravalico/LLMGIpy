@@ -50,7 +50,6 @@ def load_phenotypes_from_json(
             final_ind: str = data[i]['final_individual'].replace('\u2019', "\'")
             final_ind = final_ind[final_ind.index('def evolve('):].replace('repeat=', '')
             final_ind = final_ind.replace(f' ({data[i]["function_name"]}(', ' (evolve(').replace(f' {data[i]["function_name"]}(', ' evolve(')
-            final_ind = final_ind.replace('!', '\!')
             final_ind = final_ind.replace('\\\\b', '\b')
             final_ind = final_ind.replace('\\\\d', '\d')
             final_ind = final_ind.replace('\\\\w', '\w')
@@ -70,14 +69,12 @@ def load_phenotypes_from_json(
             for slash_digit in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
                 final_ind = final_ind.replace(f'\\\\{slash_digit}', f'\{slash_digit}')
                 final_ind = final_ind.replace(f'\\{slash_digit}', f'\{slash_digit}')
-            #final_ind = re.sub(kwarg_variable_name_regex, "", final_ind)
-            final_ind = final_ind.replace('\\', '\\\\')
         else:
             final_ind: str = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
         if 'tests_results' in data[i] and 'passed' in data[i]["tests_results"] and int(data[i]["tests_results"]["passed"]) == train_size:
             num_iter_solved += 1
         else:
-            phenotypes.append(final_ind)
+            phenotypes.append(final_ind.replace('!', '\!'))
     if num_iter_solved > 0:
         already_solved = True
     return phenotypes, already_solved, num_iter_solved, len(data)
