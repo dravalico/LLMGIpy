@@ -127,6 +127,7 @@ def create_grammar_from(
     extracted_strings_from_individuals: List[List[str]] = []
     variables: List[List[str]] = []
     nums = [["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]]
+    e["renamed_main_func"] = e["renamed_main_func"].replace(f' ({e["function_name"]}(', ' (evolve(').replace(f' {e["function_name"]}(', ' evolve(')
     
     for e in data:
         if "main_func" not in e:
@@ -197,7 +198,7 @@ def create_grammar_from(
             res_strings = extract_strings(e["main_func"])
             prompt_info_strings = extract_prompt_info_with_keybert(json_file["problem_description"])
             extracted_strings_from_individuals.append(res_strings + prompt_info_strings)
-            nums.append(orderering_preserving_duplicates_elimination(extract_numbers_from_string(json_file["problem_description"]) + extract_numbers_from_string(e["main_func"])))
+            nums.append(orderering_preserving_duplicates_elimination(extract_numbers_from_string(json_file["problem_description"]) + extract_numbers_from_string(e["main_func"]) + extract_numbers_from_string(e["renamed_main_func"])))
             variables.append(e["variables_names"])
 
         lambda_indices = [sss.start() for sss in re.finditer('lambda ', e["main_func"])]
@@ -240,8 +241,7 @@ def create_grammar_from(
             temp4.append(f'"{i}"')
     
 
-    renamed_main_func = e["renamed_main_func"].replace(f' ({e["function_name"]}(', ' (evolve(').replace(f' {e["function_name"]}(', ' evolve(')
-    tree_v = ast.parse(renamed_main_func)
+    tree_v = ast.parse(e["renamed_main_func"])
     function_defs_v = [node_v for node_v in ast.walk(tree_v) if isinstance(node_v, ast.FunctionDef)]
     if len(function_defs_v) != 0:
         first_function_v = function_defs_v[0]
@@ -259,7 +259,7 @@ def create_grammar_from(
 
 
     # for variable_name in e["variables_names"]:
-    #     if variable_name + '(' in renamed_main_func:
+    #     if variable_name + '(' in e["renamed_main_func"]:
     #         if f'"{variable_name}"' not in temp:
     #             temp.append(f'"{variable_name}"')
 

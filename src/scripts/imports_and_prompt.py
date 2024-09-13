@@ -92,7 +92,20 @@ def extract_numbers_from_string(prompt):
     words = prompt.split()
     numbers = []
     
-    for string in re.findall(r'-?\d*\.?\d+(?:[eE][-+]?\d+)?', prompt):
+    for string in re.findall(r'(?<!v)-?\d*\.?\d+(?:[eE][-+]?\d+)?', prompt):
+        try:
+            temp = string.strip().lower()
+            if '.' in temp:
+                numbers.append(str(temp))
+            else:
+                if 'e' not in temp:
+                    numbers.append(str(temp))
+                else:
+                    numbers.append(str(temp))
+        except ValueError:
+            pass  # Couldn't convert to either int or float
+    
+    for string in re.findall(r'(?<!v)\d+\.', prompt):
         try:
             temp = string.strip().lower()
             if '.' in temp:

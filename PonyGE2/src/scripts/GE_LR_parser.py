@@ -118,7 +118,7 @@ def reduce(solution):
     # Pre-load the target string.
     target = params['REVERSE_MAPPING_TARGET']
 
-    for _ in range(12):
+    for _ in range(18):
         solution = sorted(solution)
         for idx, snippet_info in enumerate(solution):
             # Get current snippet.
