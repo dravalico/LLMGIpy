@@ -127,7 +127,6 @@ def create_grammar_from(
     extracted_strings_from_individuals: List[List[str]] = []
     variables: List[List[str]] = []
     nums = [["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]]
-    e["renamed_main_func"] = e["renamed_main_func"].replace(f' ({e["function_name"]}(', ' (evolve(').replace(f' {e["function_name"]}(', ' evolve(')
     
     for e in data:
         if "main_func" not in e:
@@ -136,6 +135,7 @@ def create_grammar_from(
             e["variables_names"] = []
         if "supports" not in e:
             e["supports"] = []
+        e["renamed_main_func"] = e["renamed_main_func"].replace(f' ({e["function_name"]}(', ' (evolve(').replace(f' {e["function_name"]}(', ' evolve(')
         for func_string in ["main_func", "renamed_main_func"]:
             e[func_string] = e[func_string].replace('\u2019', "\'")
             e[func_string] = e[func_string].replace('\\\\b', '\b')
@@ -240,28 +240,28 @@ def create_grammar_from(
         if f'"{i}"' not in temp4:
             temp4.append(f'"{i}"')
     
+    for e in data:
+        tree_v = ast.parse(e["renamed_main_func"])
+        function_defs_v = [node_v for node_v in ast.walk(tree_v) if isinstance(node_v, ast.FunctionDef)]
+        if len(function_defs_v) != 0:
+            first_function_v = function_defs_v[0]
+            local_vars_v = []
+            for node_v in ast.walk(first_function_v):
+                if isinstance(node_v, ast.Name) and f'"{node_v.id}"' not in temp2 and f'"{node_v.id}"' not in temp0 and f'"{node_v.id}"' not in temp1 and f'"{node_v.id}"' not in temp and f'"{node_v.id}"' not in temp4:
+                    local_vars_v.append(f'"{node_v.id}"')
+            
+            local_vars_v = orderering_preserving_duplicates_elimination(local_vars_v)
+        else:
+            local_vars_v = []
 
-    tree_v = ast.parse(e["renamed_main_func"])
-    function_defs_v = [node_v for node_v in ast.walk(tree_v) if isinstance(node_v, ast.FunctionDef)]
-    if len(function_defs_v) != 0:
-        first_function_v = function_defs_v[0]
-        local_vars_v = []
-        for node_v in ast.walk(first_function_v):
-            if isinstance(node_v, ast.Name) and f'"{node_v.id}"' not in temp2 and f'"{node_v.id}"' not in temp0 and f'"{node_v.id}"' not in temp1 and f'"{node_v.id}"' not in temp and f'"{node_v.id}"' not in temp4:
-                local_vars_v.append(f'"{node_v.id}"')
-        
-        local_vars_v = orderering_preserving_duplicates_elimination(local_vars_v)
-    else:
-        local_vars_v = []
-
-    temp2.extend(local_vars_v)
-    temp2 = orderering_preserving_duplicates_elimination(temp2)
+        temp2.extend(local_vars_v)
+        temp2 = orderering_preserving_duplicates_elimination(temp2)
 
 
-    # for variable_name in e["variables_names"]:
-    #     if variable_name + '(' in e["renamed_main_func"]:
-    #         if f'"{variable_name}"' not in temp:
-    #             temp.append(f'"{variable_name}"')
+        # for variable_name in e["variables_names"]:
+        #     if variable_name + '(' in e["renamed_main_func"]:
+        #         if f'"{variable_name}"' not in temp:
+        #             temp.append(f'"{variable_name}"')
 
     temp0 = ' | '.join(temp0)
     temp = ' | '.join(temp)
