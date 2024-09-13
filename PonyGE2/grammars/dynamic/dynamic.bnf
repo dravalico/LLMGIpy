@@ -5,10 +5,10 @@
                <vars> | "'"<STRINGS>"'" | <nums> | <var_list> | <var_expr> |
                <vars> | "'"<STRINGS>"'" | <nums> <vars> | "'"<STRINGS>"'" | <nums> | "None" | "("<vars>")" | "[]" | <index_list> | <fstring> |
                <all_vars>" & "<all_vars> | "["<list>"]" | "("<list>")" | "True" | "False" | <kv_args> | "-"<var> | "("<all_vars>",)"
-<vars> ::= <var> | <var>", "<vars> | <var> | <var> | <var> | <var> | <var> | <var> | <var>", "<all_vars> | <var> | <var> | <all_vars>", "<all_vars> | "*"<vars> | <all_vars>" "<inline_for>
+<vars> ::= <var> | <var>", "<vars> | <var> | <var> | <var> | <var> | <var> | <var> | <var>", "<all_vars> | <var> | <var> | <all_vars>", "<all_vars> | "*"<vars> 
 <var_list> ::= <var><index_list> | <var>"['"<STRINGS>"']" | <var><index_list><method> | <var>"['"<STRINGS>"']"<method> | <all_vars><index_list> | "["<all_vars>"]"
 <index_list> ::= "["<all_vars>"]" | "["<all_vars>":]" | "["<all_vars>":"<all_vars>"]" | "[:"<all_vars>"]" | "["<all_vars>"::"<all_vars>"]" | "[::"<all_vars>"]" | "["<all_vars>"::]"
-<var_fuction> ::= <FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method> | <all_vars><method><var_fuction> | <FUNC> | "lambda "<var>": "<all_vars> | "lambda "<vars>": "<all_vars> | <FUNC>"("<all_vars>") "<inline_for>
+<var_fuction> ::= <FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method> | <all_vars><method><var_fuction> | <FUNC> | "lambda "<var>": "<all_vars> | "lambda "<vars>": "<all_vars> | <FUNC>"("<all_vars>") "<inline_for> | "lambda "<vars>": "<condition>
 
 <var_expr> ::= <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> | "("<var_expr>")" | <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> | <var_expr>" "<inline_for>
 
@@ -21,9 +21,9 @@
 
 <if> ::= "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}" | "if "<condition>":{:"<NEWLINE><code>":}"<if_stmt1>
 <if_stmt1> ::= "elif "<condition>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition>":{:"<NEWLINE><code>":}"
-<condition> ::= <all_vars>" "<math_op>" "<num>" "<op>" "<num> | <condition>" "<cond_op>" "<condition> |  <all_vars>" "<op>" "<num> | <funcss>" "<op>" "<num> | <all_vars>" "<op>" "<funcss> | <all_vars>" "<op>" "<all_vars> | <all_vars>" "<op>" "<all_vars>" "<op>" "<all_vars> | <all_vars>" "<cond_op>" "<all_vars> | <all_vars> | <cond_op>" "<all_vars>
+<condition> ::= <all_vars>" "<math_op>" "<num>" "<op>" "<num> | <condition>" "<cond_op>" "<condition> |  <all_vars>" "<op>" "<num> | <funcss>" "<op>" "<num> | <all_vars>" "<op>" "<funcss> | <all_vars>" "<op>" "<all_vars> | <all_vars>" "<op>" "<all_vars>" "<op>" "<all_vars> | <all_vars>" "<cond_op>" "<all_vars> | <all_vars> | <cond_op>" "<all_vars> | "("<condition>")" | "not ("<condition>")"
 <op> ::= "<" | "<=" | ">" | ">=" | "!=" | "=="
-<cond_op> ::= "or" | "and" | "not" | "in" | "is not" | "is" | "not in"
+<cond_op> ::= "or" | "and" | "not" | "in" | "is not" | "is" | "not in" | "&" | "|"
 
 <try> ::= "try:{:"<NEWLINE><code>":}except:{:"<NEWLINE><code>":}" | "try:{:"<NEWLINE><code>":}except:{:"<NEWLINE><code>":}finally:{:"<NEWLINE><code>":}" | "try:{:"<NEWLINE><code>":}except:{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" |
           "try:{:"<NEWLINE><code>":}"<try_stmt1>"except:{:"<NEWLINE><code>":}" | "try:{:"<NEWLINE><code>":}"<try_stmt1>"except:{:"<NEWLINE><code>":}finally:{:"<NEWLINE><code>":}" | "try:{:"<NEWLINE><code>":}"<try_stmt1>"except:{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" |
@@ -50,13 +50,13 @@
              <all_vars>" "<ass_op>" "<all_vars>" if "<condition>" else "<all_vars>
 
 <kv_dict> ::= "'"<STRINGS>"': "<all_vars> | "'"<STRINGS>"': "<var> | "'"<STRINGS>"': "<STRINGS> | "'"<STRINGS>"': "<nums> | <var>": "<all_vars> | <num>": "<all_vars> | <num>": '"<STRINGS>"'" | <num>": "<all_vars>", "<kv_dict> | <num>": '"<STRINGS>"', "<kv_dict> | <num>': "'<STRINGS>'"' | <num>': "'<STRINGS>'", '<kv_dict> |
-              "'"<STRINGS>"': "<all_vars>", "<kv_dict> | "'"<STRINGS>"': "<var>", "<kv_dict> | "'"<STRINGS>"': "<STRINGS>", "<kv_dict> | "'"<STRINGS>"': "<nums>", "<kv_dict> | <kv_dict>" "<inline_for>
+              "'"<STRINGS>"': "<all_vars>", "<kv_dict> | "'"<STRINGS>"': "<var>", "<kv_dict> | "'"<STRINGS>"': "<STRINGS>", "<kv_dict> | "'"<STRINGS>"': "<nums>", "<kv_dict> | <kv_dict>" "<inline_for> | <var>": "<condition>
 
 <method> ::= <METHOD>"()" | <METHOD>"("<all_vars>")" | <METHOD>
 
 <nums> ::=  <num> | <num> | <num> | <num><nums> | "-"<nums>
 
-<return> ::= "return "<var> | "return "<fstring> | "return str("<var>")" | "return ''.join("<var>")" | "return "<nums> | "return "<all_vars> | "return str("<all_vars>")" | "return "<sum> | "return "<funcss> | "return ("<all_vars>")" | "return ["<list>"]" | "return {"<kv_dict>"}" | <var> | "return True" | "return False" | "return not "<all_vars> | "return ()" | "return []" | "return {}" 
+<return> ::= "return "<var> | "return "<fstring> | "return str("<var>")" | "return ''.join("<var>")" | "return "<nums> | "return "<all_vars> | "return str("<all_vars>")" | "return "<sum> | "return "<funcss> | "return ("<all_vars>")" | "return ["<list>"]" | "return {"<kv_dict>"}" | <var> | "return True" | "return False" | "return not "<all_vars> | "return ()" | "return []" | "return {}" | "return "<condition> | "return "<all_vars>" "<inline_for>
 <yield> ::= "yield "<var> | "yield "<fstring> | "yield str("<var>")" | "yield ''.join("<var>")" | "yield "<nums> | "yield "<all_vars> | "yield str("<all_vars>")" | "yield "<sum> | "yield "<funcss> | "yield ("<all_vars>")" | "yield ["<list>"]" | "yield {"<kv_dict>"}"
 
 <print> ::= "print("<fstring>")" | "print("<var>")" | "print("<fstring>")" | "print("<var>")" | "print("<all_vars>")"
@@ -86,12 +86,12 @@
 
 <sum> ::= <all_vars>" "<list_op>" ''.join(("<all_vars>" "<inline_for>"))" | "["<list>"] "<list_op>" ["<list>"]" | "''.join(["<all_vars>" "<inline_for>"])" | "''.join(("<all_vars>" "<inline_for>"))"
 
-<math_op> ::= "+" | "-" | "%" | "//" | "*" | "/" | "**" | "^"
-<ass_op> ::= "=" | "+=" | "-=" | "*=" | "%=" | "/=" | "//=" | "^="
+<math_op> ::= "+" | "-" | "%" | "//" | "*" | "/" | "**" | "^" | "&" | "|"
+<ass_op> ::= "=" | "+=" | "-=" | "*=" | "%=" | "/=" | "//=" | "^=" | "**=" | "&=" | "|="
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"("<all_vars>")" | <FUNC>"("<all_vars>")" | <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars> | <FUNC>"()" | <FUNC>"()" |
-             <FUNC>"("<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")" | <FUNC>"(*"<all_vars>")" | <FUNC>"(*"<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>")"
+             <FUNC>"("<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")" | <FUNC>"(*"<all_vars>")" | <FUNC>"(*"<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>")" | <FUNC>"("<condition>")"
 <fstring> ::= <fstring>"{"<all_vars>"}" | "'"<STRINGS>"'" | "{"<all_vars>"}"<fstring> | "f'"<fstring>"'" | "'"<fstring>"'" | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> |
               <fstring>"{"<all_vars>"}" | '"'<STRINGS>'"' | "{"<all_vars>"}"<fstring> | 'f"'<fstring>'"' | '"'<fstring>'"' | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> |
               "'"<STRINGS>"'" | "f'"<fstring>"'" | "'"<fstring>"'" | <STRINGS> | '"'<STRINGS>'"' | 'f"'<fstring>'"' | '"'<fstring>'"' | <STRINGS> | "f'{"<var>"}'" | 'f"{'<var>'}"' | "f'{"<all_vars>"}'" | 'f"{'<all_vars>'}"' 
