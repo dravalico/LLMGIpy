@@ -32,7 +32,10 @@ def process_tuples(tuple_list, check_list):
                   if tag_to_keep in item or ('<' not in item and '>' not in item) or ('"<"' in item or '">"' in item or '">="' in item or '"<="' in item):
                     valid_second_elem.append(item) 
             if first_elem != '<STRINGS> ': 
-                processed_tuples.append((first_elem, '|'.join(list(set(valid_second_elem)))))
+                valid_second_elem_list = list(set(valid_second_elem))
+                tup_list = tup[1].split("|")
+                valid_tags = [valid for valid in tup_list if valid in valid_second_elem_list]
+                processed_tuples.append((first_elem, '|'.join(valid_tags)))
             else:
                 processed_tuples.append((first_elem, second_elem))
     return processed_tuples
