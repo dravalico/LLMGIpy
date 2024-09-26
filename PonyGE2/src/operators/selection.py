@@ -35,9 +35,12 @@ def tournament(population):
 
     # The flag "INVALID_SELECTION" allows for selection of invalid individuals.
     if params['INVALID_SELECTION']:
-        available = population
+        available = [i for i in population]
     else:
         available = [i for i in population if not i.invalid]
+
+    if len(available) == 0:
+        available = [i for i in population]
 
     worst_fitness = params['WORST_POSSIBLE_FITNESS']
     if params['FITNESS_FUNCTION'].maximise:
@@ -95,9 +98,12 @@ def lexicase(population):
 
     # The flag "INVALID_SELECTION" allows for selection of invalid individuals.
     if params['INVALID_SELECTION']:
-        available = population
+        available = [i for i in population]
     else:
         available = [i for i in population if not i.invalid]
+
+    if len(available) == 0:
+        available = [i for i in population]
 
     worst_fitness = params['WORST_POSSIBLE_FITNESS']
     if params['FITNESS_FUNCTION'].maximise:

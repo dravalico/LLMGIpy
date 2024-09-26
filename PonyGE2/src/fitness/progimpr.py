@@ -7,6 +7,7 @@ from os import path
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 curr_path = [sss for sss in sys.path]
 sys.path.append('../../src/scripts')
 from json_data_io import read_json # type: ignore
@@ -69,6 +70,7 @@ class progimpr(base_ff):
             data += 'import warnings\n'
             data += 'warnings.filterwarnings("ignore", category=SyntaxWarning)\n'
             data += 'warnings.filterwarnings("ignore", category=RuntimeWarning)\n'
+            data += 'warnings.filterwarnings("ignore", category=FutureWarning)\n'
             data += 'import random\n'
             data += 'indices = list(range(len(inval)))\n'
             data += f'random.Random(24 + 31 * {params["RANDOM_SEED"]} * {params["RANDOM_SEED"]}).shuffle(indices)\n'
@@ -87,6 +89,7 @@ class progimpr(base_ff):
             data += 'import warnings\n'
             data += 'warnings.filterwarnings("ignore", category=SyntaxWarning)\n'
             data += 'warnings.filterwarnings("ignore", category=RuntimeWarning)\n'
+            data += 'warnings.filterwarnings("ignore", category=FutureWarning)\n'
         else:
             raise ValueError(f'{dist} is not a valid dist. It must be either training or test.')
 

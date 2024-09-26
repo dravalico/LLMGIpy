@@ -5,6 +5,7 @@ from algorithm.parameters import params
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 class Individual(object):
     """

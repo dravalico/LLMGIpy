@@ -8,6 +8,7 @@ import math
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 import numpy as np
 from multiprocessing import Process, Queue
 from fitness.progimpr import progimpr

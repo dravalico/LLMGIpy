@@ -6,6 +6,7 @@ from copy import deepcopy
 from fitness.progimpr import progimpr
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 from algorithm.parameters import params
 from stats.stats import stats
 from utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache, train_time_list

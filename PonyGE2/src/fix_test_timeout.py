@@ -12,6 +12,7 @@ from fitness.progimpr import progimpr
 import warnings
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 def mane_post():
     set_params(sys.argv[1:])  # exclude the fix_test_timeout.py arg itself
