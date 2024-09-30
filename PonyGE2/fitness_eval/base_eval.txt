@@ -32,7 +32,10 @@ def fitness():
   cases = []
   max_val = max([get_actual_size(ooo[0]) for ooo in outval])
   for (i, o) in zip(inval, outval):
-    values = [min(fitnessTrainingCase(i, o, max_val=max_val)[0], params['WORST_POSSIBLE_FITNESS'])]
+    the_fitness = fitnessTrainingCase(i, o, max_val=max_val)[0]
+    if math.isnan(the_fitness):
+      the_fitness = params['WORST_POSSIBLE_FITNESS']
+    values = [min(the_fitness, params['WORST_POSSIBLE_FITNESS'])]
     error.extend(values)
     cases.append(all(v < 0.000000001 for v in values))
   return error, cases

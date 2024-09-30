@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/mnt/luigishome/Desktop/codebase/python_projects/LLMGIpy/PonyGE2/src/ponyge.py", line 35, in mane
+    individuals = params['SEARCH_LOOP']()
+  File "/mnt/luigishome/Desktop/codebase/python_projects/LLMGIpy/PonyGE2/src/algorithm/search_loop.py", line 45, in search_loop
+    individuals = params['STEP'](individuals)
+  File "/mnt/luigishome/Desktop/codebase/python_projects/LLMGIpy/PonyGE2/src/algorithm/step.py", line 25, in step
+    parents = selection(individuals)
+  File "/mnt/luigishome/Desktop/codebase/python_projects/LLMGIpy/PonyGE2/src/operators/selection.py", line 21, in selection
+    return params['SELECTION'](population)
+  File "/mnt/luigishome/Desktop/codebase/python_projects/LLMGIpy/PonyGE2/src/operators/selection.py", line 128, in lexicase
+    best_val = min(comp_error.items(), key=lambda x: x[1])[1]
+ValueError: min() arg is an empty sequence
