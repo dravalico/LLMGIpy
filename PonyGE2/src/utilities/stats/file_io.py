@@ -68,7 +68,7 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
 
     results_folder_path: str = full_path
     if make_dirs and not os.path.isdir(results_folder_path):
-        os.makedirs(results_folder_path)
+        os.makedirs(results_folder_path, exist_ok=True)
 
     return results_folder_path
 
@@ -191,7 +191,7 @@ def save_first_front_to_file(stats, end=False, name="first"):
         rmtree(params['FILE_PATH'])
 
     # Create front folder.
-    makedirs(params['FILE_PATH'])
+    makedirs(params['FILE_PATH'], exist_ok=True)
 
     for i, ind in enumerate(trackers.best_ever):
         # Save each individual in the first front to file.

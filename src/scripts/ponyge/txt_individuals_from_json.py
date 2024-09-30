@@ -148,15 +148,15 @@ def create_txt_foreach_ind(dir_name: str, genotypes: List[List[str]], already_so
     base_path = "../seeds/"
     base_path_metadata = "../seeds_metadata/"
     if not os.path.isdir(base_path):
-        os.makedirs(base_path)
+        os.makedirs(base_path, exist_ok=True)
     if not os.path.isdir(base_path_metadata):
-        os.makedirs(base_path_metadata)
+        os.makedirs(base_path_metadata, exist_ok=True)
     res_dir_path: str = os.path.join(base_path, dir_name)
     if not os.path.isdir(res_dir_path):
-        os.makedirs(res_dir_path)
+        os.makedirs(res_dir_path, exist_ok=True)
     res_dir_path_metadata: str = os.path.join(base_path_metadata, dir_name)
     if not os.path.isdir(res_dir_path_metadata):
-        os.makedirs(res_dir_path_metadata)
+        os.makedirs(res_dir_path_metadata, exist_ok=True)
     index: int = 1
     
     if only_impr:

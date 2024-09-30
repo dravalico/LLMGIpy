@@ -302,7 +302,7 @@ def create_grammar_from(
     last_slash_index: int = actual_grammar_path.rindex('/')
     prefix_actual_grammar_path: str = actual_grammar_path[:last_slash_index + 1]
     if not os.path.isdir(prefix_actual_grammar_path):
-        os.makedirs(prefix_actual_grammar_path)
+        os.makedirs(prefix_actual_grammar_path, exist_ok=True)
 
     if not only_impr:
         with open("../dynamic.bnf", 'rb') as source_file, open(actual_grammar_path.replace(".json", ".bnf"), 'wb') as dest_file:
@@ -506,7 +506,7 @@ def create_params_file(
                 params_dir_path = params_dir_path[:-1]
 
             if not os.path.isdir(params_dir_path[:params_dir_path.rindex('/')]):
-                os.makedirs(params_dir_path[:params_dir_path.rindex('/')])
+                os.makedirs(params_dir_path[:params_dir_path.rindex('/')], exist_ok=True)
 
             output_filepath: str = os.path.join(params_dir_path[:params_dir_path.rindex('/')], params_dir_path[params_dir_path.rindex('/') + 1:] + '.txt')
             output_file = open(output_filepath, 'w')

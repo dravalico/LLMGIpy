@@ -30,7 +30,7 @@ def create_and_save_json(filename: str, data: Dict[str, any]) -> str:
 
     results_folder_path: str = full_path
     if not os.path.isdir(results_folder_path):
-        os.makedirs(results_folder_path)
+        os.makedirs(results_folder_path, exist_ok=True)
 
     json_results = json.dumps(data, indent=4)
 

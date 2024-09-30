@@ -23,10 +23,10 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 def mane():
-    if not os.path.isdir("../run_with_exceptions/"):
-        os.makedirs("../run_with_exceptions/")
-
     try:
+        if not os.path.isdir("../run_with_exceptions/"):
+            os.makedirs("../run_with_exceptions/", exist_ok=True)
+
         """ Run program """
         set_params(sys.argv[1:])  # exclude the ponyge.py arg itself
 
