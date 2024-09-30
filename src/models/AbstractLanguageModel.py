@@ -11,7 +11,7 @@ class AbstractLanguageModel(ABC):
         }
     }
 
-    def __init__(self, model_name: str, problem_bench: str, prompt_type: str) -> None:
+    def __init__(self, model_name: str, problem_bench: str, prompt_type: str, load_model: bool = True) -> None:
         super().__init__()
         self.__NAME = model_name.strip()
         self._problem_bench = problem_bench.strip()
@@ -26,7 +26,8 @@ class AbstractLanguageModel(ABC):
         self.__llm_class: str = ALL_LLMs[self.name][0]
         self.__llm_id: str = ALL_LLMs[self.name][1]
         self.__llm_chat_role: str = ALL_LLMs[self.name][2]
-        self._load_model()
+        if load_model:
+            self._load_model()
 
     def get_complete_prompt(self, prompt: str, original: bool) -> str:
         if not original:

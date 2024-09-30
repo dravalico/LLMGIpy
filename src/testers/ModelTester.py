@@ -9,7 +9,7 @@ from datetime import datetime
 from scripts.python_code_arranger import properly_arrange_code_with_imports_functions
 from testers.DatasetLoader import DatasetLoader
 from models.AbstractLanguageModel import AbstractLanguageModel
-from scripts.json_data_io import create_and_save_json
+from scripts.json_data_io import create_and_save_json, read_json, BASE_PATH
 from scripts.ponyge.individual_formatter import substitute_tabs_and_newlines_with_pony_encode
 
 
@@ -24,6 +24,8 @@ class ModelTester():
             self,
             model: AbstractLanguageModel,
             dataset_loader: DatasetLoader,
+            train_size: int,
+            target_train_size: int = -1,
             iterations: int = 5,
             reask: bool = False,
             repeatitions: int = 10
@@ -39,6 +41,9 @@ class ModelTester():
         self.__iteration_timeout: int = 80
         self.__repeatitions: int = repeatitions
 
+        self.__train_size: int = train_size
+        self.__target_train_size: int = target_train_size
+
     def run(self, problems_indexes: Optional[List[int]] = None) -> str:
         print(f"\n{'=' * 80}")
         print(f"Model '{self.__model.name}'")
@@ -51,6 +56,44 @@ class ModelTester():
             print(f'{prob_name}\n')
             start_time: float = time.time()
             responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=[self.__problems['Description'][n_prob]], n_inputs=n_inputs, rep_idx=None)
+            _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
+            process_timed_out_data = []
+            for ddd in data_vanilla:
+                if 'error' in ddd['tests_results'] and ddd['tests_results']['error'].strip() == 'Process timed out':
+                    process_timed_out_data.append(ddd)
+            _, _, data_preprocess = self.__run_all_workers_and_collect_results(responses=[res['preprocess'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0, eventual_responses_vanilla=process_timed_out_data, all_eventual_responses_vanilla=data_vanilla)
+            end_time: float = time.time()
+            dir_name: str = self.__create_and_save_json(data_vanilla, data_preprocess, n_prob, prob_name, (end_time - start_time) * (1 / 60))
+            print(f"\nProblem '{prob_name}' completed.")
+            print(f"{'=' * 80}")
+        print(f'Results saved in {dir_name}')
+        print(f"{'=' * 80}")
+        return dir_name
+
+    def cached_run(self, problems_indexes: Optional[List[int]] = None) -> str:
+        print(f"\n{'=' * 80}")
+        print(f"Model '{self.__model.name}'")
+        all_problem_indexes: List[int] = list(
+            range(len(self.__problems))) if problems_indexes is None else problems_indexes
+        for n_prob in all_problem_indexes:
+            prob_name: str = self.__problems.get('Problem Name')[n_prob].replace(' ', '-').lower()
+            n_inputs: int = self.__dataset_loader.get_n_inputs(prob_name)
+            print(f"{'=' * 35}Problem {(n_prob):02d}{'=' * 35}")
+            print(f'{prob_name}\n')
+            start_time: float = time.time()
+            cached_results: Dict[str, Any] = read_json(
+                full_path=BASE_PATH,
+                model_name=self.__model.name,
+                problem_benchmark=self.__dataset_loader.dataset,
+                problem_benchmark_type=self.__dataset_loader.prompt_type,
+                problem_id=n_prob,
+                reask=False,
+                iterations=self.__iterations,
+                repeatitions=0,
+                train_size=self.__train_size,
+                test_size=self.__dataset_loader.test_size
+            )
+            responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=[self.__problems['Description'][n_prob]], n_inputs=n_inputs, rep_idx=None, cached_results=cached_results)
             _, _, data_vanilla = self.__run_all_workers_and_collect_results(responses=[res['vanilla'] for res in responses], prob_name=prob_name, n_prob=n_prob, iteration=1, rep=0)
             process_timed_out_data = []
             for ddd in data_vanilla:
@@ -149,14 +192,17 @@ class ModelTester():
         print(f"{'=' * 80}")
         return dir_name
 
-    def __ask_model_and_process(self, prompts: List[str], n_inputs: int, rep_idx: Optional[str] = None) -> List[Dict[str, Any]]:
+    def __ask_model_and_process(self, prompts: List[str], n_inputs: int, rep_idx: Optional[str] = None, cached_results: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         iterations: int = 1 if self.__reask else self.__iterations
         responses: List[Dict[str, Any]] = []
         for iteration in range(iterations):
             if not self.__reask:
                 print(f'Iteration {iteration + 1}')
             start_time_llm_answer: float = time.time()
-            llm_answer: str = self.__model.ask(prompts)
+            if cached_results is None:
+                llm_answer: str = self.__model.ask(prompts)
+            else:
+                llm_answer: str = cached_results["data_vanilla"][iteration]['model_response']
             end_time_llm_answer: float = time.time()
             res: Dict[str, Any] = {}
             no_import_syntax_errors_in_vanilla: bool = False

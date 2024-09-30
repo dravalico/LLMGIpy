@@ -35,12 +35,17 @@ def set_parser() -> ArgumentParser:
                            type=str,
                            default='',
                            help="Select the methods on how a LLM have to generate the BNF grammar. It can be 'generate_grammar' or 'generate_grammar_from_zero' or 'find_tags_grammar'. ")
+    argparser.add_argument("--target_train_size",
+                           type=int,
+                           default=-1,
+                           help="The target train size if LLM output for given train size is already available.")
+    
     return argparser
 
 
-def create_instance_of_class(model_name: str, problem_bench: str, prompt_type: str, **kwargs) -> Any:
+def create_instance_of_class(model_name: str, problem_bench: str, prompt_type: str, load_model: bool, **kwargs) -> Any:
     category_llm = models.ALL_LLMs[model_name][0]
-    return eval(category_llm)(model_name=model_name, problem_bench=problem_bench, prompt_type=prompt_type, **kwargs)
+    return eval(category_llm)(model_name=model_name, problem_bench=problem_bench, prompt_type=prompt_type, load_model=load_model, **kwargs)
 
 
 def main():
@@ -57,23 +62,45 @@ def main():
         raise Exception(f"Train Size '{cmd_args.train_size}' must be inserted.")
     if cmd_args.train_size is not None and cmd_args.train_size > 1000:
         raise Exception(f"Train Size '{cmd_args.train_size}' is greater than 1000, It is too large!")
-    model: AbstractLanguageModel = create_instance_of_class(
-        model_name=cmd_args.model,
-        problem_bench=cmd_args.dataset,
-        prompt_type=cmd_args.prompt_type
-    )
-    loader: DatasetLoader = DatasetLoader(
-        dataset=cmd_args.dataset,
-        prompt_type=cmd_args.prompt_type,
-        train_size=cmd_args.train_size,
-        test_size=1000
-    )
+
+    if cmd_args.target_train_size is not None and cmd_args.target_train_size > 0:
+        if cmd_args.reask:
+            raise AttributeError(f'If target train size is specified, then reask must be False.')
+        model: AbstractLanguageModel = create_instance_of_class(
+            model_name=cmd_args.model,
+            problem_bench=cmd_args.dataset,
+            prompt_type=cmd_args.prompt_type,
+            load_model=False
+        )
+        loader: DatasetLoader = DatasetLoader(
+            dataset=cmd_args.dataset,
+            prompt_type=cmd_args.prompt_type,
+            train_size=cmd_args.target_train_size,
+            test_size=1000
+        )
+    else:
+        model: AbstractLanguageModel = create_instance_of_class(
+            model_name=cmd_args.model,
+            problem_bench=cmd_args.dataset,
+            prompt_type=cmd_args.prompt_type,
+            load_model=True
+        )
+
+        loader: DatasetLoader = DatasetLoader(
+            dataset=cmd_args.dataset,
+            prompt_type=cmd_args.prompt_type,
+            train_size=cmd_args.train_size,
+            test_size=1000
+        )
+
     tester: ModelTester = ModelTester(
         model=model,
         dataset_loader=loader,
         iterations=cmd_args.iterations if cmd_args.iterations is not None else 5,
         reask=cmd_args.reask if cmd_args.reask else False,
-        repeatitions=cmd_args.repeatitions if cmd_args.reask else 10
+        repeatitions=cmd_args.repeatitions if cmd_args.reask else 10,
+        train_size=cmd_args.train_size,
+        target_train_size=cmd_args.target_train_size
     )
 
     problems_indexes: Optional[List[int]] = None
@@ -88,11 +115,16 @@ def main():
         else:
             problems_indexes = [int(i) for i in cmd_args.problems_indexes.strip().split(',')]
     
+    if cmd_args.target_train_size is not None and cmd_args.target_train_size > 0:
+        results_path: str = tester.cached_run(problems_indexes=problems_indexes)
+        return
+
     if cmd_args.reask:
         tester.run_with_reask(problems_indexes=problems_indexes)
         return
     else:
         results_path: str = tester.run(problems_indexes=problems_indexes)
+        return
 
 
 if __name__ == "__main__":
