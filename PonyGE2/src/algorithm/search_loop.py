@@ -43,7 +43,7 @@ def search_loop():
 
         # New generation
         individuals = params['STEP'](individuals)
-        if trackers.best_ever.fitness == 0:  # STOPPING CRITIRION
+        if trackers.best_ever.fitness == 0 or trackers.best_ever.fitness == [0, 0.0]:  # STOPPING CRITIRION
             break
 
     if params['MULTICORE']:
