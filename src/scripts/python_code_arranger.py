@@ -59,6 +59,7 @@ def extract_imports(l: list[str], remove_non_existing_import: bool) -> list[str]
     p = re.compile('^(\s*)(import (.+)|import (.+) as (.+)|from (.+) import (.+))(\s*)$')
     actual_imports: list[str] = list(set([line.strip() for line in l if p.match(line.strip()) and line.strip() != '']))
     actual_imports = [imp for imp in actual_imports if ' typing ' not in imp]
+    actual_imports = [imp for imp in actual_imports if ' __future__ ' not in imp]
     
     actual_imports_0 = actual_imports[:]
     actual_imports = []
@@ -367,7 +368,7 @@ def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool
         distinct_funcs = [tabs_as_symbols(single_func, indent_size) for single_func in distinct_funcs]
         main_func = tabs_as_symbols(main_func, indent_size)
         if replace_entry_point_with_this_name.strip() != '':
-            main_func = main_func.replace(' ' + entry_point + '(', ' ' + replace_entry_point_with_this_name.strip() + '(')
+            main_func = main_func.replace(' ' + entry_point + '(', ' ' + replace_entry_point_with_this_name.strip() + '(').replace(' (' + entry_point + '(', ' (' + replace_entry_point_with_this_name.strip() + '(')
         res: dict[str, Any] = {
             'imports': actual_imports,
             'sup_funcs': distinct_funcs,
