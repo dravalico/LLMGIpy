@@ -3,6 +3,7 @@ from typing import List, Any, Dict, Callable, Tuple, Optional
 from multiprocessing import Process, Queue
 from pandas import DataFrame
 import time
+import queue
 import torch
 import warnings
 from datetime import datetime
@@ -303,13 +304,28 @@ class ModelTester():
                     worker.join(timeout=self.__iteration_timeout)
                     if worker.is_alive():
                         worker.terminate()
+                        worker.join()
+                        worker.close()
                         raise Exception('Process timed out')
                     print(f'Result obtained for repetition {rep}')
-                    worker_res = args[i][-1].get()
-                    if isinstance(worker_res, str):
-                        data[i]['tests_results'] = {'passed': 0, 'error': worker_res}
+
+                    try:
+                        worker_res = args[i][-1].get(block=True, timeout=1)
+                    except queue.Empty:
+                        if self.__reask:
+                            print(f'Exception for repetition {rep}')
+                            data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
+                            exc = True
+                        else:
+                            print(f'Exception for iteration {i + 1}')
+                            data[i]['tests_results'] = {'passed': 0, 'error': str(e)}
                     else:
-                        data[i]['tests_results'] = worker_res[0]
+                        if isinstance(worker_res, str):
+                            data[i]['tests_results'] = {'passed': 0, 'error': worker_res}
+                        else:
+                            data[i]['tests_results'] = worker_res[0]
+                        args[i][-1].close()
+
                 except Exception as e:
                     if self.__reask:
                         print(f'Exception for repetition {rep}')

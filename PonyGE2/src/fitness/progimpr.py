@@ -1,3 +1,4 @@
+import queue
 from subprocess import Popen, PIPE
 from multiprocessing import Queue, Process
 import sys
@@ -103,9 +104,18 @@ class progimpr(base_ff):
             worker.join(timeout=timeout)
             if worker.is_alive():
                 worker.terminate()
+                worker.join()
+                worker.close()
                 raise Exception('Process timed out')
-            worker_res = args[1].get()
-            result = worker_res
+            
+            try:
+                worker_res = args[1].get(block=True, timeout=1)
+            except queue.Empty:
+                result = {'exception': str(traceback.format_exc())}
+            else:
+                result = worker_res
+                args[1].close()
+        
         except Exception as e:
             result = {'exception': str(traceback.format_exc())}
 
