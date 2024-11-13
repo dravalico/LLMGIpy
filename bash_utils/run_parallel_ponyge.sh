@@ -1,6 +1,7 @@
 #!/bin/bash
 
 > bash_utils/timings_ponyge.txt
+> PonyGE2/results/terminal_std_out.txt
 
 echo "PARAMS TIME_IN_SEC" >> bash_utils/timings_ponyge.txt
 
