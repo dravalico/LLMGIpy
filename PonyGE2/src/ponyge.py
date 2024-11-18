@@ -34,6 +34,9 @@ def mane():
         """ Run program """
         set_params(sys.argv[1:])  # exclude the ponyge.py arg itself
 
+        if 'TIMESTAMP_PONYGE' not in params:
+            params['TIMESTAMP_PONYGE'] = str(datetime.datetime.now())
+
         # Run evolution
         start_time = time.time()
         individuals = params['SEARCH_LOOP']()
@@ -43,7 +46,7 @@ def mane():
         # Print final review
         get_stats(individuals, end=True, execution_time_in_minutes=execution_time_in_minutes)
 
-        with open(os.path.join("../results/", 'terminal_std_out.txt'), 'a+') as terminal_std_out:
+        with open(os.path.join("../results/", f'completed_{params["TIMESTAMP_PONYGE"]}.txt'), 'a+') as terminal_std_out:
             terminal_std_out.write(f'{params["PARAMETERS"]}')
             terminal_std_out.write('\n')
     except Exception as e:

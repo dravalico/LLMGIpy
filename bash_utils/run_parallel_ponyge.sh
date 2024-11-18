@@ -1,7 +1,12 @@
 #!/bin/bash
 
 > bash_utils/timings_ponyge.txt
-> PonyGE2/results/terminal_std_out.txt
+
+timestamp_ponyge=$(date +"%Y-%m-%dT%T")
+
+export timestamp_ponyge
+
+> PonyGE2/results/completed_${timestamp_ponyge}.txt
 
 echo "PARAMS TIME_IN_SEC" >> bash_utils/timings_ponyge.txt
 

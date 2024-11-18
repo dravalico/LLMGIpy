@@ -120,6 +120,11 @@ def parse_cmd_args(arguments):
                              'include the full file extension. Full file path'
                              'does NOT need to be specified.')
 
+    parser.add_argument('--timestamp_ponyge',
+                        dest='TIMESTAMP_PONYGE',
+                        type=str,
+                        help='Specifies the ponyge timestamp.')
+
     # LOAD STEP AND SEARCH LOOP FUNCTIONS
     parser.add_argument('--search_loop',
                         dest='SEARCH_LOOP',
