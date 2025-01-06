@@ -48,7 +48,10 @@ def fix():
                                 'PROBLEM_INDEX': problem_index,
                                 'RANDOM_SEED': random_seed
                         }
-                        res = read_ponyge_results(BASE_PATH, params, include_seed=True)
+                        try:
+                            res = read_ponyge_results(BASE_PATH, params, include_seed=True)
+                        except:
+                            continue                        
                         stats = res['stats']
                         del stats['Unnamed: 61']
                         gens = res['gens']

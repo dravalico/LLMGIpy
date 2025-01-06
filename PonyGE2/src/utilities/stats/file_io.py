@@ -80,6 +80,8 @@ def read_ponyge_results(base_path: str, params: dict[str, Any], include_seed: bo
     if not path.endswith('/'):
         path += '/'
     executed_gens: list[int] = sorted([int(file[:file.index('.txt')]) for file in os.listdir(path) if file.endswith('.txt') and file[:file.index('.txt')].isdigit()])
+    if len(executed_gens) == 0:
+        raise ValueError(f'This run {path} is not available.')
     stats: pd.DataFrame = pd.read_csv(path + 'stats.tsv', sep='\t', header=0)
     res = {'stats': stats, 'gens': []}
     for gen in executed_gens:
