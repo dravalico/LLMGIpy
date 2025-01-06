@@ -310,7 +310,7 @@ class ModelTester():
                     print(f'Result obtained for repetition {rep}')
 
                     try:
-                        worker_res = args[i][-1].get(block=True, timeout=1)
+                        worker_res = args[i][-1].get(block=True, timeout=2)
                     except queue.Empty:
                         if self.__reask:
                             print(f'Exception for repetition {rep}')

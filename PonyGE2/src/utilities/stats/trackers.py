@@ -44,3 +44,6 @@ stats_list = []
 
 best_ever = None
 # Store the best ever individual here.
+
+best_individuals_ever = []
+# Store all the best individuals ever for each generation

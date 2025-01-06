@@ -109,7 +109,7 @@ class progimpr(base_ff):
                 raise Exception('Process timed out')
             
             try:
-                worker_res = args[1].get(block=True, timeout=1)
+                worker_res = args[1].get(block=True, timeout=2)
             except queue.Empty:
                 result = {'exception': str(traceback.format_exc())}
             else:

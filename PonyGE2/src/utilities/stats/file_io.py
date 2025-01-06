@@ -1,3 +1,4 @@
+import json
 from copy import copy
 import os
 from typing import Any
@@ -11,6 +12,7 @@ from utilities.stats import trackers
 
 
 BASE_PATH: str = "../results/"
+PONY_CSV_SEPARATOR: str = "\t"
 
 
 def create_results_folder_path(base_path: str, params: dict[str, Any], include_seed: bool, make_dirs: bool) -> str:
@@ -20,7 +22,7 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
     # BNF_TYPE
     # MODEL_NAME
     # FITNESS_FUNCTION
-    # FITNESS_FILE
+    # FITNESS_FILE (.txt extension included)
     # NUM_TRAIN_EXAMPLES
     # NUM_TEST_EXAMPLES
     # SELECTION
@@ -72,6 +74,7 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
 
     return results_folder_path
 
+
 def read_ponyge_results(base_path: str, params: dict[str, Any], include_seed: bool) -> dict:
     path: str = create_results_folder_path(base_path=base_path, params=params, include_seed=include_seed, make_dirs=False)
     if not path.endswith('/'):
@@ -89,6 +92,19 @@ def read_ponyge_results(base_path: str, params: dict[str, Any], include_seed: bo
 
     return res
 
+
+def read_ponyge_results_with_unique_json(base_path: str, params: dict[str, Any], include_seed: bool) -> dict:
+    path: str = create_results_folder_path(base_path=base_path, params=params, include_seed=include_seed, make_dirs=False)
+    if not path.endswith('/'):
+        path += '/'
+    with open(path + 'bests.json', 'r') as f:
+        bests = json.load(f)
+    stats: pd.DataFrame = pd.read_csv(path + 'stats.csv', sep='\t', header=0)
+    res = {'stats': stats, 'gens': bests['gens']}
+
+    return res
+
+
 def save_stats_to_file(stats, end=False):
     """
     Write the results to a results file for later analysis
@@ -100,7 +116,7 @@ def save_stats_to_file(stats, end=False):
     """
 
     if False: # params['VERBOSE'] 
-        filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "stats.tsv")
+        filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "stats.csv")
         savefile = open(filename, 'a')
         for stat in sorted(stats.keys()):
             savefile.write(str(stats[stat]) + "\t")
@@ -108,7 +124,7 @@ def save_stats_to_file(stats, end=False):
         savefile.close()
 
     elif end:
-        filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "stats.tsv")
+        filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "stats.csv")
         savefile = open(filename, 'a')
         for item in trackers.stats_list:
             for stat in sorted(item.keys()):
@@ -125,7 +141,7 @@ def save_stats_headers(stats):
     :return: Nothing.
     """
 
-    filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "stats.tsv")
+    filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "stats.csv")
     savefile = open(filename, 'w')
     for stat in sorted(stats.keys()):
         savefile.write(str(stat) + "\t")
@@ -166,6 +182,38 @@ def save_best_ind_to_file(stats, ind, end=False, name="best", execution_time_in_
     else:
         savefile.write("\nFitness:\n" + str(ind.fitness))
     savefile.close()
+
+
+def save_all_best_individuals_to_json(best_individuals):
+    """
+    Saves the best individuals to a file.
+
+    :param best_individuals: The best individuals in a list, one element for each generation.
+    :return: Nothing.
+    """
+
+    filename = path.join(create_results_folder_path(BASE_PATH, params, True, True), "bests.json")
+    gens = []
+
+    for i in range(len(best_individuals)):
+        ind = best_individuals[i]
+        data = dict()
+
+        data["Training Execution time (min)"] = str(sum(trackers.train_time_list[:(i + 1)]) * (1 / 60))
+        data["Generation"] = str(i)
+        data["Phenotype"] = str(ind.phenotype)
+        data["Genotype"] = str(ind.genome)
+        data["Tree"] = str(ind.tree)
+        data["Training fitness"] = str(ind.training_fitness)
+        data["Test fitness"] = str(ind.test_fitness)
+        if params['FITNESS_FUNCTION'].__class__.__name__ == 'progimpr':
+            data["Training num not passed cases"] = str(ind.num_not_passed_cases_train)
+            data["Test num not passed cases"] = str(ind.num_not_passed_cases_test)
+
+        gens.append(data)
+
+    with open(filename, 'w') as f:
+        json.dump({'gens': gens}, f, indent=4)
 
 
 def save_first_front_to_file(stats, end=False, name="first"):

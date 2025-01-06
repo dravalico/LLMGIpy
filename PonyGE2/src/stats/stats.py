@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 from sys import stdout
 from time import time
 import editdistance
@@ -17,7 +17,7 @@ from utilities.algorithm.NSGA2 import compute_pareto_metrics
 from utilities.algorithm.state import create_state
 from utilities.stats import trackers
 from utilities.stats.file_io import save_best_ind_to_file, \
-    save_first_front_to_file, save_stats_headers, save_stats_to_file
+    save_first_front_to_file, save_stats_headers, save_stats_to_file, save_all_best_individuals_to_json
 from utilities.stats.save_plots import save_pareto_fitness_plot, \
     save_plot_from_data
 
@@ -223,6 +223,9 @@ def get_soo_stats(individuals, end, execution_time_in_minutes):
     if False or (not params['DEBUG'] and not end): # params['VERBOSE']
         trackers.stats_list.append(copy(stats))
 
+    if not end:
+        trackers.best_individuals_ever.append(deepcopy(trackers.best_ever))
+
     # Save stats to file.
     if not params['DEBUG']:
 
@@ -231,11 +234,14 @@ def get_soo_stats(individuals, end, execution_time_in_minutes):
 
         save_stats_to_file(stats, end)
 
-        if params['SAVE_ALL']:
-            save_best_ind_to_file(stats=stats, ind=trackers.best_ever, end=end, name=stats['gen'], execution_time_in_minutes=execution_time_in_minutes)
+        if end:
+            save_all_best_individuals_to_json(trackers.best_individuals_ever)
 
-        elif params['VERBOSE'] or end:
-            save_best_ind_to_file(stats=stats, ind=trackers.best_ever, end=end, execution_time_in_minutes=execution_time_in_minutes)
+        #if params['SAVE_ALL']:
+        #    save_best_ind_to_file(stats=stats, ind=trackers.best_ever, end=end, name=stats['gen'], execution_time_in_minutes=execution_time_in_minutes)
+
+        #elif params['VERBOSE'] or end:
+        #    save_best_ind_to_file(stats=stats, ind=trackers.best_ever, end=end, execution_time_in_minutes=execution_time_in_minutes)
 
     if end and not params['SILENT']:
         print_final_stats()
