@@ -49,7 +49,7 @@ def mane_post():
 
             if test_fitness_1 == worst_possible_fitness or test_fitness_2 == worst_possible_fitness:
                 temp_fitness_class_instance = progimpr()
-                gen['Test fitness'] = str(temp_fitness_class_instance(ind, dist='test', timeout=1000.0))
+                gen['Test fitness'] = str(temp_fitness_class_instance(ind, dist='test', timeout=100.0))
             
             if train_num_not_passed_cases == worst_possible_fitness:
                 temp_fitness_file = params['FITNESS_FILE']
@@ -59,7 +59,7 @@ def mane_post():
                 
                 params['FITNESS_FILE'] = 'fitness_cases.txt'
                 temp_fitness_class_instance = progimpr()
-                gen['Training num not passed cases'] = str(temp_fitness_class_instance(ind, dist='training', timeout=1000.0))
+                gen['Training num not passed cases'] = str(temp_fitness_class_instance(ind, dist='training', timeout=100.0))
 
                 params['FITNESS_FILE'] = temp_fitness_file
                 ind.fitness = temp_ind_fitness
@@ -74,7 +74,7 @@ def mane_post():
                 
                 params['FITNESS_FILE'] = 'fitness_cases.txt'
                 temp_fitness_class_instance = progimpr()
-                gen['Test num not passed cases'] = str(temp_fitness_class_instance(ind, dist='test', timeout=1000.0))
+                gen['Test num not passed cases'] = str(temp_fitness_class_instance(ind, dist='test', timeout=100.0))
 
                 params['FITNESS_FILE'] = temp_fitness_file
                 ind.fitness = temp_ind_fitness
