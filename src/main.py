@@ -17,7 +17,7 @@ def set_parser() -> ArgumentParser:
     argparser.add_argument("--model", type=str, help=f"The LLM's name: {models.models_list}")
     argparser.add_argument("--dataset", type=str, help=f"The dataset to use for tests: {testers.datasets_list}")
     argparser.add_argument("--prompt_type", type=str, help=f"The type of prompt.")
-    argparser.add_argument("--train_size", type=int, help="Length of the test dataset")
+    argparser.add_argument("--train_size", type=int, help="Length of the train dataset")
     argparser.add_argument("--iterations",
                            type=int,
                            help="Number of times to repeat question and test for the same problem.")
@@ -96,9 +96,9 @@ def main():
     tester: ModelTester = ModelTester(
         model=model,
         dataset_loader=loader,
-        iterations=cmd_args.iterations if cmd_args.iterations is not None else 5,
+        iterations=cmd_args.iterations if cmd_args.iterations is not None else 10,
         reask=cmd_args.reask if cmd_args.reask else False,
-        repeatitions=cmd_args.repeatitions if cmd_args.reask else 10,
+        repeatitions=cmd_args.repeatitions if cmd_args.reask else 5,
         train_size=cmd_args.train_size,
         target_train_size=cmd_args.target_train_size
     )

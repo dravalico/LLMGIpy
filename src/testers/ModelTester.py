@@ -18,7 +18,7 @@ class CudaOutOfMemoryWarning(Warning):
     pass
 
 
-class ModelTester():
+class ModelTester:
     NUM_FAILED_EXAMPLES_TO_PROMPT_WHEN_REASK: int = 10
 
     def __init__(
@@ -27,9 +27,9 @@ class ModelTester():
             dataset_loader: DatasetLoader,
             train_size: int,
             target_train_size: int = -1,
-            iterations: int = 5,
+            iterations: int = 10,
             reask: bool = False,
-            repeatitions: int = 10
+            repeatitions: int = 5
     ) -> None:
         if (not isinstance(model, AbstractLanguageModel)) or (model is None):
             e: str = 'You must provide an AbstractLanguageModel instance.'
@@ -133,8 +133,21 @@ class ModelTester():
                     print(f'Repetition {rep}')
                     isFirst: bool = rep == 0
                     if isFirst:
+                        cached_results: Optional[Dict[str, Any]] = read_json(
+                            full_path=BASE_PATH,
+                            model_name=self.__model.name,
+                            problem_benchmark=self.__dataset_loader.dataset,
+                            problem_benchmark_type=self.__dataset_loader.prompt_type,
+                            problem_id=n_prob,
+                            reask=False,
+                            iterations=self.__iterations,
+                            repeatitions=0,
+                            train_size=self.__train_size,
+                            test_size=self.__dataset_loader.test_size
+                        )
                         prompts.append(self.__problems['Description'][n_prob])
                     else:
+                        cached_results: Optional[Dict[str, Any]] = None
                         prompts.append(previous_llm_answer)
                         if is_process_timed_out:
                             prompts.append('Your code is too slow. Please, rewrite it and make it correct and more efficient. Remember to insert the necessary modules.')
@@ -152,7 +165,7 @@ class ModelTester():
                                 )
                             prompts.append(''.join(temp_prompt))
                     try:
-                        responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=prompts, n_inputs=n_inputs, rep_idx=f'{iteration + 1}.{rep}')
+                        responses: List[Dict[str, Any]] = self.__ask_model_and_process(prompts=prompts, n_inputs=n_inputs, rep_idx=f'{iteration + 1}.{rep}', cached_results=cached_results)
                     except torch.cuda.OutOfMemoryError:
                         warnings.warn(f'Warning ! torch.cuda.OutOfMemoryError encoutered for iteration {iteration} repeatition {rep} problem {n_prob}!', CudaOutOfMemoryWarning)
                         oom_data: Dict[str, Any] = {}
@@ -195,6 +208,10 @@ class ModelTester():
 
     def __ask_model_and_process(self, prompts: List[str], n_inputs: int, rep_idx: Optional[str] = None, cached_results: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         iterations: int = 1 if self.__reask else self.__iterations
+        if self.__reask:
+            actual_iteration_idx: int = int(rep_idx.split('.')[0]) - 1
+        else:
+            actual_iteration_idx: int = -1
         responses: List[Dict[str, Any]] = []
         for iteration in range(iterations):
             if not self.__reask:
@@ -203,7 +220,10 @@ class ModelTester():
             if cached_results is None:
                 llm_answer: str = self.__model.ask(prompts)
             else:
-                llm_answer: str = cached_results["data_vanilla"][iteration]['model_response']
+                if self.__reask:
+                    llm_answer: str = cached_results["data_vanilla"][actual_iteration_idx]['model_response']
+                else:
+                    llm_answer: str = cached_results["data_vanilla"][iteration]['model_response']
             end_time_llm_answer: float = time.time()
             res: Dict[str, Any] = {}
             no_import_syntax_errors_in_vanilla: bool = False
