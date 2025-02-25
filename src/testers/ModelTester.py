@@ -484,11 +484,12 @@ class ModelTester:
         #         'tests_results': element['tests_results'] if 'tests_results' in element else {}
         #     }
         # else:
-        imports: List[str] = element['imports']
+        imports: List[str] = element['imports'] if 'imports' in element else []
+        sup_funcs: List[str] = element['sup_funcs'] if 'sup_funcs' in element else []        
         imports_pony: str = ''
         for i in imports:
             imports_pony += i + '#'
-        used_names = element['possible_vars']
+        used_names = element['possible_vars'] if 'possible_vars' in element else []
         ind = substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])
         json_element = {
             'iteration': it,
@@ -502,12 +503,12 @@ class ModelTester:
             'main_func': element['main_func'].replace(' ' + 'evolve' + '(', ' ' + element['entry_point'] + '(').replace(' (' + 'evolve' + '(', ' (' + element['entry_point'] + '('),
             'code': element['full_code'].replace(' ' + 'evolve' + '(', ' ' + element['entry_point'] + '(').replace(' (' + 'evolve' + '(', ' (' + element['entry_point'] + '('),
             'imports': imports,
-            'supports': element['sup_funcs'],
-            'imports_and_supports': element['imports_and_supports'],
+            'supports': sup_funcs,
+            'imports_and_supports': element['imports_and_supports'] if 'imports_and_supports' in element else '\n'.join(imports) + '\n\n' + '\n\n'.join(sup_funcs) + '\n',
             'variables_names': used_names,
             'renamed_main_func': element['renamed_main_func'],
             'final_individual': ind,
-            'tests_results': element['tests_results']
+            'tests_results': element['tests_results'] if 'tests_results' in element else {}
         }
         
         if 'exception' in element:
