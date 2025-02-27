@@ -171,6 +171,7 @@ class ModelTester:
                         oom_data: Dict[str, Any] = {}
                         oom_data['prompt'] = self.__model.get_complete_prompt(prompts[-1], len(prompts) != 1)
                         oom_data['llm_answer'] = ''
+                        oom_data['entry_point'] = 'evolve'
                         oom_data['time_minutes_llm_answer'] = 0.0
                         oom_data['no_import_syntax_errors_in_vanilla'] = False
                         oom_data['iter_id'] = f'{iteration + 1}.{rep}'
@@ -179,6 +180,10 @@ class ModelTester:
                         oom_data['problem_name'] = prob_name
                         oom_data['problem_index'] = n_prob
                         oom_data['exception'] = 'torch.cuda.OutOfMemoryError'
+                        oom_data['main_func'] = '\n'.join([f'def {"evolve"}({", ".join(f"v{i}" for i in range(n_inputs))}):', '\tpass'])
+                        oom_data['renamed_main_func'] = oom_data['main_func']
+                        oom_data['full_code'] = '\n'.join([]) + '\n\n' + '\n\n'.join([]) + '\n\n' + oom_data['main_func'] + '\n'
+                        oom_data['full_code_but_no_imports'] = oom_data['full_code']
                         to_save_preprocess.extend([oom_data])
                         to_save_vanilla.extend([oom_data])
                         break
@@ -484,12 +489,13 @@ class ModelTester:
         #         'tests_results': element['tests_results'] if 'tests_results' in element else {}
         #     }
         # else:
+        n_inputs: int = self.__dataset_loader.get_n_inputs(element['problem_name'])
         imports: List[str] = element['imports'] if 'imports' in element else []
         sup_funcs: List[str] = element['sup_funcs'] if 'sup_funcs' in element else []        
         imports_pony: str = ''
         for i in imports:
             imports_pony += i + '#'
-        used_names = element['possible_vars'] if 'possible_vars' in element else []
+        used_names = element['possible_vars'] if 'possible_vars' in element else [f"v{i}" for i in range(n_inputs)]
         ind = substitute_tabs_and_newlines_with_pony_encode(element['renamed_main_func'])
         json_element = {
             'iteration': it,
