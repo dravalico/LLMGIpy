@@ -5,7 +5,7 @@ from typing import List, Any, Dict, Tuple
 from scripts.ponyge.txt_individuals_from_json import txt_population
 import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
-from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING
+from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING, COMPLETEBNF_AS_STRING
 from scripts.json_data_io import read_json, create_dir_path_string
 import sys
 import traceback
@@ -305,7 +305,7 @@ def create_grammar_from(
         os.makedirs(prefix_actual_grammar_path, exist_ok=True)
 
     if not only_impr:
-        with open("../dynamic.bnf", 'rb') as source_file, open(actual_grammar_path.replace(".json", ".bnf"), 'wb') as dest_file:
+        with open("../dynamic.bnf" if bnf_type != COMPLETEBNF_AS_STRING else "../pybnf_spaces.bnf", 'rb') as source_file, open(actual_grammar_path.replace(".json", ".bnf"), 'wb') as dest_file:
             dest_file.write(source_file.read())
 
         with open(actual_grammar_path.replace(".json", ".bnf"), 'a') as bnf:

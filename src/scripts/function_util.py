@@ -7,9 +7,12 @@ from re import Match
 
 STATICBNF_AS_STRING = "staticbnf"
 DYNAMICBNF_AS_STRING = "dynamicbnf"
+COMPLETEBNF_AS_STRING = "completebnf"
 
 
 def compute_bnf_type_from_dynamic_bnf_param(dynamic_bnf: str) -> str:
+    if dynamic_bnf == "None":
+        return COMPLETEBNF_AS_STRING
     if dynamic_bnf not in ("True", "False"):
         raise ValueError(f'Unrecognized {dynamic_bnf} as dynamic_bnf, can be either True or False (as string).')
     bnf_type = DYNAMICBNF_AS_STRING if dynamic_bnf == "True" else STATICBNF_AS_STRING

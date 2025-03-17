@@ -6,7 +6,7 @@ import uuid
 import json
 from typing import Any, List, Dict, Tuple
 import multiprocessing
-from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING
+from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING, COMPLETEBNF_AS_STRING
 from scripts.json_data_io import read_json, create_dir_path_string, ALREADY_SOLVED_STRING, NOT_PARSED_STRING
 
 
@@ -118,6 +118,9 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
             args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
                                         for p in orderering_preserving_duplicates_elimination(phenotypes)]
     elif bnf_type == STATICBNF_AS_STRING:
+        args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
+                                    for p in orderering_preserving_duplicates_elimination(phenotypes)]
+    elif bnf_type == COMPLETEBNF_AS_STRING:
         args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file, "--reverse_mapping_target", p])
                                     for p in orderering_preserving_duplicates_elimination(phenotypes)]
     else:
