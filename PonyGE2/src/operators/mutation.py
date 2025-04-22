@@ -13,6 +13,7 @@ def mutation(pop, mut_prob: float | None = None):
     specified in params dictionary.
 
     :param pop: A population of individuals to be mutated.
+    :param mut_prob: The probability with which to apply the subtree mutation
     :return: A fully mutated population.
     """
 
