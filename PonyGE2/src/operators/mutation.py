@@ -7,7 +7,7 @@ from representation.latent_tree import latent_tree_mutate, latent_tree_repair
 from utilities.representation.check_methods import check_ind
 
 
-def mutation(pop):
+def mutation(pop, mut_prob: float | None = None):
     """
     Perform mutation on a population of individuals. Calls mutation operator as
     specified in params dictionary.
@@ -28,7 +28,7 @@ def mutation(pop):
 
         else:
             # Perform mutation.
-            new_ind = params['MUTATION'](ind)
+            new_ind = params['MUTATION'](ind) if params['MUTATION'].__name__ != "subtree" else params['MUTATION'](ind, mut_prob)
 
         # Check ind does not violate specified limits.
         check = check_ind(new_ind, "mutation")
@@ -118,7 +118,7 @@ def int_flip_per_ind(ind):
     return new_ind
 
 
-def subtree(ind):
+def subtree(ind, mut_prob: float | None = None):
     """
     Mutate the individual by replacing a randomly selected subtree with a
     new randomly generated subtree. Guaranteed one event per individual, unless
@@ -167,9 +167,19 @@ def subtree(ind):
         # Save the tail of the genome.
         tail = ind.genome[ind.used_codons:]
 
-    # Allows for multiple mutation events should that be desired.
-    for i in range(params['MUTATION_EVENTS']):
-        ind.tree = subtree_mutate(ind.tree)
+    # Set mutation probability. 
+    if params['MUTATION_PROBABILITY'] is not None:
+        p_mut = params['MUTATION_PROBABILITY']
+    elif mut_prob is not None:
+        p_mut = mut_prob
+    else:
+        p_mut = 1.0
+
+    # Mutation probability
+    if random() < p_mut:
+        # Allows for multiple mutation events should that be desired.
+        for i in range(params['MUTATION_EVENTS']):
+            ind.tree = subtree_mutate(ind.tree)
 
     # Re-build a new individual with the newly mutated genetic information.
     ind = individual.Individual(None, ind.tree)
