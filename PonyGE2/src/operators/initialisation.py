@@ -14,6 +14,9 @@ from representation.tree import Tree
 from scripts import GE_LR_parser
 from utilities.representation.python_filter import python_filter
 
+from operator.mutation import mutation
+from copy import deepcopy
+
 curr_path = [sss for sss in sys.path]
 sys.path.append('../../src/scripts')
 from json_data_io import read_json # type: ignore
@@ -42,6 +45,25 @@ def initialisation(size):
     individuals.extend(params['SEED_INDIVIDUALS'])
 
     return individuals
+
+
+def diversity_oriented_individuals(size):
+    chunk_size = int(size / 3)
+
+    individuals = []
+
+    seed_inds = seed_individuals(chunk_size)
+    random_inds = rhh(chunk_size if size % 3 == 0 else chunk_size + (size % 3))
+    individuals.extend(seed_inds)
+    individuals.extend(random_inds)
+
+    inds_to_mut = [deepcopy(i) for i in seed_inds]
+    mut_inds = mutation(inds_to_mut, 1.0) 
+    
+    individuals.extend(mut_inds)
+    
+    return individuals
+    
 
 
 def sample_genome():
