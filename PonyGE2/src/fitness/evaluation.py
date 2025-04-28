@@ -101,7 +101,7 @@ def evaluate_fitness(individuals):
             chunksize=1,
             timeout=None
         )
-    except RuntimeError as e:
+    except (RuntimeError, BlockingIOError) as e:
         new_individuals = fake_parallelize(
             eval_or_append,
             [{'index': i, 'ind': deepcopy(almost_new_individuals[i][0]), 'results': [], 'pool': None, 'eval_ind': almost_new_individuals[i][1]} for i in range(len(almost_new_individuals))],
@@ -130,7 +130,7 @@ def evaluate_fitness(individuals):
             chunksize=1,
             timeout=None
         )
-    except RuntimeError as e:
+    except (RuntimeError, BlockingIOError) as e:
         new_individuals_2 = fake_parallelize(
             eval_or_append_test,
             [{'index': i, 'ind': deepcopy(almost_new_individuals_2[i][0]), 'results': [], 'pool': None, 'eval_ind': almost_new_individuals_2[i][1]} for i in range(len(almost_new_individuals_2))],
