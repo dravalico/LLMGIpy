@@ -405,6 +405,7 @@ TEST_DATASET_TAG: str = "<test>"
 NUM_TRAIN_EXAMPLES_TAG: str = "<numTrainExamples>"
 NUM_TEST_EXAMPLES_TAG: str = "<numTestExamples>"
 FITNESS_FILE_TAG: str = "<fitnessFile>"
+INITIALISATION_TAG: str = "<initialisation>"
 SEED_FOLDER_TAG: str = "<seedFolder>"
 POPULATION_SIZE_TAG: str = "<populationSize>"
 GENERATIONS_TAG: str = "<generations>"
@@ -459,6 +460,7 @@ def create_params_file(
                     'MODEL_NAME': llm_param['model_name'],
                     'FITNESS_FUNCTION': 'progimpr',
                     'FITNESS_FILE': pony_param['fitness_file'],
+                    'INITIALISATION': pony_param['initialisation'],
                     'NUM_TRAIN_EXAMPLES': int(llm_param['train_size']),
                     'NUM_TEST_EXAMPLES': int(llm_param['test_size']),
                     'SELECTION': sel_alg,
@@ -491,6 +493,7 @@ def create_params_file(
             impr_file = impr_file.replace(NUM_TRAIN_EXAMPLES_TAG, str(llm_param['train_size']))
             impr_file = impr_file.replace(NUM_TEST_EXAMPLES_TAG, str(llm_param['test_size']))
             impr_file = impr_file.replace(FITNESS_FILE_TAG, pony_param['fitness_file'])
+            impr_file = impr_file.replace(INITIALISATION_TAG, pony_param['initialisation'])
             impr_file = impr_file.replace(POPULATION_SIZE_TAG, str(pony_param['pop_size']))
             impr_file = impr_file.replace(GENERATIONS_TAG, str(pony_param['num_gen']))
             impr_file = impr_file.replace(CROSSOVER_TAG, pony_param['crossover'])

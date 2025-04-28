@@ -5,9 +5,10 @@ from representation import individual
 from representation.derivation import generate_tree
 from representation.latent_tree import latent_tree_mutate, latent_tree_repair
 from utilities.representation.check_methods import check_ind
+from typing import Optional
 
 
-def mutation(pop, mut_prob: float | None = None):
+def mutation(pop, mut_prob: Optional[float] = None):
     """
     Perform mutation on a population of individuals. Calls mutation operator as
     specified in params dictionary.
@@ -119,7 +120,7 @@ def int_flip_per_ind(ind):
     return new_ind
 
 
-def subtree(ind, mut_prob: float | None = None):
+def subtree(ind, mut_prob: Optional[float] = None):
     """
     Mutate the individual by replacing a randomly selected subtree with a
     new randomly generated subtree. Guaranteed one event per individual, unless
@@ -169,10 +170,10 @@ def subtree(ind, mut_prob: float | None = None):
         tail = ind.genome[ind.used_codons:]
 
     # Set mutation probability. 
-    if params['MUTATION_PROBABILITY'] is not None:
-        p_mut = params['MUTATION_PROBABILITY']
-    elif mut_prob is not None:
+    if mut_prob is not None:
         p_mut = mut_prob
+    elif params['MUTATION_PROBABILITY'] is not None:
+        p_mut = params['MUTATION_PROBABILITY']
     else:
         p_mut = 1.0
 

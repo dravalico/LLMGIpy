@@ -23,6 +23,7 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
     # MODEL_NAME
     # FITNESS_FUNCTION
     # FITNESS_FILE (.txt extension included)
+    # INITIALISATION
     # NUM_TRAIN_EXAMPLES
     # NUM_TEST_EXAMPLES
     # SELECTION
@@ -44,6 +45,11 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
     full_path += params['BENCHMARK_NAME'] + '_' + params['BENCHMARK_TYPE'] + '/'
     full_path += params['MODEL_NAME'] + '/'
     
+    if isinstance(params['INITIALISATION'], str):
+        full_path += params['INITIALISATION'] + '/'
+    else:
+        full_path += params['INITIALISATION'].__name__ + '/'
+
     if isinstance(params['FITNESS_FUNCTION'], str):
         full_path += params['FITNESS_FUNCTION'] + '_' + params['FITNESS_FILE'][:-4] + '_' + f'train{params["NUM_TRAIN_EXAMPLES"]}_test{params["NUM_TEST_EXAMPLES"]}' + '_' + params['BNF_TYPE'] + '/'
     else:
