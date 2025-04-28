@@ -70,9 +70,9 @@ params = {
     # Set the maximum genome length for initialisation.
     'INIT_GENOME_LENGTH': 200,
     # Set the maximum tree depth for initialisation.
-    'MAX_INIT_TREE_DEPTH': 10,
+    'MAX_INIT_TREE_DEPTH': 30,
     # Set the minimum tree depth for initialisation.
-    'MIN_INIT_TREE_DEPTH': None,
+    'MIN_INIT_TREE_DEPTH': 5,
 
     # SELECTION
     # Set selection operator.

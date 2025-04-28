@@ -29,8 +29,9 @@ GENERATIONS:            <generations>
 MAX_GENOME_LENGTH:      0
 CODON_SIZE:             200
 
-MAX_INIT_TREE_DEPTH:    15
-MAX_TREE_DEPTH:         30
+MIN_INIT_TREE_DEPTH:    5
+MAX_INIT_TREE_DEPTH:    30
+MAX_TREE_DEPTH:         50
 
 CROSSOVER:              <crossover>
 CROSSOVER_PROBABILITY:  <crossoverProbability>

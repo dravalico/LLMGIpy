@@ -14,7 +14,7 @@ from representation.tree import Tree
 from scripts import GE_LR_parser
 from utilities.representation.python_filter import python_filter
 
-from operator.mutation import mutation
+from operators.mutation import mutation
 from copy import deepcopy
 
 curr_path = [sss for sss in sys.path]
