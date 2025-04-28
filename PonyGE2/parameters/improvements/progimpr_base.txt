@@ -21,7 +21,7 @@ FITNESS_FILE:           <fitnessFile>
 FITNESS_FUNCTION:       progimpr
 PROGRAM_EVAL_TIMEOUT:   3.0
 
-INITIALISATION:         seed_individuals
+INITIALISATION:         <initialisation>
 TARGET_SEED_FOLDER:     <seedFolder>
 
 POPULATION_SIZE:        <populationSize>
