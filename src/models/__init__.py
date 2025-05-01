@@ -13,6 +13,8 @@ ALL_LLMs: dict[str, tuple[str, str]] = {
     'CodeLLaMA13B': ('HuggingFaceLLM', 'meta-llama/CodeLlama-13b-Instruct-hf', 'assistant'),
     'Mistral7B': ('HuggingFaceLLM', 'mistralai/Mistral-7B-Instruct-v0.2', 'assistant'),
     'Phi35Mini': ('HuggingFaceLLM', 'microsoft/Phi-3.5-mini-instruct', 'assistant'),
+    'Phi4Mini': ('HuggingFaceLLM', 'microsoft/Phi-4-mini-instruct', 'assistant'),
+    'DeepSeekMini': ('HuggingFaceLLM', 'deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B', 'assistant'),
     'Yi9B': ('HuggingFaceLLM', '01-ai/Yi-1.5-9B-Chat', 'assistant'),
     'Yi1B': ('HuggingFaceLLM', '01-ai/Yi-Coder-1.5B-Chat', 'assistant'),
     'ChatGPT': ('OpenAILLM', 'gpt-3.5-turbo', 'assistant'),
