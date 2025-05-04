@@ -2,7 +2,7 @@ from typing import Any
 from models.AbstractLanguageModel import AbstractLanguageModel
 import os
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, AutoConfig
 
 
 
@@ -20,10 +20,16 @@ class HuggingFaceLLM(AbstractLanguageModel):
             return_tensors="pt"
         ).to(self.__model.device)
 
+        if self.__tokenizer.convert_tokens_to_ids("<|eot_id|>") is None:
+            self.__tokenizer.add_special_tokens({"additional_special_tokens": ["<|eot_id|>"]})
+            self.__model.resize_token_embeddings(len(self.__tokenizer))
+
+
         terminators = [
             self.__tokenizer.eos_token_id,
             self.__tokenizer.convert_tokens_to_ids("<|eot_id|>")
         ]
+
 
         outputs = self.__model.generate(
             input_ids,
@@ -45,11 +51,15 @@ class HuggingFaceLLM(AbstractLanguageModel):
             trust_remote_code=True,
             token=os.getenv('HF_TOKEN')
         )
+        #self.__tokenizer.pad_token_id = self.__tokenizer.eos_token_id
         self.__model = AutoModelForCausalLM.from_pretrained(
             model_id,
             trust_remote_code=True,
             torch_dtype=torch.float16,
             device_map="auto",
             token=os.getenv('HF_TOKEN'),
-            quantization_config=quantization_config
+            quantization_config=quantization_config,
         )
+        #self.__config.pad_token_id = self.__tokenizer.pad_token_id
+        #self.__config.sliding_window = None
+        #self.__model = AutoModelForCausalLM.from_config(self.__config)
