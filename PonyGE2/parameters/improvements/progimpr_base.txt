@@ -6,7 +6,9 @@ PROBLEM_INDEX:          <problemIndex>
 LLM_ITERATIONS:         <llmIterations>
 
 CACHE:                  True
-LOOKUP_FITNESS:         True
+LOOKUP_FITNESS:         False
+LOOKUP_BAD_FITNESS:     False
+MUTATE_DUPLICATES:      True
 DEBUG:                  False
 VERBOSE:                False
 SAVE_ALL:               True

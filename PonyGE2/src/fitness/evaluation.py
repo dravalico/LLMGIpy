@@ -81,9 +81,20 @@ def evaluate_fitness(individuals):
                 elif params['MUTATE_DUPLICATES']:
                     # Mutate the individual to produce a new phenotype
                     # which has not been encountered yet.
+                    count = 0
                     while (not ind.phenotype) or ind.phenotype in cache:
-                        ind = params['MUTATION'](ind)
+                        ind = params['MUTATION'](ind) if params['MUTATION'].__name__ != "subtree" else params['MUTATION'](ind, 1.0)
                         stats['regens'] += 1
+                        count += 1
+                        if count > params['MUTATE_DUPLICATES_TRIALS']:
+                            # If the individual has been mutated MUTATE_DUPLICATES_TRIALS times
+                            # and still has a phenotype which is in the cache,
+                            # then just give it a bad fitness.
+                            ind.fitness = params['FITNESS_FUNCTION'].default_fitness
+                            ind.levi_test_fitness = params['FITNESS_FUNCTION'].default_fitness
+                            ind.levi_errors = None
+                            eval_ind = False
+                            break
 
                     # Need to overwrite the current individual in the pop.
                     individuals[name] = ind

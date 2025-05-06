@@ -37,7 +37,7 @@ def create_results_folder_path(base_path: str, params: dict[str, Any], include_s
     # MUTATION_PROBABILITY
     # PROBLEM_INDEX
     # RANDOM_SEED
-    if not os.path.isdir(base_path):
+    if not os.path.isdir(base_path) and base_path.strip() != '':
         os.mkdir(base_path)
 
     full_path: str = base_path

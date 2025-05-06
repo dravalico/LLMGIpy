@@ -18,6 +18,8 @@ params = {
     'HILL_CLIMBING_HISTORY': 1000,
     'SCHC_COUNT_METHOD': "count_all",
 
+    # Run ID
+    'RUN_ID': None,
     # Set optional experiment name
     'EXPERIMENT_NAME': None,
     # Set default number of runs to be done.
@@ -184,6 +186,8 @@ params = {
     # with mutated versions of the original individual. Hopefully this will
     # encourage diversity in the population.
     'MUTATE_DUPLICATES': False,
+    # Number of trials to run when mutating duplicates.
+    'MUTATE_DUPLICATES_TRIALS': 10,
     # Timeout to set when evaluating a program
     'PROGRAM_EVAL_TIMEOUT': 3.0,
 

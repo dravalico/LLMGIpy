@@ -119,7 +119,10 @@ def parse_cmd_args(arguments):
                         help='Specifies the parameters file to be used. Must '
                              'include the full file extension. Full file path'
                              'does NOT need to be specified.')
-
+    parser.add_argument('--run_id',
+                        dest='RUN_ID',
+                        type=str,
+                        help='Specifies the run-id for this or a group of runs.')
     parser.add_argument('--timestamp_ponyge',
                         dest='TIMESTAMP_PONYGE',
                         type=str,

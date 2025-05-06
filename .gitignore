@@ -2,6 +2,7 @@
 src/datasets/
 llm_results/
 __pycache__/
+slurm/
 .env
 src/.env
 processed_results/

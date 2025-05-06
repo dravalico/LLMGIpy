@@ -30,6 +30,7 @@ stats = {
     "runtime_error": 0,
     "unique_inds": len(trackers.cache),
     "unused_search": 0,
+
     "ave_genome_length": 0,
     "max_genome_length": 0,
     "min_genome_length": 0,
@@ -37,6 +38,7 @@ stats = {
     "std_genome_length": 0,
     "q1_genome_length": 0,
     "q3_genome_length": 0,
+
     "ave_editdist": 0,
     "max_editdist": 0,
     "min_editdist": 0,
@@ -44,6 +46,7 @@ stats = {
     "std_editdist": 0,
     "q1_editdist": 0,
     "q3_editdist": 0,
+
     "ave_used_codons": 0,
     "max_used_codons": 0,
     "min_used_codons": 0,
@@ -51,6 +54,7 @@ stats = {
     "std_used_codons": 0,
     "q1_used_codons": 0,
     "q3_used_codons": 0,
+
     "ave_tree_depth": 0,
     "max_tree_depth": 0,
     "min_tree_depth": 0,
@@ -65,6 +69,7 @@ stats = {
     "std_tree_nodes": 0,
     "q1_tree_nodes": 0,
     "q3_tree_nodes": 0,
+
     "ave_fitness": 0,
     "max_fitness": 0,
     "min_fitness": 0,
@@ -78,7 +83,23 @@ stats = {
     "med_test_fitness": 0,
     "std_test_fitness": 0,
     "q1_test_fitness": 0,
-    "q3_test_fitness": 0,    
+    "q3_test_fitness": 0,
+
+    "ave_error": 0,
+    "max_error": 0,
+    "min_error": 0,
+    "med_error": 0,
+    "std_error": 0,
+    "q1_error": 0,
+    "q3_error": 0,
+    "ave_test_error": 0,
+    "max_test_error": 0,
+    "min_test_error": 0,
+    "med_test_error": 0,
+    "std_test_error": 0,
+    "q1_test_error": 0,
+    "q3_test_error": 0,
+    
     "best_fitness": 0,
     "test_fitness_of_the_best": 0,
     "time_taken": 0,
@@ -452,39 +473,81 @@ def update_stats(individuals, end):
             # Fitness Stats
             fitnesses = [i.fitness for i in individuals if not math.isnan(i.fitness) and i.fitness < 9223372036854775807]
             all_test_fitnesses = [i.levi_test_fitness for i in individuals if not math.isnan(i.levi_test_fitness) and i.levi_test_fitness < 9223372036854775807]
-            if (len(fitnesses) != 0):
-                stats['max_fitness'] = np.nanmax(fitnesses)
-                stats['ave_fitness'] = np.nanmean(fitnesses)
-                stats['min_fitness'] = np.nanmin(fitnesses)
-                stats['med_fitness'] = np.nanmedian(fitnesses)
-                stats['std_fitness'] = np.nanstd(fitnesses)
-                stats['q1_fitness'] = np.nanpercentile(fitnesses, 25)
-                stats['q3_fitness'] = np.nanpercentile(fitnesses, 75)
-            else:
-                stats['max_fitness'] = 0.0
-                stats['ave_fitness'] = 0.0
-                stats['min_fitness'] = 0.0
-                stats['med_fitness'] = 0.0
-                stats['std_fitness'] = 0.0
-                stats['q1_fitness'] = 0.0
-                stats['q3_fitness'] = 0.0
+        else:
+            # Fitness Stats
+            fitnesses = [i.fitness[0] for i in individuals if not math.isnan(i.fitness[0]) and i.fitness[0] < 9223372036854775807]
+            all_test_fitnesses = [i.levi_test_fitness[0] for i in individuals if not math.isnan(i.levi_test_fitness[0]) and i.levi_test_fitness[0] < 9223372036854775807]
+            # Error Stats
+            errors = [i.fitness[1] for i in individuals if not math.isnan(i.fitness[1]) and i.fitness[1] < 9223372036854775807]
+            all_test_errors = [i.levi_test_fitness[1] for i in individuals if not math.isnan(i.levi_test_fitness[1]) and i.levi_test_fitness[1] < 9223372036854775807]
 
-            if (len(all_test_fitnesses) != 0):
-                stats['max_test_fitness'] = np.nanmax(all_test_fitnesses)
-                stats['ave_test_fitness'] = np.nanmean(all_test_fitnesses)
-                stats['min_test_fitness'] = np.nanmin(all_test_fitnesses)
-                stats['med_test_fitness'] = np.nanmedian(all_test_fitnesses)
-                stats['std_test_fitness'] = np.nanstd(all_test_fitnesses)
-                stats['q1_test_fitness'] = np.nanpercentile(all_test_fitnesses, 25)
-                stats['q3_test_fitness'] = np.nanpercentile(all_test_fitnesses, 75)
+            if (len(errors) != 0):
+                stats['max_error'] = np.nanmax(errors)
+                stats['ave_error'] = np.nanmean(errors)
+                stats['min_error'] = np.nanmin(errors)
+                stats['med_error'] = np.nanmedian(errors)
+                stats['std_error'] = np.nanstd(errors)
+                stats['q1_error'] = np.nanpercentile(errors, 25)
+                stats['q3_error'] = np.nanpercentile(errors, 75)
             else:
-                stats['max_test_fitness'] = 0.0
-                stats['ave_test_fitness'] = 0.0
-                stats['min_test_fitness'] = 0.0
-                stats['med_test_fitness'] = 0.0
-                stats['std_test_fitness'] = 0.0
-                stats['q1_test_fitness'] = 0.0
-                stats['q3_test_fitness'] = 0.0
+                stats['max_error'] = 0.0
+                stats['ave_error'] = 0.0
+                stats['min_error'] = 0.0
+                stats['med_error'] = 0.0
+                stats['std_error'] = 0.0
+                stats['q1_error'] = 0.0
+                stats['q3_error'] = 0.0
+
+            if (len(all_test_errors) != 0):
+                stats['max_test_error'] = np.nanmax(all_test_errors)
+                stats['ave_test_error'] = np.nanmean(all_test_errors)
+                stats['min_test_error'] = np.nanmin(all_test_errors)
+                stats['med_test_error'] = np.nanmedian(all_test_errors)
+                stats['std_test_error'] = np.nanstd(all_test_errors)
+                stats['q1_test_error'] = np.nanpercentile(all_test_errors, 25)
+                stats['q3_test_error'] = np.nanpercentile(all_test_errors, 75)
+            else:
+                stats['max_test_error'] = 0.0
+                stats['ave_test_error'] = 0.0
+                stats['min_test_error'] = 0.0
+                stats['med_test_error'] = 0.0
+                stats['std_test_error'] = 0.0
+                stats['q1_test_error'] = 0.0
+                stats['q3_test_error'] = 0.0
+
+        if (len(fitnesses) != 0):
+            stats['max_fitness'] = np.nanmax(fitnesses)
+            stats['ave_fitness'] = np.nanmean(fitnesses)
+            stats['min_fitness'] = np.nanmin(fitnesses)
+            stats['med_fitness'] = np.nanmedian(fitnesses)
+            stats['std_fitness'] = np.nanstd(fitnesses)
+            stats['q1_fitness'] = np.nanpercentile(fitnesses, 25)
+            stats['q3_fitness'] = np.nanpercentile(fitnesses, 75)
+        else:
+            stats['max_fitness'] = 0.0
+            stats['ave_fitness'] = 0.0
+            stats['min_fitness'] = 0.0
+            stats['med_fitness'] = 0.0
+            stats['std_fitness'] = 0.0
+            stats['q1_fitness'] = 0.0
+            stats['q3_fitness'] = 0.0
+
+        if (len(all_test_fitnesses) != 0):
+            stats['max_test_fitness'] = np.nanmax(all_test_fitnesses)
+            stats['ave_test_fitness'] = np.nanmean(all_test_fitnesses)
+            stats['min_test_fitness'] = np.nanmin(all_test_fitnesses)
+            stats['med_test_fitness'] = np.nanmedian(all_test_fitnesses)
+            stats['std_test_fitness'] = np.nanstd(all_test_fitnesses)
+            stats['q1_test_fitness'] = np.nanpercentile(all_test_fitnesses, 25)
+            stats['q3_test_fitness'] = np.nanpercentile(all_test_fitnesses, 75)
+        else:
+            stats['max_test_fitness'] = 0.0
+            stats['ave_test_fitness'] = 0.0
+            stats['min_test_fitness'] = 0.0
+            stats['med_test_fitness'] = 0.0
+            stats['std_test_fitness'] = 0.0
+            stats['q1_test_fitness'] = 0.0
+            stats['q3_test_fitness'] = 0.0
         
         stats['best_fitness'] = trackers.best_ever.fitness
         stats['test_fitness_of_the_best'] = trackers.best_ever.levi_test_fitness
