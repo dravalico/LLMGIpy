@@ -227,11 +227,16 @@ def get_soo_stats(individuals, end, execution_time_in_minutes):
             temp_ind_fitness = trackers.best_ever.fitness
             temp_ind_levi_test_fitness = trackers.best_ever.levi_test_fitness
             temp_ind_levi_errors = trackers.best_ever.levi_errors
-            
-            params['FITNESS_FILE'] = 'fitness_cases.txt'
-            temp_fitness_class_instance = progimpr()
-            rubber_train = temp_fitness_class_instance(trackers.best_ever, dist='training')
-            rubber_test = temp_fitness_class_instance(trackers.best_ever, dist='test')
+
+            if params['FITNESS_FILE'].endswith('lexi.txt'):
+                rubber_train = temp_ind_fitness[0]
+                rubber_test = temp_ind_levi_test_fitness[0]
+            else:
+                params['FITNESS_FILE'] = 'fitness_cases.txt'
+                temp_fitness_class_instance = progimpr()
+                rubber_train = temp_fitness_class_instance(trackers.best_ever, dist='training')
+                rubber_test = temp_fitness_class_instance(trackers.best_ever, dist='test')
+
             trackers.best_ever.num_not_passed_cases_train = rubber_train
             trackers.best_ever.num_not_passed_cases_test = rubber_test
 
@@ -615,21 +620,21 @@ def print_final_moo_stats():
     print_generation_stats()
 
 
-def __compute_classic_progimpr_fitness_on_best_ever(*args_with_queue):
-    result_queue = args_with_queue[1]
-    try:
-        result_queue.put(__actual_compute_classic_progimpr_fitness_on_best_ever(args_with_queue[0]))
-    except Exception as e:
-        result_queue.put(str(e))
-
-
-def __actual_compute_classic_progimpr_fitness_on_best_ever(best):
-    params['FITNESS_FILE'] = 'fitness_cases.txt'
-    temp_fitness_class_instance = progimpr()
-    rubber_train = temp_fitness_class_instance(best, dist='training')
-    rubber_test = temp_fitness_class_instance(best, dist='test')
-    return rubber_train, rubber_test
-    #rubber_train = temp_fitness_class_instance(trackers.best_ever, dist='training')
-    #rubber_test = temp_fitness_class_instance(trackers.best_ever, dist='test')
-    #trackers.best_ever.num_not_passed_cases_train = rubber_train
-    #trackers.best_ever.num_not_passed_cases_test = rubber_test
+# def __compute_classic_progimpr_fitness_on_best_ever(*args_with_queue):
+#     result_queue = args_with_queue[1]
+#     try:
+#         result_queue.put(__actual_compute_classic_progimpr_fitness_on_best_ever(args_with_queue[0]))
+#     except Exception as e:
+#         result_queue.put(str(e))
+#
+#
+# def __actual_compute_classic_progimpr_fitness_on_best_ever(best):
+#     params['FITNESS_FILE'] = 'fitness_cases.txt'
+#     temp_fitness_class_instance = progimpr()
+#     rubber_train = temp_fitness_class_instance(best, dist='training')
+#     rubber_test = temp_fitness_class_instance(best, dist='test')
+#     return rubber_train, rubber_test
+#     #rubber_train = temp_fitness_class_instance(trackers.best_ever, dist='training')
+#     #rubber_test = temp_fitness_class_instance(trackers.best_ever, dist='test')
+#     #trackers.best_ever.num_not_passed_cases_train = rubber_train
+#     #trackers.best_ever.num_not_passed_cases_test = rubber_test

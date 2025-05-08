@@ -1,4 +1,5 @@
 import editdistance
+import numpy as np
 
 
 def jaccard_distance(set1, set2):
@@ -74,9 +75,37 @@ def compare_tuples(a, b):
 
     return distance
 
+def normalize_value(x):
+    if isinstance(x, np.bool_):
+        return bool(x)
+    if isinstance(x, (np.integer, np.int_)):
+        return int(x)
+    if isinstance(x, (np.floating, np.float_)):
+        return float(x)
+    if isinstance(x, np.ndarray):
+        return normalize_value(x.tolist())  # recursively convert elements
+    if isinstance(x, list):
+        return [normalize_value(i) for i in x]
+    if isinstance(x, tuple):
+        return tuple(normalize_value(i) for i in x)
+    if isinstance(x, set):
+        return {normalize_value(i) for i in x}
+    if isinstance(x, dict):
+        return {normalize_value(k): normalize_value(v) for k, v in x.items()}
+    return x
+
 def compare_based_on_type(a, b):
+    a = normalize_value(a)
+    b = normalize_value(b)
+
     if isinstance(a, bool) and isinstance(b, bool):
         return compare_bools(a, b)
+
+    if isinstance(a, bool) and not isinstance(b, bool):
+        return None
+
+    if not isinstance(a, bool) and isinstance(b, bool):
+        return None
     
     if (isinstance(a, int) or isinstance(a, float)) and (isinstance(b, int) or isinstance(b, float)):
         return compare_numbers(a, b)
