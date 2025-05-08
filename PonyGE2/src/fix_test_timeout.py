@@ -57,9 +57,9 @@ def mane_post():
                 temp_ind_levi_test_fitness = ind.levi_test_fitness
                 temp_ind_levi_errors = ind.levi_errors
                 
-                params['FITNESS_FILE'] = 'fitness_cases.txt'
+                #params['FITNESS_FILE'] = 'fitness_cases.txt'
                 temp_fitness_class_instance = progimpr()
-                gen['Training num not passed cases'] = str(temp_fitness_class_instance(ind, dist='training', timeout=100.0))
+                gen['Training num not passed cases'] = str(temp_fitness_class_instance(ind, dist='training', timeout=100.0)[0])
 
                 params['FITNESS_FILE'] = temp_fitness_file
                 ind.fitness = temp_ind_fitness
@@ -72,9 +72,9 @@ def mane_post():
                 temp_ind_levi_test_fitness = ind.levi_test_fitness
                 temp_ind_levi_errors = ind.levi_errors
                 
-                params['FITNESS_FILE'] = 'fitness_cases.txt'
+                #params['FITNESS_FILE'] = 'fitness_cases.txt'
                 temp_fitness_class_instance = progimpr()
-                gen['Test num not passed cases'] = str(temp_fitness_class_instance(ind, dist='test', timeout=100.0))
+                gen['Test num not passed cases'] = str(temp_fitness_class_instance(ind, dist='test', timeout=100.0)[0])
 
                 params['FITNESS_FILE'] = temp_fitness_file
                 ind.fitness = temp_ind_fitness
