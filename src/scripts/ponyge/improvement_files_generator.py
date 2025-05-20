@@ -3,6 +3,7 @@ import re
 from os import chdir
 from typing import List, Any, Dict, Tuple
 from scripts.ponyge.txt_individuals_from_json import txt_population
+from scripts.ponyge.individual_formatter import extract_all_methods_from_imports
 import ast
 from scripts.imports_and_prompt import extract_prompt_info_with_keybert, extract_numbers_from_string
 from scripts.function_util import orderering_preserving_duplicates_elimination, compute_bnf_type_from_dynamic_bnf_param, DYNAMICBNF_AS_STRING, STATICBNF_AS_STRING, COMPLETEBNF_AS_STRING
@@ -135,6 +136,8 @@ def create_grammar_from(
             e["variables_names"] = []
         if "supports" not in e:
             e["supports"] = []
+        if "imports" not in e:
+            e["imports"] = []
         e["renamed_main_func"] = e["renamed_main_func"].replace(f' ({e["function_name"]}(', ' (evolve(').replace(f' {e["function_name"]}(', ' evolve(')
         for func_string in ["main_func", "renamed_main_func"]:
             e[func_string] = e[func_string].replace('\u2019', "\'")
@@ -208,6 +211,9 @@ def create_grammar_from(
                     support_code_def_entry_point = support_code_def[support_code_def.index('def ') + len('def '):support_code_def.index('(')]
                     if support_code_def_entry_point not in funs_and_meths:
                         funs_and_meths.append(support_code_def_entry_point)
+            funs_from_imp, meths_from_imp = extract_all_methods_from_imports(e["imports"], True)
+            for iiii in funs_from_imp + meths_from_imp:
+                funs_and_meths.append(iiii)
             extracted_functions_from_individuals.append(funs_and_meths)
 
             res_strings = extract_strings(e["main_func"])
@@ -224,9 +230,30 @@ def create_grammar_from(
             lambda_vars = sub_s.split(',')
             variables.append(lambda_vars)
 
+    generic_always_useful_methods = [
+        # FUNCTIONS
+        "abs", "all", "any", "bin", "bool", "bytearray", "bytes",
+        "callable", "chr", "dict", "divmod", "enumerate", "filter",
+        "float", "format", "frozenset", "hash", "hex", "id", "int", "isinstance",
+        "iter", "len", "list", "map", "max", "min", "next", "object", "oct",
+        "ord", "pow", "range", "repr", "reversed", "round", "set", "slice",
+        "sorted", "str", "sum", "tuple", "type", "zip",
+        # METHODS
+        ".bit_length", ".bit_count", ".as_integer_ratio", ".is_integer", ".hex",
+        ".index", ".count", ".append", ".extend", ".clear", ".copy", ".insert", ".pop", ".remove", ".reverse",
+        ".sort", ".capitalize", ".casefold", ".center", ".encode", ".decode", ".endswith", ".startswith",
+        ".find", ".format", ".expandtabs", ".format_map", ".isalnum", ".isalpha", ".isascii", ".isdecimal",
+        ".isdigit", ".isidentifier", ".islower", ".isnumeric", ".isprintable", ".isspace", ".istitle", ".isupper",
+        ".join", ".lower", ".lstrip", ".partition", ".removeprefix", ".removesuffix", ".replace", ".rfind",
+        ".rindex", ".rpartition", ".rsplit", ".rstrip", ".split", ".strip", ".swapcase", ".title", ".upper", ".translate",
+        ".isdisjoint", ".issubset", ".issuperset", ".union", ".intersection", ".difference", ".symmetric_difference",
+        ".update", ".intersection_update", ".difference_update", ".symmetric_difference_update", ".add", ".discard",
+        ".get", ".items", ".keys", ".popitem", ".reversed", ".setdefault", ".values"
+    ]
+
     temp0 = []
     temp = []
-    flat_list = sorted([item for sublist in extracted_functions_from_individuals for item in sublist])
+    flat_list = sorted([item for sublist in extracted_functions_from_individuals for item in sublist] + generic_always_useful_methods)
     for i in flat_list:
         if "." in i and f'"{i}"' not in temp0:
             temp0.append(f'"{i}"')
@@ -250,10 +277,12 @@ def create_grammar_from(
             temp2.append(f'"{i}"')
     
     temp4 = []
-    flat_list4 = sorted([item for sublist in nums for item in sublist]) 
+    flat_list4 = sorted([item for sublist in nums for item in sublist] + [str(1), str(0)])
     for i in flat_list4:
         if f'"{i}"' not in temp4:
             temp4.append(f'"{i}"')
+            if f'"{i}.0"' not in temp4 and '.' not in f'"{i}"':
+                temp4.append(f'"{i}.0"')
     
     for e in data:
         tree_v = ast.parse(e["renamed_main_func"])

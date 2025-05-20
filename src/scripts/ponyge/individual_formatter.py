@@ -145,3 +145,41 @@ def replace_variables_with_names(code: str, imports):
     modified_code = ast.unparse(tree)
     used_variables = [var_mapping[var] for var in variables if var in var_mapping]
     return modified_code, orderering_preserving_duplicates_elimination(used_variables + import_manipulation(imports))
+
+
+def extract_all_methods_from_imports(imports: list[str], include_sub_methods: bool):
+    functions = []
+    methods = []
+
+    for imp in imports:
+        try:
+            exec(imp)
+        except:
+            pass
+
+    imp_vars = import_manipulation(imports)
+
+    temp = []
+
+    for a in imp_vars:
+        try:
+            cl = eval(a)
+            l = [method for method in cl.__dict__ if callable(getattr(cl, method)) and not method.startswith("_")]
+            temp.extend([method for method in l])
+
+            if include_sub_methods:
+                for iii in l:
+                    try:
+                        exec("import " + iii)
+                        cl_2 = eval(iii)
+                        l_2 = [method_2 for method_2 in cl_2.__dict__ if callable(getattr(cl_2, method_2)) and not method_2.startswith("_")]
+                        temp.extend([method_2 for method_2 in l_2])
+                    except:
+                        pass
+        except:
+            pass
+
+    functions.extend([t for t in temp if t[0].isupper()])
+    methods.extend(['.' + t for t in temp if t[0].islower()])
+
+    return orderering_preserving_duplicates_elimination(functions), orderering_preserving_duplicates_elimination(methods)
