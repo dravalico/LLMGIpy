@@ -245,6 +245,7 @@ def extract_and_filter_tokenizer_vocab(
     final_lists = {
         "special": categorized_tokens["special"],
         "single_letters": categorized_tokens["single_letters"],
+        "upper_single_letters": [ch.upper() for ch in categorized_tokens["single_letters"]],
         "punctuation": categorized_tokens["punctuation"],
         "numbers": categorized_tokens["numbers"],
         "other": categorized_tokens["other"],
@@ -287,7 +288,7 @@ def extract_and_filter_tokenizer_vocab(
     # Define default categories to return if not specified
     if categories_to_return is None:
         categories_to_return = [
-            "special", "single_letters", "punctuation", "numbers", "other",
+            "special", "single_letters", "upper_single_letters", "punctuation", "numbers", "other",
             "normal_words_frequent", "hash_prefixed_frequent_subword"
         ]
     
