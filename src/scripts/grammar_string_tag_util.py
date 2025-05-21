@@ -24,7 +24,8 @@ def download_nltk_resources(verbose: bool = False):
             nltk.data.find(path)
             if verbose:
                 print(f"NLTK resource '{name}' already present.")
-        except nltk.downloader.DownloadError:
+        #except nltk.downloader.DownloadError:
+        except:
             if verbose:
                 print(f"NLTK resource '{name}' not found. Downloading...")
             nltk.download(name, quiet=not verbose) # Show NLTK download output if verbose
@@ -342,9 +343,14 @@ def extract_and_filter_tokenizer_vocab(
 
 # --- Example Usage ---
 # if __name__ == "__main__":
-#     MODEL = "bert-base-uncased"
-#     MIN_FREQ = 100 # Stricter frequency for this example
-#     MAX_EXAMPLES = 3 # For verbose output during example run
+#    MODEL = "bert-base-uncased"
+#    MIN_FREQ = 500 # Stricter frequency for this example
+#    MAX_EXAMPLES = 3 # For verbose output during example run
+
+#    res = extract_and_filter_tokenizer_vocab(model_name=MODEL, min_word_frequency=MIN_FREQ, verbose=True, return_lists=True, categories_to_return=["normal_words_frequent", "single_letters", "upper_single_letters", "punctuation", "hash_prefixed_frequent_subword"], max_examples_to_print_verbose=MAX_EXAMPLES)
+#    res['hash_prefixed_frequent_subword'] = [k.replace('##', '') for k in res['hash_prefixed_frequent_subword']]
+#    print("<hash_str> ::= ", ' | '.join([f'"{i}"' for i in res['hash_prefixed_frequent_subword']]))
+#    print("<normal_str> ::= ", ' | '.join([f'"{i}"' for i in res['normal_words_frequent'] + res['single_letters'] + res['upper_single_letters'] + res['punctuation']]))
 
 #    print("--- Example 1: Get lists, verbose output ---")
 #    results_lists_verbose = extract_and_filter_tokenizer_vocab(
