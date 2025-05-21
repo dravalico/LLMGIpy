@@ -128,7 +128,10 @@ def create_grammar_from(
     extracted_strings_from_individuals: List[List[str]] = []
     variables: List[List[str]] = []
     nums = [["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]]
-    
+
+    extracted_functions_from_imports: List[List[str]] = []
+    extracted_methods_from_imports: List[List[str]] = []
+
     for e in data:
         if "main_func" not in e:
             e["main_func"] = '\n'.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '\tpass'])
@@ -212,8 +215,8 @@ def create_grammar_from(
                     if support_code_def_entry_point not in funs_and_meths:
                         funs_and_meths.append(support_code_def_entry_point)
             funs_from_imp, meths_from_imp = extract_all_methods_from_imports(e["imports"], True)
-            for iiii in funs_from_imp + meths_from_imp:
-                funs_and_meths.append(iiii)
+            extracted_functions_from_imports.append(funs_from_imp)
+            extracted_methods_from_imports.append(meths_from_imp)
             extracted_functions_from_individuals.append(funs_and_meths)
 
             res_strings = extract_strings(e["main_func"])
@@ -230,15 +233,16 @@ def create_grammar_from(
             lambda_vars = sub_s.split(',')
             variables.append(lambda_vars)
 
-    generic_always_useful_methods = [
-        # FUNCTIONS
+    generic_always_useful_funcs = [
         "abs", "all", "any", "bin", "bool", "bytearray", "bytes",
         "callable", "chr", "dict", "divmod", "enumerate", "filter",
         "float", "format", "frozenset", "hash", "hex", "id", "int", "isinstance",
         "iter", "len", "list", "map", "max", "min", "next", "object", "oct",
         "ord", "pow", "range", "repr", "reversed", "round", "set", "slice",
-        "sorted", "str", "sum", "tuple", "type", "zip",
-        # METHODS
+        "sorted", "str", "sum", "tuple", "type", "zip"
+    ]
+
+    generic_always_useful_methods = [
         ".bit_length", ".bit_count", ".as_integer_ratio", ".is_integer", ".hex",
         ".index", ".count", ".append", ".extend", ".clear", ".copy", ".insert", ".pop", ".remove", ".reverse",
         ".sort", ".capitalize", ".casefold", ".center", ".encode", ".decode", ".endswith", ".startswith",
@@ -251,9 +255,21 @@ def create_grammar_from(
         ".get", ".items", ".keys", ".popitem", ".reversed", ".setdefault", ".values"
     ]
 
+    temp_funs_from_imps = []
+    temp_meths_from_imps = []
+
+    flat_list_funs_from_imps = sorted([item for sublist in extracted_functions_from_imports for item in sublist] + generic_always_useful_funcs)
+    flat_list_meths_from_imps = sorted([item for sublist in extracted_methods_from_imports for item in sublist] + generic_always_useful_methods)
+    for i in flat_list_funs_from_imps:
+        if f'"{i}"' not in temp_funs_from_imps:
+            temp_funs_from_imps.append(f'"{i}"')
+    for i in flat_list_meths_from_imps:
+        if f'"{i}"' not in temp_meths_from_imps:
+            temp_meths_from_imps.append(f'"{i}"')
+
     temp0 = []
     temp = []
-    flat_list = sorted([item for sublist in extracted_functions_from_individuals for item in sublist] + generic_always_useful_methods)
+    flat_list = sorted([item for sublist in extracted_functions_from_individuals for item in sublist])
     for i in flat_list:
         if "." in i and f'"{i}"' not in temp0:
             temp0.append(f'"{i}"')
@@ -314,6 +330,9 @@ def create_grammar_from(
     temp2 += ' | "a0" | "a1" | "a2"'
     temp4 = ' | '.join(temp4)
 
+    temp_funs_from_imps = ' | '.join(temp_funs_from_imps)
+    temp_meths_from_imps = ' | '.join(temp_meths_from_imps)
+
 
     actual_grammar_path: str = create_dir_path_string(
         full_path=os.getcwd() + '/',
@@ -364,6 +383,8 @@ def create_grammar_from(
             else:
                 bnf.write("<var> ::= " + '""' + '\n')
             bnf.write("<num> ::= " + temp4 + '\n')
+            bnf.write("<DEFAULT_FUNC> ::= " + temp_funs_from_imps + '\n')
+            bnf.write("<DEFAULT_METHOD> ::= " + temp_meths_from_imps + '\n')
     
         if grammarGenerator is not None:
             for i, e in enumerate(data): # where data = json_file["data_preprocess"]

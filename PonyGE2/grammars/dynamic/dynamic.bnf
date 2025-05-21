@@ -70,7 +70,7 @@
 <kv_dict> ::= "'"<STRINGS>"': "<all_vars> | "'"<STRINGS>"': "<var> | "'"<STRINGS>"': "<STRINGS> | "'"<STRINGS>"': "<nums> | <var>": "<all_vars> | <num>": "<all_vars> | <num>": '"<STRINGS>"'" | <num>": "<all_vars>", "<kv_dict> | <num>": '"<STRINGS>"', "<kv_dict> | <num>': "'<STRINGS>'"' | <num>': "'<STRINGS>'", '<kv_dict> |
               "'"<STRINGS>"': "<all_vars>", "<kv_dict> | "'"<STRINGS>"': "<var>", "<kv_dict> | "'"<STRINGS>"': "<STRINGS>", "<kv_dict> | "'"<STRINGS>"': "<nums>", "<kv_dict> | <kv_dict>" "<inline_for> | <var>": "<condition_basic>
 
-<method> ::= <METHOD>"()" | <METHOD>"("<all_vars>")" | <METHOD> | <METHOD>"("<list>")"
+<method> ::= <METHOD>"()" | <METHOD>"("<all_vars>")" | <METHOD> | <METHOD>"("<list>")" | <DEFAULT_METHOD>"()" | <DEFAULT_METHOD>"("<all_vars>")" | <DEFAULT_METHOD> | <DEFAULT_METHOD>"("<list>")"
 
 <nums> ::=  <num> | <num> | <num> | <num> | <num> | <num><nums> | "-"<nums>
 
@@ -112,7 +112,8 @@
 <list_op> ::= "+"
 
 <funcss> ::= <FUNC>"("<all_vars>")" | <FUNC>"("<all_vars>")" | <FUNC>"("<all_vars>")" | <FUNC>"(["<all_vars>"])" | <FUNC>"("<var>") "<math_op>" "<num> | <FUNC>"("<var><index_list>")" | <FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars> | <FUNC>"()" | <FUNC>"()" | <FUNC>"()" | <FUNC>"("<funcss>")" | <FUNC>"("<funcss>")" | <FUNC>"("<funcss>", "<all_vars>")" |
-             <FUNC>"("<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")" | <FUNC>"(*"<all_vars>")" | <FUNC>"(*"<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>")" | <FUNC>"("<condition_basic>")"
+             <FUNC>"("<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")" | <FUNC>"(*"<all_vars>")" | <FUNC>"(*"<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>")("<all_vars>", "<kv_args>")" | <FUNC>"("<all_vars>", "<kv_args>")("<all_vars>")" | <FUNC>"("<condition_basic>")" | <DEFAULT_FUNC>"("<all_vars>")" | <DEFAULT_FUNC>"(["<all_vars>"])" | <DEFAULT_FUNC>"("<var>") "<math_op>" "<num> | <DEFAULT_FUNC>"("<var><index_list>")" | <DEFAULT_FUNC>"(["<list>"] "<math_op>" "<all_vars>") "<math_op>" "<all_vars> | <DEFAULT_FUNC>"()" | <DEFAULT_FUNC>"("<funcss>")" | <DEFAULT_FUNC>"("<funcss>", "<all_vars>")" |
+             <DEFAULT_FUNC>"("<kv_args>")" | <DEFAULT_FUNC>"("<all_vars>", "<kv_args>")" | <DEFAULT_FUNC>"(*"<all_vars>")" | <DEFAULT_FUNC>"(*"<all_vars>", "<kv_args>")" | <DEFAULT_FUNC>"("<all_vars>")("<all_vars>")" | <DEFAULT_FUNC>"("<all_vars>", "<kv_args>")("<all_vars>", "<kv_args>")" | <DEFAULT_FUNC>"("<all_vars>")("<all_vars>", "<kv_args>")" | <DEFAULT_FUNC>"("<all_vars>", "<kv_args>")("<all_vars>")" | <DEFAULT_FUNC>"("<condition_basic>")"
 
 <fstring> ::= <fstring>"{"<all_vars>"}" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "{"<all_vars>"}"<fstring> | "f'"<fstring>"'" | "'"<fstring>"'" | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> | <STRINGS> | <STRINGS> |
               <fstring>"{"<all_vars>"}" | '"'<STRINGS>'"' | '"'<STRINGS>'"' | "{"<all_vars>"}"<fstring> | 'f"'<fstring>'"' | '"'<fstring>'"' | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> |
