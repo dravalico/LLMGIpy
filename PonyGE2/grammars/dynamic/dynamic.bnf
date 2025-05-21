@@ -4,7 +4,7 @@
 <all_vars> ::= <vars> | <vars> | <vars> | <vars> | <vars> | <vars> |
                <nums> | <nums> | <nums> | <nums> | <nums> | <nums> |
                "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" |
-               '"'<STRINGS>'"' | '"'<STRINGS>'"' | '"'<STRINGS>'"' |
+               '"'<STRINGS>'"' | '"'<STRINGS>'"' | '"'<STRINGS>'"' | '"'<default_str>'"' | "'"<default_str>"'" | '"'<default_str>'"' | "'"<default_str>"'" |
                <var_list> |  <var_list> |  <var_list> |
                <var_fuction> |  <var_fuction> |  <var_fuction> |
                <var_expr> |  <var_expr> |  <var_expr> |
@@ -117,8 +117,13 @@
 <fstring> ::= <fstring>"{"<all_vars>"}" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "{"<all_vars>"}"<fstring> | "f'"<fstring>"'" | "'"<fstring>"'" | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> | <STRINGS> | <STRINGS> |
               <fstring>"{"<all_vars>"}" | '"'<STRINGS>'"' | '"'<STRINGS>'"' | "{"<all_vars>"}"<fstring> | 'f"'<fstring>'"' | '"'<fstring>'"' | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> |
               "'"<STRINGS>"'" | "f'"<fstring>"'" | "'"<fstring>"'" | <STRINGS> | '"'<STRINGS>'"' | 'f"'<fstring>'"' | '"'<fstring>'"' | <STRINGS> | "f'{"<var>"}'" | 'f"{'<var>'}"' | "f'{"<all_vars>"}'" | 'f"{'<all_vars>'}"' |
-              "'"<STRINGS>"'" | <STRINGS> | '"'<STRINGS>'"' | <STRINGS> | <STRINGS> | <STRINGS>
+              "'"<STRINGS>"'" | <STRINGS> | '"'<STRINGS>'"' | <STRINGS> | <STRINGS> | <STRINGS> | <default_str> | <default_str> | <default_str> | <default_str> | "'"<default_str>"'" | '"'<default_str>'"'
 
 <kv_args> ::= <KWARGNAMES>"="<all_vars> | <KWARGNAMES>"="<nums> | <KWARGNAMES>"='"<STRINGS>"'" | <KWARGNAMES>"="<var> | <KWARGNAMES>"="<nums> | <KWARGNAMES>"='"<STRINGS>"'" | <KWARGNAMES>"="<var> | <KWARGNAMES>'="'<STRINGS>'"' |
               <KWARGNAMES>"="<all_vars>", "<kv_args>
+
+<default_str> ::= <normal_str> | <normal_str> | <normal_str> | <normal_str> | <normal_str> | <normal_str> | <normal_str> |
+                  <normal_str><normal_str> | <normal_str><normal_str> | <normal_str>" "<normal_str> | <normal_str>" "<normal_str> |
+                  <normal_str><hash_str> | <normal_str><hash_str> | <normal_str><hash_str> | <normal_str><hash_str> |
+                  <default_str><normal_str> | <default_str><normal_str> | <normal_str><default_str> | <normal_str><default_str>
 
