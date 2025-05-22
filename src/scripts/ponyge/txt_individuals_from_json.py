@@ -109,7 +109,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
     genotypes: List[Any] = [] 
     
     if bnf_type == DYNAMICBNF_AS_STRING:
-        args_for_dynamic_bnf: List[Any] = ["--grammar_file", grammar_file, "--reverse_mapping_target", phenotypes[0], "--all_phenotypes", str(phenotypes)]
+        args_for_dynamic_bnf: List[Any] = ["--grammar_file", grammar_file, "--reverse_mapping_target", phenotypes[0], "--all_phenotypes", str(orderering_preserving_duplicates_elimination(phenotypes))]
         worker_function("scripts/GE_LR_parser.py", args_for_dynamic_bnf)
         if os.path.exists(os.path.join('../grammars', grammar_file.replace('.bnf', '_complete_dynamic.bnf'))):
             args: List[Tuple[Any]] = [("scripts/GE_LR_parser.py", ["--grammar_file", grammar_file.replace('.bnf', '_complete_dynamic.bnf'), "--reverse_mapping_target", p])
@@ -125,7 +125,7 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
                                     for p in orderering_preserving_duplicates_elimination(phenotypes)]
     else:
         raise ValueError(f"bnf_type {bnf_type} unrecognized in parse_genotypes.")
-    
+
     with multiprocessing.Pool(processes=len(args)) as pool:
         genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
     

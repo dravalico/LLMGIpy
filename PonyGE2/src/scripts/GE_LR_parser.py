@@ -59,7 +59,7 @@ def parse_terminals(target):
                 index += len(T)
             else:
                 break
-        
+
         for idx in occurrences:
             # Check each occurrence of this terminal in the target string.
 
@@ -350,13 +350,13 @@ def main(dynamic_bnf: bool = False):
     # Iterate over the solution list until the target string is parsed.
     if dynamic_bnf is True:
         list_of_phenotypes = ast.literal_eval(params['ALL_PHENOTYPES'])
-        my_bnf_tag_list = ["<predefined>", "<NEWLINE>", "<var>", "<compound_stmt>", "<nums>", "<num>", "<return_basic>", "<if>", "<if_stmt1>", "<for_basic>", "<op>", "<cond_op>", "<assign_basic>", "<math_op>", "<ass_op>", "<condition_basic>"]
+        my_bnf_tag_list = ["<predefined>", "<NEWLINE>", "<var>", "<compound_stmt>", "<nums>", "<num>", "<return_basic>", "<if>", "<if_stmt1>", "<for_basic>", "<op>", "<cond_op>", "<assign_basic>", "<math_op>", "<ass_op>", "<condition_basic>", "<default_str>", "<hash_str>", "<normal_str>", "<DEFAULT_FUNC>", "<DEFAULT_METHOD>", "<STRINGS>", "<FUNC>", "<METHOD>", "<method>", "<funcss>"]
         for p in list_of_phenotypes:
             p = p.replace('\!', '!')
             try:
                 # Parse the terminals in the target string.
                 params['REVERSE_MAPPING_TARGET'] = p
-                params['REVERSE_MAPPING_TARGET'] = params['REVERSE_MAPPING_TARGET'].replace("\\n", "\n") 
+                params['REVERSE_MAPPING_TARGET'] = params['REVERSE_MAPPING_TARGET'].replace("\\n", "\n")
                 parse_terminals(params['REVERSE_MAPPING_TARGET'])
                 solution = parse_target_string()
                 check_ind_from_parser(solution, params['REVERSE_MAPPING_TARGET'])

@@ -76,7 +76,10 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
             grammars_filenames.append(bnf_filename[bnf_filename.rindex('dynamic/') + len('dynamic/'):])
         except Exception as e:
             print(e)
-            print(f"'problem {problem_index}' raises an exception; no population generated")
+            if 'ALREADY_SOLVED' in str(e):
+                print(f"'problem {problem_index}' solution is completely correct; no population generated")
+            else:
+                print(f"'problem {problem_index}' raises an exception; no population generated")
     if len(impr_prob_names) == 0:
         e: str = "\nNone of given jsons lead to a valid seed for improvement"
         print(e)
@@ -101,10 +104,10 @@ def create_grammar_from(
     cwd: str = os.getcwd()
     chdir("../PonyGE2/grammars")
     if not os.path.isdir("dynamic"):
-        os.mkdir("dynamic")
+        os.makedirs("dynamic", exist_ok=True)
     chdir("dynamic")
     if not os.path.isdir(bnf_type):
-        os.mkdir(bnf_type)
+        os.makedirs(bnf_type, exist_ok=True)
     chdir(bnf_type)
     
     json_file: dict[str, Any] = read_json(
@@ -481,7 +484,7 @@ def create_params_file(
     chdir("../PonyGE2/parameters")
     improvement_dir: str = "improvements"
     if not os.path.isdir(improvement_dir):
-        os.mkdir(improvement_dir)
+        os.makedirs(improvement_dir, exist_ok=True)
     with open(f"{improvement_dir}/progimpr_base.txt", 'r') as file:
         impr_base_file: str = file.read()
     
