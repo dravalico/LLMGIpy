@@ -15,7 +15,9 @@ sys.path.append('../PonyGE2/src')
 from utilities.stats.file_io import create_results_folder_path # type: ignore
 sys.path = curr_path
 from models.GrammarGeneratorLLM import GrammarGeneratorLLM
+import threading
 
+exception_lock = threading.Lock()
 
 # def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator: str | None = None) -> Any:
 def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str, Any], only_impr: bool, task_llm_grammar_generator = None) -> Any:
@@ -55,6 +57,9 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
             print(str(traceback.format_exc()))
             print(e)
             print(f"'problem {problem_index}' raises an exception; no population generated")
+            with exception_lock:
+                with open('parsing_exceptions.txt', 'a') as log:
+                    log.write(str(traceback.format_exc()) + '\n\n' + str(e) + '\n\n' + f"problem {problem_index} model {model_name} benchmark {benchmark_name}  train size {train_size} iterations {iterations} dynamic {dynamic_bnf}" + '\n\n\n\n')
             continue
         try:
             txt_population(

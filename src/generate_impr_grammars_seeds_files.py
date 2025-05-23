@@ -4,8 +4,11 @@ from dotenv import load_dotenv
 import json
 import itertools
 from scripts.ponyge.improvement_files_generator import create_txt_population_foreach_json, create_params_file
+import threading
 import os
 os.environ['TOKENIZERS_PARALLELISM'] = 'false'
+
+complete_lock = threading.Lock()
 
 def set_parser_impr() -> ArgumentParser:
     argparser: ArgumentParser = ArgumentParser(
@@ -112,6 +115,9 @@ def generate_impr_files():
         output_file.close()
 
     print(f"{'=' * 80}")
+    with complete_lock:
+        with open('parsing_results.txt', 'a') as f:
+            f.write(str(llm_params) + '\n\n')
 
 
 def all_llm_params(json_params):
