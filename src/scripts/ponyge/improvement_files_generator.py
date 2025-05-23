@@ -84,6 +84,9 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
             if 'ALREADY_SOLVED' in str(e):
                 print(f"'problem {problem_index}' solution is completely correct; no population generated")
             else:
+                with exception_lock:
+                    with open('parsing_exceptions.txt', 'a') as log:
+                        log.write(str(e) + '\n\n' + f"problem {problem_index} model {model_name} benchmark {benchmark_name}  train size {train_size} iterations {iterations} dynamic {dynamic_bnf}" + '\n\n\n\n')
                 print(f"'problem {problem_index}' raises an exception; no population generated")
     if len(impr_prob_names) == 0:
         e: str = "\nNone of given jsons lead to a valid seed for improvement"
