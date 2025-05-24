@@ -126,9 +126,14 @@ def parse_genotypes(phenotypes: List[str], grammar_file: str, already_solved: bo
     else:
         raise ValueError(f"bnf_type {bnf_type} unrecognized in parse_genotypes.")
 
-    with multiprocessing.Pool(processes=len(args)) as pool:
-        genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
-    
+    #with multiprocessing.Pool(processes=len(args)) as pool:
+    #    genotypes = [r for r in pool.starmap(worker_function, args) if r is not None]
+    genotypes = []
+    for inps in args:
+        outs = worker_function(*inps)
+        if outs is not None:
+            genotypes.append(outs)
+
     return genotypes
 
 

@@ -18,6 +18,7 @@ from models.GrammarGeneratorLLM import GrammarGeneratorLLM
 import threading
 
 exception_lock = threading.Lock()
+done_lock = threading.Lock()
 
 # def create_txt_population_foreach_json(jsons_dir_path: str, task_llm_grammar_generator: str | None = None) -> Any:
 def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str, Any], only_impr: bool, task_llm_grammar_generator = None) -> Any:
@@ -76,12 +77,18 @@ def create_txt_population_foreach_json(jsons_dir_path: str, llm_param: dict[str,
                 output_dir_name=bnf_filename[bnf_filename.rindex('dynamic/') + len('dynamic/'):bnf_filename.rindex('.bnf')] + '/',
                 dynamic_bnf=dynamic_bnf
             )
+            with done_lock:
+                with open('done.txt', 'a') as donef:
+                    donef.write(f"'problem {problem_index}' leads to a valid seed for improvement - model {model_name} benchmark {benchmark_name} train size {train_size} iterations {iterations} dynamic {dynamic_bnf}\n")
             print(f"'problem {problem_index}' leads to a valid seed for improvement")
             impr_prob_names.append((problem_index, problem_name))
             grammars_filenames.append(bnf_filename[bnf_filename.rindex('dynamic/') + len('dynamic/'):])
         except Exception as e:
             print(e)
             if 'ALREADY_SOLVED' in str(e):
+                with done_lock:
+                    with open('done.txt', 'a') as donef:
+                        donef.write(f"'problem {problem_index}' solution is completely correct; no population generated - model {model_name} benchmark {benchmark_name} train size {train_size} iterations {iterations} dynamic {dynamic_bnf}\n")
                 print(f"'problem {problem_index}' solution is completely correct; no population generated")
             else:
                 with exception_lock:
