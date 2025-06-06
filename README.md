@@ -25,24 +25,9 @@ git clone https://github.com/dravalico/LLMGIpy
 cd LLMGIpy
 ```
 
-Create a conda environment from `environment.yml`
+Create two conda environments with Python 3.11. Activate each of them separately, and install in each of them one of the requirements file listed here.
 
-```
-conda env create -f environment.yml
-conda activate llmgipy
-```
-
-If you prefer, you could also install the required modules from the requirements.txt file (ensure you have an environment with at least Python 3.9.16):
-
-```
-pip install -r requirements.txt
-```
-
-Move to `src` folder and run
-
-```
-python main.py --help
-```
+Run the scripts in the 'bash_utils' folder.
 
 Make sure that you have an environment variable with your HUGGING FACE TOKEN set so that Hugging Face models can use it to run the models (the environment variable must be called HF_TOKEN).
 

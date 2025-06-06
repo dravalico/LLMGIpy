@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd src
-
 if [ -z ${3} ]
 then
       output_path=""

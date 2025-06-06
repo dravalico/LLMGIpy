@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd PonyGE2/src
-
 if [ -z "${timestamp_ponyge}" ]; then
     timestamp_ponyge=$(date +"%Y-%m-%dT%T")
 fi
@@ -21,4 +19,4 @@ fi
 start=$(date +%s)
 python3 ponyge.py --parameters ${1} --timestamp_ponyge ${timestamp_ponyge} ${verbose_param}
 end=$(date +%s)
-echo "${1} $(( end - start ))" >> ../../bash_utils/timings_ponyge.txt
+echo "${1} $(( end - start ))" >> bash_utils/timings_ponyge.txt
