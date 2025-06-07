@@ -399,7 +399,7 @@ def set_params(command_line_args, create_files=True):
             params['SEED_INDIVIDUALS'] = load_population(
                 params['TARGET_SEED_FOLDER'])
             for ind in params['SEED_INDIVIDUALS']:
-                print(ind.phenotype)
+                pass #print(ind.phenotype)
 
         elif params['REVERSE_MAPPING_TARGET']:
             # A single seed phenotype has been given. Parse and run.

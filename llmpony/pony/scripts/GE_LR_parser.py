@@ -306,7 +306,6 @@ def reduce(solution):
                                 # Add the new reduced entry to the solution.
                                 if new_entry not in solution:
                                     solution.insert(idx + 1, new_entry)
-    print("hello")
 
 
 def parse_target_string():

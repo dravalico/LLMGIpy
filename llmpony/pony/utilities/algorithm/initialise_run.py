@@ -37,11 +37,11 @@ def initialise_run_params(create_files):
                                      str(getpid()),
                                      str(params['RANDOM_SEED'])])
     if not params['SILENT']:
-        print("\nStart:\t", start, "\n")
+        pass #print("\nStart:\t", start, "\n")
 
     # Generate save folders and files
     if params['DEBUG']:
-        print("Seed:\t", params['RANDOM_SEED'], "\n")
+        pass #print("Seed:\t", params['RANDOM_SEED'], "\n")
     elif create_files:
         generate_folders_and_files()
 

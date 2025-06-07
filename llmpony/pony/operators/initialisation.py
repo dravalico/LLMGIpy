@@ -1,10 +1,8 @@
 from math import floor
-from os import getcwd, listdir, path
-import os
+from os import listdir, path
 from random import randint, shuffle
-import sys
-import subprocess
-import multiprocessing
+from typing import List
+
 from llmpony.pony.algorithm.parameters import params
 from llmpony.pony.representation import individual
 from llmpony.pony.representation.derivation import generate_tree, pi_grow
@@ -12,6 +10,7 @@ from llmpony.pony.representation.individual import Individual
 from llmpony.pony.representation.latent_tree import latent_tree_random_ind
 from llmpony.pony.representation.tree import Tree
 from llmpony.pony.scripts import GE_LR_parser
+from llmpony.pony.scripts.GE_LR_parser import execute_main
 from llmpony.pony.utilities.representation.python_filter import python_filter
 
 from llmpony.pony.operators.mutation import mutation
@@ -545,27 +544,25 @@ def load_population(target):
         n_inputs = llm_data['n_inputs']
         final_ind = ''.join([f'def evolve({", ".join(f"v{i}" for i in range(n_inputs))}):', '{:#pass#:}'])
         
-        new_genotypes = []
-        
-        args = [("scripts/GE_LR_parser.py", ["--grammar_file", params['GRAMMAR_FILE'], "--reverse_mapping_target", p])
-                                    for p in [final_ind]]
-        
-        with multiprocessing.Pool(processes=len(args)) as pool:
-            new_genotypes = [r for r in pool.starmap(_worker_function_script_path_script_args_initialisation, args) if r is not None]
-        
-        seed_inds.append(Individual(eval(new_genotypes[0]), None))
+        args = ["--grammar_file", params['GRAMMAR_FILE'], "--reverse_mapping_target", final_ind]
+        current_params = deepcopy(params)
+        outs = _invoke_ge_lr_parser_directly(args)
+        if outs is not None:
+            seed_inds.append(Individual(eval(outs), None))
+        params.clear()
+        params.update(current_params)
 
     return seed_inds
 
-def _worker_function_script_path_script_args_initialisation(script_path, script_args):
+def _invoke_ge_lr_parser_directly(arguments: List[str]):
     try:
-        process = subprocess.Popen(["python", script_path] + script_args,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout, _ = process.communicate()
+        stdout = execute_main(arguments)
         if "Genome" in stdout:
             return stdout[stdout.index('['): stdout.index(']') + 1]
+        else:
+            return None
     except:
-        pass
+        return None
 
 def LTGE_initialisation(size):
     """Initialise a population in the LTGE representation."""

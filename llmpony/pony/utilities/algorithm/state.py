@@ -102,10 +102,10 @@ def set_state(state):
     :return: A population of individuals.
     """
 
-    from algorithm.parameters import params
-    from utilities.algorithm.initialise_run import set_param_imports
-    from stats.stats import stats
-    from utilities.stats import trackers
+    from llmpony.pony.algorithm.parameters import params
+    from llmpony.pony.utilities.algorithm.initialise_run import set_param_imports
+    from llmpony.pony.stats.stats import stats
+    from llmpony.pony.utilities.stats import trackers
     from time import time
 
     # Set random state.

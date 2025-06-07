@@ -155,13 +155,11 @@ def worker_function(script_path: str, script_args: Tuple[Any]) -> Any:
 def invoke_ge_lr_parser_directly(arguments: List[str]):
     try:
         stdout = execute_main(arguments)
-        print(stdout)
         if "Genome" in stdout:
             return stdout[stdout.index('['): stdout.index(']') + 1]
         else:
             return None
     except:
-        print(str(traceback.format_exc()))
         return None
 
 

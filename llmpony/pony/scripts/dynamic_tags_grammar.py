@@ -48,7 +48,7 @@ def save_string_to_file(string_to_save, file_path):
     try:
         with open(file_path, 'w') as file:
             file.write(string_to_save)
-        print("String saved to file successfully.\n")
+        #print("String saved to file successfully.\n")
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         
