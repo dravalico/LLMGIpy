@@ -7,7 +7,7 @@
 # Hereby licensed under the GNU GPL v3.
 """ Python GE implementation """
 
-from utilities.algorithm.general import check_python_version
+from llmpony.pony.utilities.algorithm.general import check_python_version
 
 check_python_version()
 
