@@ -102,7 +102,7 @@
 
 <while> ::= "while "<var>":{:"<NEWLINE><code>":}" | "while "<condition_basic>":{:"<NEWLINE><code>":}"
 
-<inline_for> ::= "for "<all_vars>" in "<all_vars> | "if "<condition_basic>" else "<all_vars>" for "<all_vars>" in "<all_vars> | <inline_for><support_for> | "if "<vars>" else "<all_vars> | "if "<condition_basic>" else "<all_vars> | "if "<condition_basic>" else "<all_vars>" "<inline_for> | <condition>" for "<all_vars>" in "<all_vars>
+<inline_for> ::= "for "<all_vars>" in "<all_vars> | "if "<condition_basic>" else "<all_vars>" for "<all_vars>" in "<all_vars> | <inline_for><support_for> | "if "<vars>" else "<all_vars> | "if "<condition_basic>" else "<all_vars> | "if "<condition_basic>" else "<all_vars>" "<inline_for> | <condition_basic>" for "<all_vars>" in "<all_vars>
 
 <update_var> ::= <var><method>
 
