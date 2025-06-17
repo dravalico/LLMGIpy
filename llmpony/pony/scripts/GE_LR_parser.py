@@ -7,6 +7,7 @@ from llmpony.pony.utilities.algorithm.general import check_python_version
 check_python_version()
 
 import sys
+import traceback
 
 from llmpony.pony.algorithm.parameters import params, set_params, clear_and_restore_params_dict
 from llmpony.pony.operators.subtree_parse import get_NT_from_str, get_num_from_str, \
@@ -348,7 +349,7 @@ def main(dynamic_bnf: bool = False):
     # Iterate over the solution list until the target string is parsed.
     if dynamic_bnf is True:
         list_of_phenotypes = ast.literal_eval(params['ALL_PHENOTYPES'])
-        my_bnf_tag_list = ["<predefined>", "<NEWLINE>", "<var>", "<compound_stmt>", "<nums>", "<num>", "<return_basic>", "<if>", "<if_stmt1>", "<for_basic>", "<op>", "<cond_op>", "<assign_basic>", "<math_op>", "<ass_op>", "<condition_basic>", "<default_str>", "<normal_str>", "<DEFAULT_FUNC>", "<DEFAULT_METHOD>", "<STRINGS>", "<FUNC>", "<METHOD>", "<method>", "<funcss>"]
+        my_bnf_tag_list = ["<predefined>", "<NEWLINE>", "<var>", "<compound_stmt>", "<nums>", "<num>", "<return_basic>", "<if>", "<if_stmt1>", "<for_basic>", "<op>", "<cond_op>", "<assign_basic>", "<math_op>", "<ass_op>", "<condition_basic>", "<DEFAULT_FUNC>", "<DEFAULT_METHOD>"]
         for p in list_of_phenotypes:
             p = p.replace('\!', '!')
             try:
@@ -392,10 +393,11 @@ def execute_main(arguments=None):
     set_params(sys.argv[1:] if not passing_arguments else arguments, create_files=False)
 
     # Print parsed GE genome.
-    print("\nGenome:\n", params['SEED_INDIVIDUALS'][0].genome)
+    #print("\nGenome:\n", params['SEED_INDIVIDUALS'][0].genome)
 
     if passing_arguments:
         return "\nGenome:\n" + " " + str(params['SEED_INDIVIDUALS'][0].genome)
+    return None
 
 
 if __name__ == '__main__':

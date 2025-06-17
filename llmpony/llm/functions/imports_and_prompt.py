@@ -2,6 +2,8 @@ from keybert import KeyBERT
 from sklearn.feature_extraction.text import TfidfVectorizer
 from word2number import w2n
 import re
+from sklearn.exceptions import NotFittedError
+import numpy as np
 from llmpony.llm.functions.function_util import orderering_preserving_duplicates_elimination
 
 
@@ -68,21 +70,51 @@ def extract_prompt_info(corpus):
     return vectorizer.get_feature_names_out()
 
 
+# def extract_prompt_info_with_keybert(prompt):
+#     """
+#     utilizzo keybert per estrarre parole chiave. Inizialmente estrae tutto lower case quindi ho fatto dei maneggi per ricondurmi alla parola originale del prompt.
+#     cosi possiamo mettere la parola originale tra le stringhe
+#     """
+#     kw_model = KeyBERT()
+#     try:
+#         keywords = kw_model.extract_keywords(prompt, stop_words="english", top_n=10)
+#     except FloatingPointError as e:
+#         keywords = []
+#
+#     prompt_list = prompt.split()
+#     original_key = []
+#
+#     for i, elem in enumerate(prompt_list):
+#         for k in keywords:
+#             if elem.lower() == k[0]:
+#                 original_key.append(elem)
+#     return orderering_preserving_duplicates_elimination(original_key)
+
+
 def extract_prompt_info_with_keybert(prompt):
     """
-    utilizzo keybert per estrarre parole chiave. Inizialmente estrae tutto lower case quindi ho fatto dei maneggi per ricondurmi alla parola originale del prompt.
-    cosi possiamo mettere la parola originale tra le stringhe
+    Extract keywords from a prompt using KeyBERT, and map them back to their original
+    form (with original casing) from the prompt text.
     """
-    kw_model = KeyBERT()
-    keywords = kw_model.extract_keywords(prompt, stop_words="english")
-    prompt_list = prompt.split()
-    original_key = []
+    if not isinstance(prompt, str) or not prompt.strip():
+        return []
 
-    for i, elem in enumerate(prompt_list):
-        for k in keywords:
-            if elem.lower() == k[0]:
-                original_key.append(elem)
-    return orderering_preserving_duplicates_elimination(original_key)
+    kw_model = KeyBERT()
+
+    try:
+        keywords = kw_model.extract_keywords(prompt, stop_words="english", top_n=10)
+
+        # Normalize prompt into a list of words (removes punctuation)
+        prompt_list = re.findall(r'\b\w+\b', prompt)
+        prompt_lower = [w.lower() for w in prompt_list]
+
+        # Keep only original words that match extracted keywords (case-insensitive)
+        keyword_set = {kw[0] for kw in keywords}
+        original_keywords = [word for word, lw in zip(prompt_list, prompt_lower) if lw in keyword_set]
+
+        return orderering_preserving_duplicates_elimination(original_keywords)
+    except (FloatingPointError, ValueError, NotFittedError) as e:
+        return []
 
 
 def extract_numbers_from_string(prompt):

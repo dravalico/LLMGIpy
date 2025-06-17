@@ -148,6 +148,8 @@ def worker_function(script_path: str, script_args: Tuple[Any]) -> Any:
         stdout, _ = process.communicate()
         if "Genome" in stdout:
             return stdout[stdout.index('['): stdout.index(']') + 1]
+        else:
+            return None
     except:
         pass
 

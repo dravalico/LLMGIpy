@@ -23,21 +23,22 @@ def process_tuples(tuple_list, check_list):
     for tup in tuple_list:
         first_elem, second_elem = tup
         for i in check_list:
-          if i in first_elem:
-            split_second_elem = second_elem.split('|')
-            valid_second_elem = []
-            for item in split_second_elem:
-              if is_sublist(re.findall(r'<.*?>', item), check_list):
-                for tag_to_keep in check_list:
-                  if tag_to_keep in item or ('<' not in item and '>' not in item) or ('"<"' in item or '">"' in item or '">="' in item or '"<="' in item):
-                    valid_second_elem.append(item) 
-            if first_elem != '<STRINGS> ': 
-                valid_second_elem_list = list(set(valid_second_elem))
-                tup_list = tup[1].split("|")
-                valid_tags = [valid for valid in tup_list if valid in valid_second_elem_list]
-                processed_tuples.append((first_elem, '|'.join(valid_tags)))
-            else:
-                processed_tuples.append((first_elem, second_elem))
+            if i in first_elem:
+                split_second_elem = second_elem.split('|')
+                valid_second_elem = []
+                for item in split_second_elem:
+                    if is_sublist(re.findall(r'<.*?>', item), check_list):
+                        for tag_to_keep in check_list:
+                            if tag_to_keep in item or ('<' not in item and '>' not in item) or ('"<"' in item or '">"' in item or '">="' in item or '"<="' in item):
+                                valid_second_elem.append(item)
+                if first_elem != '<STRINGS> ':
+                    valid_second_elem_list = list(set(valid_second_elem))
+                    tup_list = tup[1].split("|")
+                    valid_tags = [valid for valid in tup_list if valid in valid_second_elem_list]
+                    if '|'.join(valid_tags).strip() != '':
+                        processed_tuples.append((first_elem, '|'.join(valid_tags)))
+                else:
+                    processed_tuples.append((first_elem, second_elem))
     return processed_tuples
 
 def join_tuples(tuple_list):
@@ -62,10 +63,10 @@ def clean_string(input_string):
     return cleaned
 
 def create_tag_dynamic_bnf(file_path, tags_to_keep, print_result = False):
-  split_content = split_file_by_pattern(file_path)
-  processed_tuples = process_tuples(split_content, tags_to_keep)
-  final_bnf = join_tuples(processed_tuples)
-  final_bnf = clean_string(final_bnf)
-  save_string_to_file(final_bnf, os.path.join('PonyGE2', 'grammars', file_path.replace('.bnf', '_complete_dynamic.bnf')))
-  if print_result:
-    print(final_bnf)
+    split_content = split_file_by_pattern(file_path)
+    processed_tuples = process_tuples(split_content, tags_to_keep)
+    final_bnf = join_tuples(processed_tuples)
+    final_bnf = clean_string(final_bnf)
+    save_string_to_file(final_bnf, os.path.join('PonyGE2', 'grammars', file_path.replace('.bnf', '_complete_dynamic.bnf')))
+    if print_result:
+        print(final_bnf)

@@ -4,7 +4,7 @@
 <all_vars> ::= <vars> | <vars> | <vars> | <vars> | <vars> | <vars> |
                <nums> | <nums> | <nums> | <nums> | <nums> | <nums> |
                "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" |
-               '"'<STRINGS>'"' | '"'<STRINGS>'"' | '"'<STRINGS>'"' | '"'<default_str>'"' | "'"<default_str>"'" | '"'<default_str>'"' | "'"<default_str>"'" |
+               '"'<STRINGS>'"' | '"'<STRINGS>'"' | '"'<STRINGS>'"' |
                <var_list> |  <var_list> |  <var_list> |
                <var_fuction> |  <var_fuction> |  <var_fuction> |
                <var_expr> |  <var_expr> |  <var_expr> |
@@ -22,7 +22,7 @@
            <all_vars>", "<all_vars> | <all_vars>", "<all_vars> | <all_vars>", "<all_vars> | <all_vars>", "<all_vars> | "*"<vars> 
 <var_list> ::= <var><index_list> | <var><index_list> | <var><index_list> | <var>"['"<STRINGS>"']" | <var><index_list><method> | <var>"['"<STRINGS>"']" | <var><index_list><method> | <var>"['"<STRINGS>"']"<method> | <all_vars><index_list> | "["<all_vars>"]" | "["<all_vars>"]"
 <index_list> ::= "["<all_vars>"]" | "["<all_vars>"]" | "["<all_vars>":]" | "["<all_vars>":"<all_vars>"]" | "[:"<all_vars>"]" | "["<all_vars>"::"<all_vars>"]" | "[::"<all_vars>"]" | "["<all_vars>"::]"
-<var_fuction> ::= <FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method> | <all_vars><method><var_fuction> | <FUNC> | <FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method> | <all_vars><method><var_fuction> | <FUNC> | "lambda "<var>": "<all_vars> | "lambda "<vars>": "<all_vars> | <FUNC>"("<all_vars>") "<inline_for> | "lambda "<vars>": "<condition_basic>
+<var_fuction> ::= <FUNC>"("<all_vars>")" | <DEFAULT_FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method> | <all_vars><method><var_fuction> | <FUNC> | <DEFAULT_FUNC> | <FUNC>"("<all_vars>")" | <DEFAULT_FUNC>"("<all_vars>")" | <all_vars><method> | <all_vars><method> | <all_vars><method><var_fuction> | <FUNC> | "lambda "<var>": "<all_vars> | "lambda "<vars>": "<all_vars> | <FUNC>"("<all_vars>") "<inline_for> | <DEFAULT_FUNC>"("<all_vars>") "<inline_for> | "lambda "<vars>": "<condition_basic>
 <var_expr> ::= <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> | "("<var_expr>")" | "("<var_expr>")" | <all_vars>" "<math_op>" "<all_vars> | <all_vars>" "<op>" "<all_vars> | <var_expr>" "<inline_for>
 
 <code> ::= <statement> | <code><statement> | <statement> | <statement> | <statement>
@@ -30,7 +30,7 @@
 <compound_stmt> ::= <if> | <for_basic> | <while> | <try>
 <stmt_list> ::= <assign_basic> | <return_basic> | <print> | <update_var> | "break" | "continue" | "pass" | <assign_basic> | <return_basic> | <raise> | <update_var> | "break" | "continue" | "pass" | <funcss> | <yield> 
 
-<raise> ::= "raise ValueError("<fstring>")" | "raise ValueError("<fstring>") from "<var> | "raise "<FUNC>"("<fstring>")"
+<raise> ::= "raise ValueError("<fstring>")" | "raise ValueError("<fstring>") from "<var> | "raise "<FUNC>"("<fstring>")" | "raise "<DEFAULT_FUNC>"("<fstring>")"
 
 <if> ::= "if "<condition_basic>":{:"<NEWLINE><code>":}"<if_stmt1>"else:{:"<NEWLINE><code>":}" | "if "<condition_basic>":{:"<NEWLINE><code>":}else:{:"<NEWLINE><code>":}" | "if "<condition_basic>":{:"<NEWLINE><code>":}" | "if "<condition_basic>":{:"<NEWLINE><code>":}"<if_stmt1>
 <if_stmt1> ::= "elif "<condition_basic>":{:"<NEWLINE><code>":}" | <if_stmt1>"elif "<condition_basic>":{:"<NEWLINE><code>":}"
@@ -84,11 +84,18 @@
 <for_basic> ::= "for "<var>" in "<var>":{:"<NEWLINE><code>":}" | 
                 "for "<var>" in "<var>":{:"<NEWLINE><code>":}" | 
                 "for "<var>" in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
-                "for "<var>", "<var>" in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" | <for>
+                "for "<var>" in "<DEFAULT_FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
+                "for "<var>", "<var>" in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" | "for "<var>", "<var>" in "<DEFAULT_FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" | <for>
 <for> ::= "for "<var>" in "<FUNC>"("<FUNC>"("<all_vars>")):{:"<NEWLINE><code>":}" |
+	  "for "<var>" in "<DEFAULT_FUNC>"("<DEFAULT_FUNC>"("<all_vars>")):{:"<NEWLINE><code>":}" |
+	  "for "<var>" in "<FUNC>"("<DEFAULT_FUNC>"("<all_vars>")):{:"<NEWLINE><code>":}" |
+	  "for "<var>" in "<DEFAULT_FUNC>"("<FUNC>"("<all_vars>")):{:"<NEWLINE><code>":}" |
+          "for "<var>", "<var>" in "<all_vars>":{:"<NEWLINE><code>":}" |
           "for "<var>", "<var>" in "<all_vars>":{:"<NEWLINE><code>":}" |
           "for ("<var>", "<var>") in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
           "for ("<vars>", ("<vars>")) in "<FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
+          "for ("<var>", "<var>") in "<DEFAULT_FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
+          "for ("<vars>", ("<vars>")) in "<DEFAULT_FUNC>"("<all_vars>"):{:"<NEWLINE><code>":}" |
           "for "<var>" in "<var_list>":{:"<NEWLINE><code>":}" |
           "for ("<var>", "<var>") in "<all_vars>":{:"<NEWLINE><code>":}" |
           "for "<var>" in "<all_vars>":{:"<NEWLINE><code>":}" | <for_basic><support_for>
@@ -118,15 +125,9 @@
 <fstring> ::= <fstring>"{"<all_vars>"}" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "'"<STRINGS>"'" | "{"<all_vars>"}"<fstring> | "f'"<fstring>"'" | "'"<fstring>"'" | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> | <STRINGS> | <STRINGS> |
               <fstring>"{"<all_vars>"}" | '"'<STRINGS>'"' | '"'<STRINGS>'"' | "{"<all_vars>"}"<fstring> | 'f"'<fstring>'"' | '"'<fstring>'"' | <fstring>"{"<all_vars>"}"<fstring> | <STRINGS> |
               "'"<STRINGS>"'" | "f'"<fstring>"'" | "'"<fstring>"'" | <STRINGS> | '"'<STRINGS>'"' | 'f"'<fstring>'"' | '"'<fstring>'"' | <STRINGS> | "f'{"<var>"}'" | 'f"{'<var>'}"' | "f'{"<all_vars>"}'" | 'f"{'<all_vars>'}"' |
-              "'"<STRINGS>"'" | <STRINGS> | '"'<STRINGS>'"' | <STRINGS> | <STRINGS> | <STRINGS> | <default_str> | <default_str> | <default_str> | <default_str> | "'"<default_str>"'" | '"'<default_str>'"'
+              "'"<STRINGS>"'" | <STRINGS> | '"'<STRINGS>'"' | <STRINGS> | <STRINGS> | <STRINGS>
 
 <kv_args> ::= <KWARGNAMES>"="<all_vars> | <KWARGNAMES>"="<nums> | <KWARGNAMES>"='"<STRINGS>"'" | <KWARGNAMES>"="<var> | <KWARGNAMES>"="<nums> | <KWARGNAMES>"='"<STRINGS>"'" | <KWARGNAMES>"="<var> | <KWARGNAMES>'="'<STRINGS>'"' |
               <KWARGNAMES>"="<all_vars>", "<kv_args>
-
-<default_str> ::= <normal_str> | <normal_str> | <normal_str> | <normal_str> | <normal_str> | <normal_str> | <normal_str> |
-                  <normal_str><normal_str> | <normal_str><normal_str> | <normal_str>" "<normal_str> | <normal_str>" "<normal_str> |
-                  <default_str><normal_str> | <default_str><normal_str> | <normal_str><default_str> | <normal_str><default_str>
-
-<normal_str> ::= "k" | "c" | "w" | "z" | "h" | "t" | "o" | "u" | "f" | "p" | "m" | "q" | "b" | "x" | "s" | "g" | "r" | "l" | "a" | "y" | "v" | "i" | "n" | "d" | "e" | "j" | "K" | "C" | "W" | "Z" | "H" | "T" | "O" | "U" | "F" | "P" | "M" | "Q" | "B" | "X" | "S" | "G" | "R" | "L" | "A" | "Y" | "V" | "I" | "N" | "D" | "E" | "J" | "'" | "~" | "&" | "-" | ":" | "|" | "]" | "?" | "=" | "/" | "_" | "." | "{" | "$" | "..." | "<" | "!" | "`" | "*" | "@" | ";" | "^" | "#" | "[" | ">" | "+" | "%" | "}" | "(" | "," | ")"
 
 

@@ -241,24 +241,23 @@ def create_grammar_from(
             variables.append(lambda_vars)
 
     generic_always_useful_funcs = [
-        "abs", "all", "any", "bin", "bool", "bytearray", "bytes",
-        "callable", "chr", "dict", "divmod", "enumerate", "filter",
-        "float", "format", "frozenset", "hash", "hex", "id", "int", "isinstance",
-        "iter", "len", "list", "map", "max", "min", "next", "object", "oct",
-        "ord", "pow", "range", "repr", "reversed", "round", "set", "slice",
+        "abs", "all", "any", "bin", "bool", "chr",
+        "dict", "enumerate", "filter",
+        "float", "format", "int", "isinstance",
+        "iter", "len", "list", "map", "max", "min", "next",
+        "ord", "pow", "range", "reversed", "round", "set", "slice",
         "sorted", "str", "sum", "tuple", "type", "zip"
     ]
 
     generic_always_useful_methods = [
-        ".bit_length", ".bit_count", ".as_integer_ratio", ".is_integer", ".hex",
         ".index", ".count", ".append", ".extend", ".clear", ".copy", ".insert", ".pop", ".remove", ".reverse",
-        ".sort", ".capitalize", ".casefold", ".center", ".encode", ".decode", ".endswith", ".startswith",
-        ".find", ".format", ".expandtabs", ".format_map", ".isalnum", ".isalpha", ".isascii", ".isdecimal",
-        ".isdigit", ".isidentifier", ".islower", ".isnumeric", ".isprintable", ".isspace", ".istitle", ".isupper",
-        ".join", ".lower", ".lstrip", ".partition", ".removeprefix", ".removesuffix", ".replace", ".rfind",
-        ".rindex", ".rpartition", ".rsplit", ".rstrip", ".split", ".strip", ".swapcase", ".title", ".upper", ".translate",
-        ".isdisjoint", ".issubset", ".issuperset", ".union", ".intersection", ".difference", ".symmetric_difference",
-        ".update", ".intersection_update", ".difference_update", ".symmetric_difference_update", ".add", ".discard",
+        ".sort", ".endswith", ".startswith",
+        ".find", ".format", ".isalnum", ".isalpha", ".isdecimal",
+        ".isdigit", ".islower", ".isnumeric", ".isspace", ".isupper",
+        ".join", ".lower", ".partition", ".replace",
+        ".split", ".strip", ".upper",
+        ".union", ".intersection", ".difference",
+        ".update", ".add", ".discard",
         ".get", ".items", ".keys", ".popitem", ".reversed", ".setdefault", ".values"
     ]
 
