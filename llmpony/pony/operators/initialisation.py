@@ -500,7 +500,7 @@ def load_population(target):
         if genotype:
             # Generate individual from genome.
             ind = Individual(genotype, None)
-            while ind is None:
+            while ind is None or ind.tree is None or ind.phenotype is None or ind.genome is None:
                 params['MAX_TREE_DEPTH'] += 10
                 if params['MAX_TREE_DEPTH'] >= 90: # SET TO 90 DUE TO PYTHON EVAL() STACK LIMIT.
                     params['MAX_TREE_DEPTH'] = 90
@@ -518,11 +518,12 @@ def load_population(target):
                 raise Exception(s)
 
         else:
+            raise ValueError("No genotype or phenotype specified")
             # Set target for GE LR Parser.
-            params['REVERSE_MAPPING_TARGET'] = phenotype
+            #params['REVERSE_MAPPING_TARGET'] = phenotype
 
             # Parse target phenotype.
-            ind = GE_LR_parser.main()
+            #ind = GE_LR_parser.main()
 
         # Add new ind to the list of seed individuals.
         seed_inds.append(ind)

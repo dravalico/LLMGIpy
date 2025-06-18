@@ -103,7 +103,7 @@ def generate_codon(chosen_prod, productions):
     # Choose a random offset with guarantee that (offset + production_index) < codon_size
     offset = randrange(
         start=0,
-        stop=params['BNF_GRAMMAR'].codon_size - productions['no_choices'] + 1,
+        stop=params['BNF_GRAMMAR'].codon_size - productions['no_choices'] + 1 if params['BNF_GRAMMAR'].codon_size - productions['no_choices'] + 1 > 0 else 1,
         step=productions['no_choices']
     )
 
