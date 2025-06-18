@@ -213,9 +213,9 @@ def rhh(size):
             # Population size is odd, need an even population for RHH
             # initialisation.
             size += 1
-            print("Warning: Specified population size is odd, "
-                  "RHH initialisation requires an even population size. "
-                  "Incrementing population size by 1.")
+            #print("Warning: Specified population size is odd, "
+            #      "RHH initialisation requires an even population size. "
+            #      "Incrementing population size by 1.")
 
         if size / 2 < len(depths):
             # The population size is too small to fully cover all ramping

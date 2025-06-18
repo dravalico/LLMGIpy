@@ -1,14 +1,10 @@
 #!/bin/bash
 
-if [ -z "${timestamp_ponyge}" ]; then
-    timestamp_ponyge=$(date +"%Y-%m-%dT%T")
-fi
-
-if [ -z ${2} ]
+if [ -z ${3} ]
 then
       verbose_param=""
 else
-      if [ "${2}" = "-v" ]
+      if [ "${3}" = "-v" ]
       then
             verbose_param="--verbose"
       else
@@ -17,6 +13,6 @@ else
 fi
 
 start=$(date +%s)
-python3 ponyge.py --parameters ${1} --timestamp_ponyge ${timestamp_ponyge} ${verbose_param}
+python3 ponyge.py --run_id ${1} --parameters ${2} ${verbose_param}
 end=$(date +%s)
-echo "${1} $(( end - start ))" >> bash_utils/timings_ponyge.txt
+echo "${2} $(( end - start ))" >> bash_utils/timings_ponyge.txt

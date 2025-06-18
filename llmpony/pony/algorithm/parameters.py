@@ -20,7 +20,7 @@ def create_default_params_dict():
     'SCHC_COUNT_METHOD': "count_all",
 
     # Run ID
-    'RUN_ID': None,
+    'RUN_ID': 'default',
     # Set optional experiment name
     'EXPERIMENT_NAME': None,
     # Set default number of runs to be done.

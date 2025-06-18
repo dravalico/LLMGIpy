@@ -31,7 +31,7 @@ def crossover(parents):
         inds_out = crossover_inds(inds_in[0], inds_in[1])
 
         if inds_out is None:
-            print("Attention cossover fail, inds_out is none")
+            #print("Attention cossover fail, inds_out is none")
             # Crossover failed.
             pass
 

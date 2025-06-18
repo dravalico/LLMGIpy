@@ -1,12 +1,8 @@
 import math
 import re
-import sys
-curr_path = [sss for sss in sys.path]
-sys.path.append('../src')
-from utilities.fitness.typed_fitness import get_actual_size # type: ignore
-from utilities.fitness.typed_fitness import compare_based_on_type # type: ignore
-from algorithm.parameters import params
-sys.path = curr_path
+from llmpony.pony.utilities.fitness.typed_fitness import get_actual_size
+from llmpony.pony.utilities.fitness.typed_fitness import compare_based_on_type
+from llmpony.pony.algorithm.parameters import params
 
 <insertImports>
 

@@ -16,7 +16,11 @@ for ((i=1; i<=k; i++)); do
     fi
 
     end=$((start + lines_per_file + extra - 1))
-    sed -n "${start},${end}p" "$file" > "split_${i}.txt"
+    output_file="split_${i}.txt"
+    
+    # Extract lines and prepend filename prefix
+    sed -n "${start},${end}p" "$file" | awk -v prefix="$output_file;" '{print prefix $0}' > "$output_file"
+
     start=$((end + 1))
 done
 
