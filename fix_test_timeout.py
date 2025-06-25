@@ -36,7 +36,7 @@ def mane_post():
             generation = int(gen['Generation'])
             genotype = eval(gen['Genotype'])
             ind = Individual(genotype, None)
-            while ind is None:
+            while ind is None or ind.tree is None or ind.phenotype is None or ind.genome is None:
                 params['MAX_TREE_DEPTH'] += 10
                 if params['MAX_TREE_DEPTH'] >= 90: # SET TO 90 DUE TO PYTHON EVAL() STACK LIMIT.
                     params['MAX_TREE_DEPTH'] = 90
