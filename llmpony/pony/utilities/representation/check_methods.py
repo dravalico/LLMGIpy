@@ -3,6 +3,85 @@ from llmpony.pony.algorithm.parameters import params
 from llmpony.pony.representation import individual
 
 
+# =========================================
+
+def format_program(individual, header, footer):
+    """formats the program by formatting the individual and adding
+    a header and footer"""
+    last_new_line = header.rindex('\n')
+    # indent = header[last_new_line + len('\n'):len(header)]
+    # individual1 = individual[3:]
+    # individual1 = individual1[:-2]
+    individual = individual.replace('#', '\n')
+    individual = individual.replace("print", "")  # HACK
+    return header + format_individual(individual) + footer
+
+def format_individual(code, additional_indent=""):
+    """format individual by adding appropriate indentation and loop break
+    statements"""
+    INDENTSPACE = "  "
+    LOOPBREAK = "loopBreak"
+    LOOPBREAKUNNUMBERED = "loopBreak%"
+    LOOPBREAK_INITIALISE = "loopBreak% = 0"
+    LOOPBREAK_IF = "if loopBreak% >"
+    LOOPBREAK_INCREMENT = "loopBreak% += 1"
+    FORCOUNTER = "forCounter"
+    FORCOUNTERUNNUMBERED = "forCounter%"
+
+    parts = code.split('\n')
+    indent = 0
+    string_builder = ""
+    for_counter_number = 0
+    first = True
+    for part in parts:
+        line = part.strip()
+        # remove indentation if bracket is at the beginning of the line
+        while line.startswith(":}"):
+            indent -= 1
+            line = line[2:].strip()
+
+        # add indent
+        if not first:
+            string_builder += additional_indent
+        else:
+            first = False
+
+        for i in range(0, indent):
+            string_builder += INDENTSPACE
+
+        # add indentation
+        while line.endswith("{:"):
+            indent += 1
+            line = line[:len(line) - 2].strip()
+        # remove indentation if bracket is at the end of the line
+        while line.endswith(":}"):
+            indent -= 1
+            line = line[:len(line) - 2].strip()
+
+        if LOOPBREAKUNNUMBERED in line:
+            if LOOPBREAK_INITIALISE in line:
+                line = ""  # remove line
+            elif LOOPBREAK_IF in line:
+                line = line.replace(LOOPBREAKUNNUMBERED,
+                                    LOOPBREAK)
+            elif LOOPBREAK_INCREMENT in line:
+                line = line.replace(LOOPBREAKUNNUMBERED,
+                                    LOOPBREAK)
+            else:
+                raise Exception("Python 'while break' is malformed.")
+        elif FORCOUNTERUNNUMBERED in line:
+            line = line.replace(FORCOUNTERUNNUMBERED,
+                                FORCOUNTER + str(for_counter_number))
+            for_counter_number += 1
+
+        # add line to code
+        string_builder += line
+        string_builder += '\n'
+    return string_builder
+
+# =========================================
+
+
 def check_ind(ind, check):
     """
     Check all shallow aspects of an individual to ensure everything is correct.

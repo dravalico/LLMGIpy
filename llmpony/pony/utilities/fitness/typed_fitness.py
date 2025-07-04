@@ -106,7 +106,15 @@ def compare_based_on_type(a, b):
 
     if not isinstance(a, bool) and isinstance(b, bool):
         return None
-    
+
+    if isinstance(a, float) and isinstance(b, float):
+        a_s = str(a)
+        b_s = str(b)
+        a_s = a_s[a_s.index('.') + 1:]
+        b_s = b_s[b_s.index('.') + 1:]
+        d = min(len(a_s), len(b_s))
+        return compare_numbers(round(a, d), round(b, d))
+
     if (isinstance(a, int) or isinstance(a, float)) and (isinstance(b, int) or isinstance(b, float)):
         return compare_numbers(a, b)
     

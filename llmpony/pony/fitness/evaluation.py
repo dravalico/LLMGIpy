@@ -1,4 +1,6 @@
 import os
+import random
+
 import numpy as np
 import warnings
 import time
@@ -11,6 +13,25 @@ from llmpony.pony.algorithm.parameters import params
 from llmpony.pony.stats.stats import stats
 from llmpony.pony.utilities.stats.trackers import cache, cache_test_set, cache_levi_errors, runtime_error_cache, train_time_list
 from llmpony.pony.utilities.algorithm.parallel import process_pool_parallelize, thread_pool_parallelize, fake_parallelize
+
+
+def insert_elements_random_locations(A, B):
+    if len(B) > len(A):
+        raise ValueError("List B is longer than list A")
+
+    # Choose distinct random indices in A
+    indices = random.sample(range(len(A)), len(B))
+
+    # Shuffle B to randomize element positions (optional)
+    random.shuffle(B)
+
+    # Create a copy to avoid modifying A in-place
+    A_new = A[:]
+
+    for idx, val in zip(indices, B):
+        A_new[idx] = val
+
+    return A_new
 
 
 def evaluate_fitness(individuals):
@@ -83,7 +104,7 @@ def evaluate_fitness(individuals):
                     # which has not been encountered yet.
                     count = 0
                     while (not ind.phenotype) or ind.phenotype in cache:
-                        ind = params['MUTATION'](ind) if params['MUTATION'].__name__ != "subtree" else params['MUTATION'](ind, 1.0)
+                        ind = params['MUTATION'](ind) if params['MUTATION'].__name__ not in ("subtree", "light_subtree") else params['MUTATION'](ind, 1.0)
                         stats['regens'] += 1
                         count += 1
                         if count > params['MUTATE_DUPLICATES_TRIALS']:
@@ -103,7 +124,22 @@ def evaluate_fitness(individuals):
             #if eval_ind:
                 #results = eval_or_append(ind, results, pool)
             almost_new_individuals.append((ind, eval_ind))
-    
+
+    pop_size = params['POPULATION_SIZE']
+    init_seed_ind = [(abc, False if stats['gen'] > 1 else True) for abc in params['SEED_INDIVIDUALS']]
+    if len(almost_new_individuals) >= pop_size:
+        almost_new_individuals = insert_elements_random_locations(almost_new_individuals, init_seed_ind)
+    else:
+        count = 0
+        all_params_inserted = False
+        while len(almost_new_individuals) < pop_size:
+            almost_new_individuals.append(init_seed_ind[count])
+            count = (count + 1) % len(init_seed_ind)
+            if count == 0:
+                all_params_inserted = True
+        if not all_params_inserted:
+            almost_new_individuals = insert_elements_random_locations(almost_new_individuals, init_seed_ind[count:])
+
     try:
         new_individuals = process_pool_parallelize(
             eval_or_append,

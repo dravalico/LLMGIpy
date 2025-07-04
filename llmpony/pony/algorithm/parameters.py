@@ -109,9 +109,11 @@ def create_default_params_dict():
     # the genome for each codon)
     'MUTATION_PROBABILITY': None,
     # Set number of mutation events
-    'MUTATION_EVENTS': 1,
+    'MUTATION_EVENTS': 3,
     # Prevents mutation from generating invalids.
     'NO_MUTATION_INVALIDS': False,
+    # Height and max_depth of small sub-tree to be mutated in light_subtree mutation
+    'LIGHT_SUBTREE_MUTATION_MAX_HEIGHT': 5,
 
     # REPLACEMENT
     # Set replacement operator.
@@ -333,7 +335,7 @@ def set_params(command_line_args, create_files=True):
             params['GENERATION_SIZE'] = params['POPULATION_SIZE'] - \
                 params['ELITE_SIZE']
 
-        if (params['MUTATION_PROBABILITY'] is not None and
+        if (params['MUTATION'] == 'int_flip_per_codon' and params['MUTATION_PROBABILITY'] is not None and
                 params['MUTATION_EVENTS'] != 1):
             s = "operators.mutation.int_flip_per_codon\n" \
                 "Error: mutually exclusive parameters 'MUTATION_PROBABILITY'" \

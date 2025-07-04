@@ -251,3 +251,13 @@ class Tree:
                       child.root)
             else:
                 child.print_tree()
+
+    def height(self):
+        if self.children is None or len(self.children) == 0:
+            return 1
+
+        a = []
+        for child in self.children:
+            a.append(child.height())
+
+        return 1 + max(a)

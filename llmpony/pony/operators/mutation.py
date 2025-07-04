@@ -1,5 +1,6 @@
 from random import choice, randint, random
 
+from llmpony.pony.utilities.representation.check_methods import format_program
 from llmpony.pony.algorithm.parameters import params
 from llmpony.pony.representation import individual
 from llmpony.pony.representation.derivation import generate_tree
@@ -30,7 +31,7 @@ def mutation(pop, mut_prob: Optional[float] = None):
 
         else:
             # Perform mutation.
-            new_ind = params['MUTATION'](ind) if params['MUTATION'].__name__ != "subtree" else params['MUTATION'](ind, mut_prob)
+            new_ind = params['MUTATION'](ind) if params['MUTATION'].__name__ not in ("subtree", "light_subtree") else params['MUTATION'](ind, mut_prob)
 
         # Check ind does not violate specified limits.
         check = check_ind(new_ind, "mutation")
@@ -180,8 +181,89 @@ def subtree(ind, mut_prob: Optional[float] = None):
     # Mutation probability
     if random() < p_mut:
         # Allows for multiple mutation events should that be desired.
-        for i in range(params['MUTATION_EVENTS']):
+        for i in range(choice(list(range(1, params['MUTATION_EVENTS'] + 1)))):
             ind.tree = subtree_mutate(ind.tree)
+
+    # Re-build a new individual with the newly mutated genetic information.
+    ind = individual.Individual(None, ind.tree)
+
+    # Add in the previous tail.
+    ind.genome = ind.genome + tail
+
+    return ind
+
+
+def light_subtree(ind, mut_prob: Optional[float] = None):
+    """
+    Mutate the individual by replacing a randomly selected subtree with a
+    new randomly generated subtree. Guaranteed one event per individual, unless
+    params['MUTATION_EVENTS'] is specified as a higher number.
+
+    :param ind: An individual to be mutated.
+    :return: A mutated individual.
+    """
+
+    def light_subtree_mutate(ind_tree):
+        """
+        Creates a list of all nodes and picks one node at random to mutate.
+        Because we have a list of all nodes, we can (but currently don't)
+        choose what kind of nodes to mutate on. Handy.
+
+        :param ind_tree: The full tree of an individual.
+        :return: The full mutated tree and the associated genome.
+        """
+
+        # Find the list of nodes we can mutate from.
+        targets = ind_tree.get_target_nodes([], target=params[
+            'BNF_GRAMMAR'].non_terminals)
+
+        i_first_new_line = 0
+        for iii in range(len(targets)):
+            if targets[iii].root == '<NEWLINE>':
+                i_first_new_line = iii
+                break
+        targets_temp = [tar for tar in targets[i_first_new_line + 1:] if tar.height() <= params['LIGHT_SUBTREE_MUTATION_MAX_HEIGHT']]
+        if len(targets_temp) > 0:
+            targets = targets_temp
+
+        # Pick a node.
+        new_tree = choice(targets)
+
+        # Set the depth limits for the new subtree.
+        if params['MAX_TREE_DEPTH']:
+            # Set the limit to the tree depth.
+            #max_depth = params['MAX_TREE_DEPTH'] - new_tree.depth
+            max_depth = min(params['LIGHT_SUBTREE_MUTATION_MAX_HEIGHT'], params['MAX_TREE_DEPTH'] - new_tree.depth)
+        else:
+            # There is no limit to tree depth.
+            max_depth = None
+
+        # Mutate a new subtree.
+        generate_tree(new_tree, [], [], "random", 0, 0, 0, max_depth)
+
+        return ind_tree
+
+    if ind.invalid:
+        # The individual is invalid.
+        tail = []
+
+    else:
+        # Save the tail of the genome.
+        tail = ind.genome[ind.used_codons:]
+
+    # Set mutation probability.
+    if mut_prob is not None:
+        p_mut = mut_prob
+    elif params['MUTATION_PROBABILITY'] is not None:
+        p_mut = params['MUTATION_PROBABILITY']
+    else:
+        p_mut = 1.0
+
+    # Mutation probability
+    if random() < p_mut:
+        # Allows for multiple mutation events should that be desired.
+        for i in range(choice(list(range(1, params['MUTATION_EVENTS'] + 1)))):
+            ind.tree = light_subtree_mutate(ind.tree)
 
     # Re-build a new individual with the newly mutated genetic information.
     ind = individual.Individual(None, ind.tree)
