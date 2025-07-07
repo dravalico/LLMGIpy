@@ -12,6 +12,7 @@ from llmpony.llm.testers.DatasetLoader import DatasetLoader
 from llmpony.llm.models.AbstractLanguageModel import AbstractLanguageModel
 from llmpony.llm.functions.json_data_io import create_and_save_json, read_json, BASE_PATH
 from llmpony.llm.functions.ponyge.individual_formatter import substitute_tabs_and_newlines_with_pony_encode
+from llmpony.pony.utilities.fitness.typed_fitness import compare_based_on_type
 
 
 class CudaOutOfMemoryWarning(Warning):
@@ -402,7 +403,7 @@ class ModelTester:
         for i in range(len(X_train)):
             try:
                 result = [f(*X_train[i])]
-                if result == y_train[i]:
+                if compare_based_on_type(result, y_train[i]) == 0:
                     passed += 1
                 else:
                     not_passed += 1
@@ -422,7 +423,7 @@ class ModelTester:
         for i in range(len(X_test)):
             try:
                 result = [f(*X_test[i])]
-                if result == y_test[i]:
+                if compare_based_on_type(result, y_test[i]) == 0:
                     passed_test += 1
                 else:
                     not_passed_test += 1
