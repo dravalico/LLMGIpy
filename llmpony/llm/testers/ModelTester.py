@@ -403,7 +403,7 @@ class ModelTester:
         for i in range(len(X_train)):
             try:
                 result = [f(*X_train[i])]
-                if compare_based_on_type(result, y_train[i]) == 0:
+                if compare_based_on_type(result[0], y_train[i][0]) == 0:
                     passed += 1
                 else:
                     not_passed += 1
@@ -423,7 +423,7 @@ class ModelTester:
         for i in range(len(X_test)):
             try:
                 result = [f(*X_test[i])]
-                if compare_based_on_type(result, y_test[i]) == 0:
+                if compare_based_on_type(result[0], y_test[i][0]) == 0:
                     passed_test += 1
                 else:
                     not_passed_test += 1
