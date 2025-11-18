@@ -81,7 +81,7 @@ def create_default_params_dict():
     # Set selection operator.
     'SELECTION': "operators.selection.tournament",
     # For tournament selection
-    'TOURNAMENT_SIZE': 2,
+    'TOURNAMENT_SIZE': 4,
     # For selection (sample size of test cases in the training data to sample at each generation)
     'SELECTION_SAMPLE_SIZE': 1000,
     # For truncation selection
@@ -188,7 +188,7 @@ def create_default_params_dict():
     # Removes duplicate individuals from the population by replacing them
     # with mutated versions of the original individual. Hopefully this will
     # encourage diversity in the population.
-    'MUTATE_DUPLICATES': False,
+    'MUTATE_DUPLICATES': True,
     # Number of trials to run when mutating duplicates.
     'MUTATE_DUPLICATES_TRIALS': 10,
     # Timeout to set when evaluating a program

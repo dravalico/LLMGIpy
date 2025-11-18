@@ -221,7 +221,7 @@ def create_grammar_from(
                     support_code_def_entry_point = support_code_def[support_code_def.index('def ') + len('def '):support_code_def.index('(')]
                     if support_code_def_entry_point not in funs_and_meths:
                         funs_and_meths.append(support_code_def_entry_point)
-            funs_from_imp, meths_from_imp = extract_all_methods_from_imports(e["imports"], True)
+            funs_from_imp, meths_from_imp = [], [] # extract_all_methods_from_imports(e["imports"], False)
             extracted_functions_from_imports.append(funs_from_imp)
             extracted_methods_from_imports.append(meths_from_imp)
             extracted_functions_from_individuals.append(funs_and_meths)
@@ -241,24 +241,28 @@ def create_grammar_from(
             variables.append(lambda_vars)
 
     generic_always_useful_funcs = [
-        "abs", "all", "any", "bin", "bool", "chr",
+        "abs", "all", "any", "bin", "bool",
         "dict", "enumerate", "filter",
-        "float", "format", "int", "isinstance",
-        "iter", "len", "list", "map", "max", "min", "next",
-        "ord", "pow", "range", "reversed", "round", "set", "slice",
-        "sorted", "str", "sum", "tuple", "type", "zip"
+        "float", "format", "int",
+        "len", "list", "map", "max", "min",
+        "pow", "range", "reversed", "round", "set",
+        "sorted", "str", "sum", "tuple",  "zip"
+        # "next", "type", "ord", "hex", "oct", "complex", "divmod", "frozenset", "globals", "iter", "isinstance", "chr", "slice",
     ]
 
     generic_always_useful_methods = [
-        ".index", ".count", ".append", ".extend", ".clear", ".copy", ".insert", ".pop", ".remove", ".reverse",
+        ".index", ".count", ".append", ".extend",
+        ".clear", ".insert", ".pop", ".remove", ".reverse",
         ".sort", ".endswith", ".startswith",
         ".find", ".format", ".isalnum", ".isalpha", ".isdecimal",
         ".isdigit", ".islower", ".isnumeric", ".isspace", ".isupper",
-        ".join", ".lower", ".partition", ".replace",
+        ".join", ".lower", ".replace",
         ".split", ".strip", ".upper",
-        ".union", ".intersection", ".difference",
-        ".update", ".add", ".discard",
-        ".get", ".items", ".keys", ".popitem", ".reversed", ".setdefault", ".values"
+        ".get", ".items", ".keys",
+        # ".union", ".intersection", ".difference",
+        # ".update", ".add", ".discard",
+        # ".popitem", ".reversed",  ".values", ".copy", 
+        # ".partition", ".rpartition", ".lstrip", ".rstrip", ".zfill", ".setdefault",
     ]
 
     temp_funs_from_imps = []
