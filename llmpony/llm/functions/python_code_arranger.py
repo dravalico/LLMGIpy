@@ -15,9 +15,11 @@ def add_global_declarations_before_function_definitions(s: str) -> str:
     return '\n'.join(l)
 
 
-def enforce_syntactically_valid_function(s: str, potentially_new_name: str, n_inputs: Optional[int] = None) -> str:
+def enforce_syntactically_valid_function(s: str, potentially_new_name: str, n_inputs: Optional[int] = None, print_and_count_syntax_errors_heuristic: bool = False) -> str:
     l: list[str] = s.split('\n')
     keep_removing_lines: bool = True
+
+    is_already_syntactically_valid: bool = True
 
     if len(l) == 1:
         l.append('\tpass')
@@ -37,6 +39,7 @@ def enforce_syntactically_valid_function(s: str, potentially_new_name: str, n_in
             exec('\n'.join(l), locals())
             keep_removing_lines = False
         except SyntaxError as e:
+            is_already_syntactically_valid = False
             del l[e.lineno - 1]
             if len(l) == 1:
                 l.append('\tpass')
@@ -52,6 +55,9 @@ def enforce_syntactically_valid_function(s: str, potentially_new_name: str, n_in
                 raise ValueError(f'Required potentially_new_name different from empty string if function definition line has syntax errors.')
             l = [f'def {potentially_new_name.strip()}({", ".join(f"v{i}" for i in range(n_inputs))}):', '\tpass']
     
+    if print_and_count_syntax_errors_heuristic and not is_already_syntactically_valid:
+        print(f'This had syntax errors originally.')
+
     return '\n'.join(l)
 
 
@@ -295,7 +301,7 @@ def remove_comments(l: list[str]) -> list[str]:
     return remove_multi_comments(remove_single_comments(l))
 
 
-def extract_distinct_functions(l: list[str], remove_syntax_errors: bool, potentially_new_name: str, n_inputs: Optional[int] = None) -> tuple[list[str], str, str, int]:
+def extract_distinct_functions(l: list[str], remove_syntax_errors: bool, potentially_new_name: str, n_inputs: Optional[int] = None, print_and_count_syntax_errors_heuristic: bool = False) -> tuple[list[str], str, str, int]:
     p = re.compile('^(\s*)def (.+)\((.*)\)(.*):(\s*)$')
     
     outer_indent_size: int = min([len(l[i]) - len(l[i].lstrip()) for i in range(len(l)) if p.match(l[i])])
@@ -338,7 +344,7 @@ def extract_distinct_functions(l: list[str], remove_syntax_errors: bool, potenti
     main_code_func: list[str] = all_funcs[-1]
 
     if remove_syntax_errors:
-        main_code_func = enforce_syntactically_valid_function('\n'.join(main_code_func), potentially_new_name=potentially_new_name, n_inputs=n_inputs).split('\n')
+        main_code_func = enforce_syntactically_valid_function('\n'.join(main_code_func), potentially_new_name=potentially_new_name, n_inputs=n_inputs, print_and_count_syntax_errors_heuristic=print_and_count_syntax_errors_heuristic).split('\n')
 
     indent_size: int = len(main_code_func[1]) - len(main_code_func[1].lstrip())
 
@@ -360,11 +366,11 @@ def tabs_as_symbols(s: str, indent_size: int) -> str:
     return '\n'.join(l0)
 
 
-def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool, replace_entry_point_with_this_name: str, replace_vars: bool, remove_non_existing_import: bool, n_inputs: Optional[int] = None, remove_syntax_errors: bool = False) -> dict[str, Any]:
+def properly_arrange_code_with_imports_functions(s: str, include_free_code: bool, replace_entry_point_with_this_name: str, replace_vars: bool, remove_non_existing_import: bool, n_inputs: Optional[int] = None, remove_syntax_errors: bool = False, print_and_count_syntax_errors_heuristic: bool = False) -> dict[str, Any]:
     try:
         l: list[str] = [elem for elem in remove_comments(s.split('\n')) if elem.strip() != '']
         actual_imports: list[str] = extract_imports(l, remove_non_existing_import=remove_non_existing_import)
-        distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions(remove_internal_code_typing(remove_imports_only(l)), remove_syntax_errors=remove_syntax_errors, potentially_new_name=replace_entry_point_with_this_name, n_inputs=n_inputs)
+        distinct_funcs, entry_point, main_func, indent_size = extract_distinct_functions(remove_internal_code_typing(remove_imports_only(l)), remove_syntax_errors=remove_syntax_errors, potentially_new_name=replace_entry_point_with_this_name, n_inputs=n_inputs, print_and_count_syntax_errors_heuristic=print_and_count_syntax_errors_heuristic)
         distinct_funcs = [tabs_as_symbols(single_func, indent_size) for single_func in distinct_funcs]
         main_func = tabs_as_symbols(main_func, indent_size)
         if replace_entry_point_with_this_name.strip() != '':
