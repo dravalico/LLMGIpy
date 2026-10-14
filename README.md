@@ -31,3 +31,4 @@ Run the scripts in the 'bash_utils' folder.
 
 Make sure that you have an environment variable with your HUGGING FACE TOKEN set so that Hugging Face models can use it to run the models (the environment variable must be called HF_TOKEN).
 
+In 'final\_results\_ponyge.json', the compacted results of the final programs derived by the genetic improvement process with PonyGE2 are stored, with the number of passed test cases on the test set.
