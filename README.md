@@ -31,7 +31,7 @@ Run the scripts in the 'bash_utils' folder.
 
 Make sure that you have an environment variable with your HUGGING FACE TOKEN set so that Hugging Face models can use it to run the models (the environment variable must be called HF_TOKEN).
 
-In 'final\_results\_ponyge.json', the compacted results of the final programs derived by the genetic improvement process with PonyGE2 are stored, with the number of passed test cases on the test set.
+In 'final\_results\_ponyge.json' (compacted\_results folder), the compacted results of the final programs derived by the genetic improvement process with PonyGE2 are stored, with the number of passed test cases on the test set.
 
 ## `final_results_ponyge.json`
 
@@ -105,4 +105,4 @@ llm_scores = entry["L"]
 gi_scores = entry["GItou"]
 ```
 
-Other than the first key 'data', other keys are available containing also information about training execution times and convergence generations. The almost same patterns can be identified in the results of the evaluation on the original HumanEval test cases ('only\_humaneval\_original\_outcomes.json') and in the results with the trend over the generations ('best\_error\_trend\_all\_benchmarks.json').
+Other than the first key 'data', other keys are available containing also information about training execution times and convergence generations. The almost same patterns can be identified in the results (compacted\_results folder) of the evaluation on the original HumanEval test cases ('only\_humaneval\_original\_outcomes.json') and in the results (compacted\_results folder) with the trend over the generations ('best\_error\_trend\_all\_benchmarks.json').
